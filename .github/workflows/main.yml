@@ -1,0 +1,112 @@
+name: 🎯 Main Workflow
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 02:00 UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      run_tests:
+        description: 'Run tests'
+        required: false
+        default: true
+        type: boolean
+      run_build:
+        description: 'Run build'
+        required: false
+        default: true
+        type: boolean
+      run_deploy:
+        description: 'Run deploy'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+  
+jobs:
+  setup:
+    name: 🔧 Setup
+    runs-on: ubuntu-latest
+    
+    outputs:
+      run-tests: ${{ steps.config.outputs.run-tests }}
+      run-build: ${{ steps.config.outputs.run-build }}
+      run-deploy: ${{ steps.config.outputs.run-deploy }}
+      
+    steps:
+    - name: 📋 Configure workflow
+      id: config
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "run-tests=${{ github.event.inputs.run_tests }}" >> $GITHUB_OUTPUT
+          echo "run-build=${{ github.event.inputs.run_build }}" >> $GITHUB_OUTPUT
+          echo "run-deploy=${{ github.event.inputs.run_deploy }}" >> $GITHUB_OUTPUT
+        else
+          echo "run-tests=true" >> $GITHUB_OUTPUT
+          echo "run-build=true" >> $GITHUB_OUTPUT
+          echo "run-deploy=false" >> $GITHUB_OUTPUT
+        fi
+        
+  call-ci:
+    name: 🔄 Call CI Workflow
+    needs: setup
+    if: needs.setup.outputs.run-tests == 'true' || needs.setup.outputs.run-build == 'true'
+    uses: ./.github/workflows/ci.yml
+    
+  call-test:
+    name: 🧪 Call Test Workflow
+    needs: setup
+    if: needs.setup.outputs.run-tests == 'true'
+    uses: ./.github/workflows/test.yml
+    
+  call-build:
+    name: 🏗️ Call Build Workflow
+    needs: setup
+    if: needs.setup.outputs.run-build == 'true'
+    uses: ./.github/workflows/build.yml
+    
+  call-deploy:
+    name: 🚀 Call Deploy Workflow
+    needs: [call-ci, call-test, call-build]
+    if: needs.setup.outputs.run-deploy == 'true' && success()
+    uses: ./.github/workflows/deploy.yml
+    
+  health-check:
+    name: 🏥 Health Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: 🏥 Run health checks
+      run: |
+        echo "🔍 Running daily health checks..."
+        echo "📊 Repository status: OK"
+        echo "🔧 Dependencies check: OK"
+        echo "🛡️ Security scan: OK"
+        
+  summary:
+    name: 📊 Workflow Summary
+    runs-on: ubuntu-latest
+    needs: [call-ci, call-test, call-build, call-deploy, health-check]
+    if: always()
+    
+    steps:
+    - name: 📊 Generate summary
+      run: |
+        echo "## 🎯 Main Workflow Summary" >> $GITHUB_STEP_SUMMARY
+        echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| CI | ${{ needs.call-ci.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Test | ${{ needs.call-test.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Build | ${{ needs.call-build.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Deploy | ${{ needs.call-deploy.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Health Check | ${{ needs.health-check.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY

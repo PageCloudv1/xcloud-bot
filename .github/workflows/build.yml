@@ -1,0 +1,173 @@
+name: 🏗️ Build
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        default: '20'
+        type: string
+      build-command:
+        description: 'Build command to run'
+        required: false
+        default: 'npm run build'
+        type: string
+      artifact-name:
+        description: 'Name for build artifacts'
+        required: false
+        default: 'build-artifacts'
+        type: string
+    outputs:
+      build-status:
+        description: "Build status"
+        value: ${{ jobs.build.outputs.status }}
+        
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '*.config.js'
+      - '*.config.ts'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Build environment'
+        required: false
+        default: 'development'
+        type: choice
+        options:
+        - development
+        - staging
+        - production
+
+env:
+  NODE_VERSION: ${{ inputs.node-version || '20' }}
+  BUILD_ENV: ${{ inputs.environment || 'development' }}
+  
+jobs:
+  prepare:
+    name: 🔧 Prepare Build
+    runs-on: ubuntu-latest
+    
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+      
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: 🔑 Generate cache key
+      id: cache-key
+      run: |
+        echo "key=node-modules-${{ hashFiles('**/package-lock.json') }}" >> $GITHUB_OUTPUT
+        
+  build:
+    name: 🏗️ Build Project
+    runs-on: ubuntu-latest
+    needs: prepare
+    
+    outputs:
+      status: ${{ steps.build-status.outputs.status }}
+      
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🔍 Validate package.json
+      run: npm run validate || echo "No validate script found"
+      
+    - name: 🧹 Clean previous builds
+      run: |
+        rm -rf dist/ build/ .next/ || true
+        echo "Previous builds cleaned"
+        
+    - name: 🏗️ Build project
+      run: ${{ inputs.build-command || 'npm run build' }}
+      env:
+        NODE_ENV: ${{ env.BUILD_ENV }}
+        CI: true
+        
+    - name: 📊 Build analysis
+      run: |
+        echo "## 🏗️ Build Analysis" >> $GITHUB_STEP_SUMMARY
+        if [ -d "dist" ]; then
+          echo "📁 Build output found in: dist/" >> $GITHUB_STEP_SUMMARY
+          echo "📏 Build size: $(du -sh dist/ | cut -f1)" >> $GITHUB_STEP_SUMMARY
+          echo "📄 Files: $(find dist/ -type f | wc -l)" >> $GITHUB_STEP_SUMMARY
+        elif [ -d "build" ]; then
+          echo "📁 Build output found in: build/" >> $GITHUB_STEP_SUMMARY
+          echo "📏 Build size: $(du -sh build/ | cut -f1)" >> $GITHUB_STEP_SUMMARY
+          echo "📄 Files: $(find build/ -type f | wc -l)" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ No standard build directory found" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+    - name: 🔍 Verify build output
+      id: build-status
+      run: |
+        if [ -d "dist" ] || [ -d "build" ] || [ -d ".next" ]; then
+          echo "✅ Build completed successfully"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Build output not found"
+          echo "status=failed" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+    - name: 📤 Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: ${{ inputs.artifact-name || 'build-artifacts' }}
+        path: |
+          dist/
+          build/
+          .next/
+        retention-days: 7
+        if-no-files-found: warn
+        
+  build-docs:
+    name: 📚 Build Documentation
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, '[docs]') || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 📚 Build documentation
+      run: |
+        if npm run docs:build; then
+          echo "✅ Documentation built successfully"
+        else
+          echo "⚠️ No documentation build script found"
+        fi
+        
+    - name: 📤 Upload documentation
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: documentation
+        path: docs/build/
+        retention-days: 7

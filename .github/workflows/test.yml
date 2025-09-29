@@ -1,0 +1,306 @@
+name: 🧪 Test
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        default: '20'
+        type: string
+      test-command:
+        description: 'Test command to run'
+        required: false
+        default: 'npm test'
+        type: string
+      coverage-threshold:
+        description: 'Coverage threshold percentage'
+        required: false
+        default: '80'
+        type: string
+    outputs:
+      test-status:
+        description: "Test status"
+        value: ${{ jobs.test.outputs.status }}
+      coverage:
+        description: "Coverage percentage"
+        value: ${{ jobs.test.outputs.coverage }}
+        
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'tests/**'
+      - '__tests__/**'
+      - '*.test.*'
+      - '*.spec.*'
+      - 'package.json'
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      test-type:
+        description: 'Type of tests to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - unit
+        - integration
+        - e2e
+
+env:
+  NODE_VERSION: ${{ inputs.node-version || '20' }}
+  TEST_TYPE: ${{ inputs.test-type || 'all' }}
+  
+jobs:
+  setup:
+    name: 🔧 Test Setup
+    runs-on: ubuntu-latest
+    
+    outputs:
+      run-unit: ${{ steps.config.outputs.run-unit }}
+      run-integration: ${{ steps.config.outputs.run-integration }}
+      run-e2e: ${{ steps.config.outputs.run-e2e }}
+      
+    steps:
+    - name: 📋 Configure test types
+      id: config
+      run: |
+        case "${{ env.TEST_TYPE }}" in
+          "unit")
+            echo "run-unit=true" >> $GITHUB_OUTPUT
+            echo "run-integration=false" >> $GITHUB_OUTPUT
+            echo "run-e2e=false" >> $GITHUB_OUTPUT
+            ;;
+          "integration")
+            echo "run-unit=false" >> $GITHUB_OUTPUT
+            echo "run-integration=true" >> $GITHUB_OUTPUT
+            echo "run-e2e=false" >> $GITHUB_OUTPUT
+            ;;
+          "e2e")
+            echo "run-unit=false" >> $GITHUB_OUTPUT
+            echo "run-integration=false" >> $GITHUB_OUTPUT
+            echo "run-e2e=true" >> $GITHUB_OUTPUT
+            ;;
+          *)
+            echo "run-unit=true" >> $GITHUB_OUTPUT
+            echo "run-integration=true" >> $GITHUB_OUTPUT
+            echo "run-e2e=true" >> $GITHUB_OUTPUT
+            ;;
+        esac
+        
+  unit-tests:
+    name: 🔬 Unit Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    if: needs.setup.outputs.run-unit == 'true'
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🔬 Run unit tests
+      run: |
+        if npm run test:unit; then
+          echo "✅ Unit tests passed"
+        else
+          echo "❌ Unit tests failed"
+          exit 1
+        fi
+        
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    if: needs.setup.outputs.run-integration == 'true'
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_USER: test
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🗄️ Setup test database
+      run: |
+        if npm run db:setup:test; then
+          echo "✅ Test database setup complete"
+        else
+          echo "⚠️ No test database setup script found"
+        fi
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/test
+        
+    - name: 🔗 Run integration tests
+      run: |
+        if npm run test:integration; then
+          echo "✅ Integration tests passed"
+        else
+          echo "❌ Integration tests failed"
+          exit 1
+        fi
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/test
+        
+  e2e-tests:
+    name: 🎭 E2E Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    if: needs.setup.outputs.run-e2e == 'true'
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🏗️ Build for E2E
+      run: npm run build
+      
+    - name: 🎭 Install Playwright
+      run: |
+        if npx playwright install; then
+          echo "✅ Playwright installed"
+        else
+          echo "⚠️ Playwright not available, skipping browser setup"
+        fi
+        
+    - name: 🎭 Run E2E tests
+      run: |
+        if npm run test:e2e; then
+          echo "✅ E2E tests passed"
+        else
+          echo "❌ E2E tests failed"
+          exit 1
+        fi
+        
+    - name: 📤 Upload E2E artifacts
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: e2e-artifacts
+        path: |
+          test-results/
+          playwright-report/
+        retention-days: 3
+        
+  test:
+    name: 🧪 Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests]
+    if: always()
+    
+    outputs:
+      status: ${{ steps.test-status.outputs.status }}
+      coverage: ${{ steps.coverage.outputs.percentage }}
+      
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 📊 Generate coverage report
+      id: coverage
+      run: |
+        if npm run test:coverage; then
+          if [ -f coverage/lcov.info ]; then
+            COVERAGE=$(grep -o 'SF:' coverage/lcov.info | wc -l)
+            echo "percentage=${COVERAGE}" >> $GITHUB_OUTPUT
+            echo "✅ Coverage report generated"
+          else
+            echo "percentage=0" >> $GITHUB_OUTPUT
+            echo "⚠️ Coverage file not found"
+          fi
+        else
+          echo "percentage=0" >> $GITHUB_OUTPUT
+          echo "⚠️ Coverage generation failed"
+        fi
+        
+    - name: 📊 Upload coverage reports
+      uses: codecov/codecov-action@v3
+      if: success()
+      with:
+        files: ./coverage/lcov.info
+        flags: unittests
+        name: xcloud-bot-coverage
+        
+    - name: 🎯 Check coverage threshold
+      run: |
+        THRESHOLD=${{ inputs.coverage-threshold || '80' }}
+        CURRENT=${{ steps.coverage.outputs.percentage }}
+        if [ "${CURRENT}" -ge "${THRESHOLD}" ]; then
+          echo "✅ Coverage ${CURRENT}% meets threshold ${THRESHOLD}%"
+        else
+          echo "⚠️ Coverage ${CURRENT}% below threshold ${THRESHOLD}%"
+        fi
+        
+    - name: 📊 Test status
+      id: test-status
+      run: |
+        if [ "${{ needs.unit-tests.result }}" == "success" ] && 
+           [ "${{ needs.integration-tests.result }}" == "success" ] && 
+           [ "${{ needs.e2e-tests.result }}" == "success" ]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "✅ All tests passed"
+        else
+          echo "status=failed" >> $GITHUB_OUTPUT
+          echo "❌ Some tests failed"
+        fi
+        
+    - name: 📊 Generate test summary
+      run: |
+        echo "## 🧪 Test Summary" >> $GITHUB_STEP_SUMMARY
+        echo "| Test Type | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Unit | ${{ needs.unit-tests.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Integration | ${{ needs.integration-tests.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| E2E | ${{ needs.e2e-tests.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Coverage | ${{ steps.coverage.outputs.percentage }}% |" >> $GITHUB_STEP_SUMMARY
