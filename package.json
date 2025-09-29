@@ -32,8 +32,6 @@
         "db:connect": "node -e \"import('mongoose').then(m => m.default.connect(process.env.DATABASE_URL).then(() => console.log('MongoDB Connected!')))\"",
         "bot:start": "node src/bot/github-app.js",
         "bot:dev": "nodemon src/bot/github-app.js",
-        "mcp:start": "python src/mcp/server.py",
-        "mcp:dev": "python src/mcp/server.py --reload",
         "scheduler:run": "node src/bot/scheduler.js",
         "scheduler:monitor": "node src/bot/scheduler.js --monitor",
         "scheduler:health": "node src/bot/scheduler.js --health",

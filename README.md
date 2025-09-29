@@ -20,7 +20,6 @@
 ✅ **7/7 Componentes implementados com sucesso:**
 
 1. ✅ **GitHub App Handler** (`src/bot/github-app.js`) - Webhooks e automações
-2. ✅ **MCP Server** (`src/mcp/server.py`) - Servidor de integração AI  
 3. ✅ **Integrações** (`src/integrations/`) - Gemini CLI + GitHub API
 4. ✅ **Workflow Tools** (`src/workflows/`) - Analisador e criador
 5. ✅ **Scheduler** (`src/bot/scheduler.js`) - Tarefas automatizadas
@@ -48,13 +47,6 @@
 - 📝 Criação automática de issues para investigação
 - � Monitoramento de mudanças em workflows
 
-### 🧠 **MCP Server** (`src/mcp/server.py`)
-- `analyze_repository`: Análise completa de repositórios
-- `create_workflow_issue`: Criação automatizada de issues
-- `monitor_ci_status`: Monitoramento de status de CI
-- `get_xcloud_repositories`: Listagem de repositórios xCloud
-- `run_gemini_analysis`: Análise inteligente com Gemini
-
 ### 🔧 **Integrações** (`src/integrations/`)
 - **Gemini CLI**: Análise inteligente de código e workflows
 - **GitHub API**: Operações completas com repositórios
@@ -66,7 +58,6 @@
 # Bot Operations
 npm run bot:start          # Iniciar GitHub App
 npm run bot:dev            # Modo desenvolvimento
-npm run mcp:start          # Iniciar MCP Server
 npm run scheduler:run      # Executar scheduler
 
 # Analysis & Creation
@@ -102,8 +93,6 @@ xcloud-bot/
 │   ├── integrations/     # ✅ Integrações externas
 │   │   ├── gemini-cli.js # ✅ Integração Gemini
 │   │   └── github-api.js # ✅ API GitHub
-│   ├── mcp/              # ✅ Servidor MCP
-│   │   └── server.py     # ✅ FastMCP server
 │   └── workflows/        # ✅ Gestão de workflows
 │       ├── analyzer.js   # ✅ Análise de performance
 │       └── creator.js    # ✅ Criação automatizada
@@ -122,10 +111,9 @@ xcloud-bot/
 - **Node.js 20+**: Runtime principal com ES modules
 - **Express.js**: Servidor web para webhooks  
 - **Octokit**: Integração completa GitHub API
-- **FastMCP**: Servidor de contexto para IA
 - **Gemini CLI**: Análise inteligente integrada
 - **Vitest + Playwright**: Framework de testes completo
-- **PostgreSQL**: Banco para testes de integração
+- **MongoDB**: Banco para testes de integração
 
 ## 🚀 Instalação e Execução
 
@@ -141,7 +129,6 @@ cp .env.example .env
 
 # Executar bot completo
 npm run bot:start    # GitHub App
-npm run mcp:start    # MCP Server (nova aba)
 npm run scheduler:run # Scheduler (nova aba)
 
 # Validar funcionamento
