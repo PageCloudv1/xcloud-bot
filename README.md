@@ -301,3 +301,6 @@ MIT License - veja [LICENSE](LICENSE) para detalhes.
 **Desenvolvido com ❤️ para PageCloudv1**
 
 _Bot inteligente que torna o desenvolvimento mais eficiente e organizado!_ 🚀
+
+## Bot Registration
+Consulte GITHUB_APP_SETUP.md para registrar o bot.
