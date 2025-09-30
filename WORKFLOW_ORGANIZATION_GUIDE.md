@@ -18,12 +18,14 @@ O xCloud Bot foi configurado para:
 **Arquivo**: `.github/workflows/auto-copilot-review.yml`
 
 **Funcionalidades**:
+
 - ✅ Review automático em novos issues
 - ✅ Review automático em novos PRs
 - ✅ Solicitação automática de review do @Copilot
 - ✅ Integração com Gemini Review
 
 **Triggers**:
+
 - `issues: [opened, edited]`
 - `pull_request: [opened, synchronize, edited]`
 - `workflow_dispatch` (manual)
@@ -33,6 +35,7 @@ O xCloud Bot foi configurado para:
 **Arquivo**: `.github/workflows/enhanced-gemini-cli.yml`
 
 **Comandos Disponíveis**:
+
 - `analyze-code` - Análise de código
 - `review-pr` - Review de PR
 - `generate-docs` - Geração de documentação
@@ -41,6 +44,7 @@ O xCloud Bot foi configurado para:
 - `performance-analysis` - Análise de performance
 
 **Como usar**:
+
 ```bash
 # Via workflow_dispatch no GitHub Actions
 # Ou via API/webhook
@@ -51,6 +55,7 @@ O xCloud Bot foi configurado para:
 **Arquivo**: `src/config/multi-repo.js`
 
 **Funcionalidades**:
+
 - ✅ Gerenciamento centralizado de múltiplos repos
 - ✅ Configuração por repositório
 - ✅ Controle de features por repo
@@ -71,6 +76,7 @@ node scripts/expand-to-repo.js --batch scripts/repos.json
 **Arquivo**: `.github/workflow-templates/xcloud-bot-setup.yml`
 
 **Como usar**:
+
 1. Vá para Actions no repositório de destino
 2. Procure por "xCloud Bot Setup"
 3. Configure as features desejadas
@@ -270,4 +276,4 @@ Para contribuir com melhorias:
 
 ---
 
-*Este guia foi gerado automaticamente pelo xCloud Bot v1.0.0*
+_Este guia foi gerado automaticamente pelo xCloud Bot v1.0.0_
