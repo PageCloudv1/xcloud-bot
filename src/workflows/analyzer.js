@@ -194,7 +194,7 @@ export async function analyzeRepository(repoName, analysisType = 'comprehensive'
  * @returns {number} Score de 0-100
  */
 function calculateOverallScore(performance, _runs) {
-  if (!performance.hasWorkflows) return 20; // Repositório sem workflows
+  if (!performance?.hasWorkflows || !performance?.workflowStats?.length) return 20; // Repositório sem workflows
 
   let score = 50; // Base score
 
@@ -232,7 +232,7 @@ function generateActionItems(performance, aiAnalysis = {}) {
   const actions = [];
 
   // Baseado na performance
-  if (performance.issues.slowWorkflows.length > 0) {
+  if (performance.issues?.slowWorkflows?.length > 0) {
     actions.push({
       type: 'optimization',
       priority: 'medium',
@@ -242,7 +242,7 @@ function generateActionItems(performance, aiAnalysis = {}) {
     });
   }
 
-  if (performance.issues.unreliableWorkflows.length > 0) {
+  if (performance.issues?.unreliableWorkflows?.length > 0) {
     actions.push({
       type: 'reliability',
       priority: 'high',

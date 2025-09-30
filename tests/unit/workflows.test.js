@@ -2,24 +2,114 @@
  * 🧪 Workflow Tests
  */
 
-import { analyzeRepository } from '../../src/workflows/analyzer.js';
+import { analyzeRepository, analyzeWorkflowPerformance } from '../../src/workflows/analyzer.js';
 import { createWorkflow } from '../../src/workflows/creator.js';
 
+// Mock dependencies for analyzer tests
+jest.mock('../../src/integrations/github-api.js', () => ({
+  getRepositoryWorkflows: jest.fn(),
+  getWorkflowRuns: jest.fn(),
+  getXCloudRepositories: jest.fn(),
+}));
+
+jest.mock('../../src/integrations/gemini-cli.js', () => ({
+  analyzeWithGemini: jest.fn(),
+}));
+
+import { getRepositoryWorkflows, getWorkflowRuns } from '../../src/integrations/github-api.js';
+import { analyzeWithGemini } from '../../src/integrations/gemini-cli.js';
+
 describe('Workflow Analyzer', () => {
-  it('should analyze repository', async () => {
-    // Note: This test requires valid GitHub credentials and will fail in CI
-    // It's a placeholder that demonstrates the expected structure
-    try {
-      const result = await analyzeRepository('test-repo');
-      expect(result).toBeDefined();
-      if (result.summary) {
-        expect(result.summary).toBeDefined();
-        expect(result.detailed_reports).toBeDefined();
-      }
-    } catch (error) {
-      // Expected to fail without valid credentials
-      expect(error).toBeDefined();
-    }
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should handle analyzeRepository when performance has error', async () => {
+    // Mock performance analysis to return error state
+    getRepositoryWorkflows.mockRejectedValue(new Error('API Error'));
+    getWorkflowRuns.mockResolvedValue([]);
+    analyzeWithGemini.mockResolvedValue({
+      data: {},
+      text: 'Analysis failed',
+      raw: null,
+      provider: 'gemini',
+    });
+
+    // This should not throw even when performance returns error
+    await expect(analyzeRepository('test-repo')).rejects.toThrow();
+  });
+
+  it('should handle analyzeRepository with successful performance but error object', async () => {
+    // Mock successful API calls but performance returns error object
+    getRepositoryWorkflows.mockResolvedValue([{ id: 1, name: 'CI', state: 'active' }]);
+    getWorkflowRuns.mockResolvedValue([
+      {
+        workflow_id: 1,
+        conclusion: 'success',
+        created_at: new Date().toISOString(),
+        updated_at: new Date(Date.now() + 120000).toISOString(),
+      },
+    ]);
+    analyzeWithGemini.mockResolvedValue({
+      data: { missing_workflows: [] },
+      text: 'Good analysis',
+      raw: null,
+      provider: 'gemini',
+    });
+
+    // analyzeWorkflowPerformance should succeed, so analyzeRepository should succeed
+    const result = await analyzeRepository('test-repo');
+
+    expect(result).toBeDefined();
+    expect(result.repository).toBe('test-repo');
+    expect(result.overall_score).toBeDefined();
+    expect(result.action_items).toBeDefined();
+  });
+
+  it('should handle analyzeWorkflowPerformance error response', async () => {
+    getRepositoryWorkflows.mockRejectedValue(new Error('GitHub API Error'));
+    getWorkflowRuns.mockResolvedValue([]);
+
+    const result = await analyzeWorkflowPerformance('test-repo');
+
+    expect(result).toBeDefined();
+    expect(result.repository).toBe('test-repo');
+    expect(result.error).toBeDefined();
+    expect(result.issues).toBeUndefined();
+  });
+
+  it('should handle analyzeWorkflowPerformance with no workflows', async () => {
+    getRepositoryWorkflows.mockResolvedValue([]);
+    getWorkflowRuns.mockResolvedValue([]);
+
+    const result = await analyzeWorkflowPerformance('test-repo');
+
+    expect(result).toBeDefined();
+    expect(result.repository).toBe('test-repo');
+    expect(result.hasWorkflows).toBe(false);
+    expect(result.recommendation).toBe('Implementar workflows CI/CD básicos');
+  });
+
+  it('should handle analyzeWorkflowPerformance with valid workflows', async () => {
+    getRepositoryWorkflows.mockResolvedValue([{ id: 1, name: 'CI', state: 'active' }]);
+    getWorkflowRuns.mockResolvedValue([
+      {
+        workflow_id: 1,
+        conclusion: 'success',
+        created_at: new Date().toISOString(),
+        updated_at: new Date(Date.now() + 120000).toISOString(), // 2 min later
+      },
+    ]);
+
+    const result = await analyzeWorkflowPerformance('test-repo');
+
+    expect(result).toBeDefined();
+    expect(result.repository).toBe('test-repo');
+    expect(result.hasWorkflows).toBe(true);
+    expect(result.issues).toBeDefined();
+    expect(result.issues.slowWorkflows).toBeDefined();
+    expect(result.issues.unreliableWorkflows).toBeDefined();
+    expect(result.issues.inactiveWorkflows).toBeDefined();
   });
 });
 
