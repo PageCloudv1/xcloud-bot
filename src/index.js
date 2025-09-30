@@ -5,6 +5,10 @@
  * Handles GitHub App initialization and webhook processing.
  */
 
+// Carrega variáveis de ambiente primeiro
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { createServer } from './api/server.js';
 import { initializeGitHubApp } from './bot/github-app.js';
 

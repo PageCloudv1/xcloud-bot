@@ -2,14 +2,34 @@ import { App } from '@octokit/app';
 import { Octokit } from '@octokit/rest';
 import logger from '../utils/logger.js';
 
-// Configuração da GitHub App
-const app = new App({
-  appId: process.env.GH_APP_ID,
-  privateKey: process.env.GH_PRIVATE_KEY,
-  webhooks: {
-    secret: process.env.WEBHOOK_SECRET,
-  },
-});
+// Lazy initialization para garantir que env vars sejam carregadas primeiro
+let app = null;
+
+/**
+ * Obtém ou inicializa a instância da GitHub App
+ * @returns {App} Instância da GitHub App
+ */
+function getApp() {
+  if (!app) {
+    if (!process.env.GH_APP_ID) {
+      throw new Error('GH_APP_ID não configurado. Verifique seu arquivo .env');
+    }
+    if (!process.env.GH_PRIVATE_KEY) {
+      throw new Error('GH_PRIVATE_KEY não configurado. Verifique seu arquivo .env');
+    }
+    
+    app = new App({
+      appId: process.env.GH_APP_ID,
+      privateKey: process.env.GH_PRIVATE_KEY,
+      webhooks: {
+        secret: process.env.WEBHOOK_SECRET || 'development-webhook-secret',
+      },
+    });
+    
+    logger.info(`GitHub App inicializado com App ID: ${process.env.GH_APP_ID}`);
+  }
+  return app;
+}
 
 /**
  * Obtém uma instância do Octokit autenticada para uma instalação específica
@@ -18,7 +38,8 @@ const app = new App({
  */
 async function getInstallationOctokit(installationId) {
   try {
-    const installationAccessToken = await app.getInstallationAccessToken({
+    const appInstance = getApp();
+    const installationAccessToken = await appInstance.getInstallationAccessToken({
       installationId,
     });
 
@@ -67,4 +88,4 @@ async function hasPermission(installationId, permission) {
   }
 }
 
-export { app, getInstallationOctokit, getInstallationInfo, hasPermission };
+export { getApp as app, getInstallationOctokit, getInstallationInfo, hasPermission };

@@ -7,10 +7,12 @@
   "scripts": {
     "start": "node dist/index.js",
     "start:app": "node src/app.js",
+    "start:bot": "node src/bot/github-app.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "dev:app": "nodemon src/app.js",
     "build": "tsc",
     "test": "jest",
+    "test:bot": "node scripts/test-bot.js",
     "test:unit": "jest --testPathPattern=unit",
     "test:integration": "jest --testPathPattern=integration",
     "test:e2e": "jest --testPathPattern=e2e",

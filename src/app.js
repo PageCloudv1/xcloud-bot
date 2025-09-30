@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+// Carrega variáveis de ambiente ANTES de qualquer outra importação
 dotenv.config();
 
 import express from 'express';
@@ -6,9 +7,13 @@ import helmet from 'helmet';
 import cors from 'cors';
 import { createNodeMiddleware } from '@octokit/webhooks';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
-
-import { app as githubApp } from './config/github-app.js';
 import logger from './utils/logger.js';
+
+// Importa após carregar .env
+import { app as getGithubApp } from './config/github-app.js';
+
+// Inicializa a GitHub App agora que o .env foi carregado
+const githubApp = getGithubApp();
 
 // Importa handlers de webhooks
 import {
