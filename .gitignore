@@ -16,3 +16,6 @@ build/
 coverage/
 *.lcov
 >>>>>>> 8387d10549a8f95f42469803be4ad415ca20a9b4
+
+.gemini/
+gha-creds-*.json
