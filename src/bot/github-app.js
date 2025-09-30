@@ -339,7 +339,7 @@ async function getBotInfo() {
     const octokit = new RestOctokit({
       auth: process.env.GITHUB_TOKEN,
     });
-    
+
     const { data: user } = await octokit.rest.users.getAuthenticated();
     console.log(`🤖 Bot Info - Username: ${user.login}, Type: ${user.type}`);
     return user;
