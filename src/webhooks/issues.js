@@ -185,9 +185,4 @@ function calculateTimeOpen(createdAt, closedAt) {
   }
 }
 
-export {
-  handleIssueOpened,
-  handleIssueEdited,
-  handleIssueClosed,
-  handleIssueComment,
-};
+export { handleIssueOpened, handleIssueEdited, handleIssueClosed, handleIssueComment };

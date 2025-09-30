@@ -67,9 +67,4 @@ async function hasPermission(installationId, permission) {
   }
 }
 
-export {
-  app,
-  getInstallationOctokit,
-  getInstallationInfo,
-  hasPermission,
-};
+export { app, getInstallationOctokit, getInstallationInfo, hasPermission };

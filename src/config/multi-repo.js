@@ -251,7 +251,4 @@ class MultiRepoManager {
 // Instância singleton
 const multiRepoManager = new MultiRepoManager();
 
-export {
-  MultiRepoManager,
-  multiRepoManager,
-};
+export { MultiRepoManager, multiRepoManager };
