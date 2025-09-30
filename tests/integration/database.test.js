@@ -2,7 +2,6 @@
  * 🧪 Database Integration Tests
  */
 
-
 describe('Database Integration', () => {
   it('should connect to test database', async () => {
     // Placeholder test for database integration

@@ -1,37 +1,30 @@
 module.exports = {
   env: {
     node: true,
-    es2022: true
+    es2022: true,
   },
-  extends: [
-    'eslint:recommended',
-    'prettier'
-  ],
+  extends: ['eslint:recommended', 'prettier'],
   parserOptions: {
     ecmaVersion: 'latest',
-    sourceType: 'module'
+    sourceType: 'module',
   },
   plugins: ['node'],
   rules: {
     'no-console': 'off',
     'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'prefer-const': 'error',
-    'no-var': 'error'
+    'no-var': 'error',
   },
   overrides: [
     {
       files: ['**/*.ts'],
       parser: '@typescript-eslint/parser',
       plugins: ['@typescript-eslint'],
-      extends: [
-        'eslint:recommended',
-        '@typescript-eslint/recommended',
-        'prettier'
-      ],
+      extends: ['eslint:recommended', '@typescript-eslint/recommended', 'prettier'],
       rules: {
         'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
-      }
-    }
-  ]
+        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      },
+    },
+  ],
 };

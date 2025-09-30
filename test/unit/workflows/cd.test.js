@@ -1,6 +1,6 @@
 /**
  * 🧪 CD Workflow Tests - Deploy Contínuo
- * 
+ *
  * Tests for the cd.yml workflow configuration
  * Validates continuous deployment process for different environments
  */
@@ -92,7 +92,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should configure staging environment correctly', () => {
       const validateJob = deployWorkflow.jobs['validate-environment'];
-      const configStep = validateJob.steps.find(step => step.name === '🔧 Configure environment settings');
+      const configStep = validateJob.steps.find(
+        step => step.name === '🔧 Configure environment settings'
+      );
       expect(configStep).toBeDefined();
       expect(configStep.run).toContain('staging');
       expect(configStep.run).toContain('https://staging.xcloud-bot.example.com');
@@ -100,7 +102,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should not require approval for staging', () => {
       const validateJob = deployWorkflow.jobs['validate-environment'];
-      const configStep = validateJob.steps.find(step => step.name === '🔧 Configure environment settings');
+      const configStep = validateJob.steps.find(
+        step => step.name === '🔧 Configure environment settings'
+      );
       expect(configStep.run).toContain('requires-approval=false');
     });
 
@@ -114,7 +118,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
   describe('🚀 Deploy automático para production', () => {
     it('should configure production environment correctly', () => {
       const validateJob = deployWorkflow.jobs['validate-environment'];
-      const configStep = validateJob.steps.find(step => step.name === '🔧 Configure environment settings');
+      const configStep = validateJob.steps.find(
+        step => step.name === '🔧 Configure environment settings'
+      );
       expect(configStep).toBeDefined();
       expect(configStep.run).toContain('production');
       expect(configStep.run).toContain('https://xcloud-bot.example.com');
@@ -122,7 +128,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should require approval for production', () => {
       const validateJob = deployWorkflow.jobs['validate-environment'];
-      const configStep = validateJob.steps.find(step => step.name === '🔧 Configure environment settings');
+      const configStep = validateJob.steps.find(
+        step => step.name === '🔧 Configure environment settings'
+      );
       expect(configStep.run).toContain('requires-approval=true');
     });
 
@@ -187,7 +195,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should upload deployment artifacts', () => {
       const preDeployJob = deployWorkflow.jobs['pre-deployment-checks'];
-      const uploadStep = preDeployJob.steps.find(step => step.name === '📤 Upload deployment artifacts');
+      const uploadStep = preDeployJob.steps.find(
+        step => step.name === '📤 Upload deployment artifacts'
+      );
       expect(uploadStep).toBeDefined();
       expect(uploadStep.uses).toBe('actions/upload-artifact@v4');
       expect(uploadStep.with.path).toContain('dist/');
@@ -195,7 +205,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should generate deployment report', () => {
       const preDeployJob = deployWorkflow.jobs['pre-deployment-checks'];
-      const reportStep = preDeployJob.steps.find(step => step.name === '📊 Generate deployment report');
+      const reportStep = preDeployJob.steps.find(
+        step => step.name === '📊 Generate deployment report'
+      );
       expect(reportStep).toBeDefined();
     });
   });
@@ -214,7 +226,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should check application startup', () => {
       const healthJob = deployWorkflow.jobs['health-checks'];
-      const startupCheck = healthJob.steps.find(step => step.name === '🔍 Application startup check');
+      const startupCheck = healthJob.steps.find(
+        step => step.name === '🔍 Application startup check'
+      );
       expect(startupCheck).toBeDefined();
     });
 
@@ -244,7 +258,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should perform comprehensive health check', () => {
       const healthJob = deployWorkflow.jobs['health-checks'];
-      const comprehensiveCheck = healthJob.steps.find(step => step.name === '🏥 Comprehensive health check');
+      const comprehensiveCheck = healthJob.steps.find(
+        step => step.name === '🏥 Comprehensive health check'
+      );
       expect(comprehensiveCheck).toBeDefined();
       expect(comprehensiveCheck.run).toContain('health-endpoint');
     });
@@ -259,7 +275,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should send deployment notifications', () => {
       const monitoringJob = deployWorkflow.jobs['post-deployment-monitoring'];
-      const notificationStep = monitoringJob.steps.find(step => step.name === '🔔 Send notifications');
+      const notificationStep = monitoringJob.steps.find(
+        step => step.name === '🔔 Send notifications'
+      );
       expect(notificationStep).toBeDefined();
       expect(notificationStep.run).toContain('Sending deployment notifications');
       expect(notificationStep.run).toContain('completed successfully');
@@ -267,15 +285,17 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should collect deployment metrics', () => {
       const monitoringJob = deployWorkflow.jobs['post-deployment-monitoring'];
-      const metricsStep = monitoringJob.steps.find(step => step.name === '📈 Collect deployment metrics');
+      const metricsStep = monitoringJob.steps.find(
+        step => step.name === '📈 Collect deployment metrics'
+      );
       expect(metricsStep).toBeDefined();
       expect(metricsStep.run).toContain('Collecting deployment metrics');
     });
 
     it('should only run after successful deployment and health checks', () => {
       const monitoringJob = deployWorkflow.jobs['post-deployment-monitoring'];
-      expect(monitoringJob.if).toContain('deploy.result == \'success\'');
-      expect(monitoringJob.if).toContain('health-checks.result == \'success\'');
+      expect(monitoringJob.if).toContain("deploy.result == 'success'");
+      expect(monitoringJob.if).toContain("health-checks.result == 'success'");
     });
   });
 
@@ -288,17 +308,19 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should trigger on deployment failure', () => {
       const rollbackJob = deployWorkflow.jobs.rollback;
-      expect(rollbackJob.if).toContain('deploy.result == \'failure\'');
+      expect(rollbackJob.if).toContain("deploy.result == 'failure'");
     });
 
     it('should trigger on health check failure', () => {
       const rollbackJob = deployWorkflow.jobs.rollback;
-      expect(rollbackJob.if).toContain('health-checks.result == \'failure\'');
+      expect(rollbackJob.if).toContain("health-checks.result == 'failure'");
     });
 
     it('should detect deployment failures', () => {
       const rollbackJob = deployWorkflow.jobs.rollback;
-      const failureStep = rollbackJob.steps.find(step => step.name === '🚨 Deployment failure detected');
+      const failureStep = rollbackJob.steps.find(
+        step => step.name === '🚨 Deployment failure detected'
+      );
       expect(failureStep).toBeDefined();
       expect(failureStep.run).toContain('Deployment failure detected');
     });
@@ -312,7 +334,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should send rollback notifications', () => {
       const rollbackJob = deployWorkflow.jobs.rollback;
-      const notificationStep = rollbackJob.steps.find(step => step.name === '🔔 Rollback notification');
+      const notificationStep = rollbackJob.steps.find(
+        step => step.name === '🔔 Rollback notification'
+      );
       expect(notificationStep).toBeDefined();
       expect(notificationStep.run).toContain('Sending rollback notifications');
     });
@@ -321,7 +345,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
   describe('Deployment Strategies', () => {
     it('should support rolling deployment strategy', () => {
       const deployJob = deployWorkflow.jobs.deploy;
-      const deployStep = deployJob.steps.find(step => step.name === '🚀 Execute deployment strategy');
+      const deployStep = deployJob.steps.find(
+        step => step.name === '🚀 Execute deployment strategy'
+      );
       expect(deployStep).toBeDefined();
       expect(deployStep.run).toContain('rolling');
       expect(deployStep.run).toContain('Executing rolling deployment');
@@ -329,14 +355,18 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should support blue-green deployment strategy', () => {
       const deployJob = deployWorkflow.jobs.deploy;
-      const deployStep = deployJob.steps.find(step => step.name === '🚀 Execute deployment strategy');
+      const deployStep = deployJob.steps.find(
+        step => step.name === '🚀 Execute deployment strategy'
+      );
       expect(deployStep.run).toContain('blue-green');
       expect(deployStep.run).toContain('Executing blue-green deployment');
     });
 
     it('should support canary deployment strategy', () => {
       const deployJob = deployWorkflow.jobs.deploy;
-      const deployStep = deployJob.steps.find(step => step.name === '🚀 Execute deployment strategy');
+      const deployStep = deployJob.steps.find(
+        step => step.name === '🚀 Execute deployment strategy'
+      );
       expect(deployStep.run).toContain('canary');
       expect(deployStep.run).toContain('Executing canary deployment');
     });
@@ -360,7 +390,9 @@ describe('CD Workflow - Deploy Contínuo', () => {
 
     it('should download deployment artifacts', () => {
       const deployJob = deployWorkflow.jobs.deploy;
-      const downloadStep = deployJob.steps.find(step => step.name === '📥 Download deployment artifacts');
+      const downloadStep = deployJob.steps.find(
+        step => step.name === '📥 Download deployment artifacts'
+      );
       expect(downloadStep).toBeDefined();
       expect(downloadStep.uses).toBe('actions/download-artifact@v4');
     });
@@ -432,14 +464,18 @@ describe('CD Workflow - Deploy Contínuo', () => {
   describe('Environment-specific Configuration', () => {
     it('should support development environment', () => {
       const validateJob = deployWorkflow.jobs['validate-environment'];
-      const configStep = validateJob.steps.find(step => step.name === '🔧 Configure environment settings');
+      const configStep = validateJob.steps.find(
+        step => step.name === '🔧 Configure environment settings'
+      );
       expect(configStep.run).toContain('development');
       expect(configStep.run).toContain('https://dev.xcloud-bot.local');
     });
 
     it('should validate invalid environments', () => {
       const validateJob = deployWorkflow.jobs['validate-environment'];
-      const configStep = validateJob.steps.find(step => step.name === '🔧 Configure environment settings');
+      const configStep = validateJob.steps.find(
+        step => step.name === '🔧 Configure environment settings'
+      );
       expect(configStep.run).toContain('Invalid environment');
       expect(configStep.run).toContain('exit 1');
     });

@@ -1,6 +1,6 @@
 /**
  * 🌍 Deployment Environment Configuration
- * 
+ *
  * Manages configuration for different deployment environments
  */
 
@@ -13,14 +13,14 @@ export const deploymentConfig = {
     deploymentStrategy: 'rolling',
     monitoring: {
       enabled: true,
-      metricsEndpoint: 'https://dev.xcloud-bot.local/metrics'
+      metricsEndpoint: 'https://dev.xcloud-bot.local/metrics',
     },
     rollback: {
       enabled: true,
-      automaticOnFailure: true
-    }
+      automaticOnFailure: true,
+    },
   },
-  
+
   staging: {
     name: 'Staging',
     url: 'https://staging.xcloud-bot.example.com',
@@ -29,14 +29,14 @@ export const deploymentConfig = {
     deploymentStrategy: 'blue-green',
     monitoring: {
       enabled: true,
-      metricsEndpoint: 'https://staging.xcloud-bot.example.com/metrics'
+      metricsEndpoint: 'https://staging.xcloud-bot.example.com/metrics',
     },
     rollback: {
       enabled: true,
-      automaticOnFailure: true
-    }
+      automaticOnFailure: true,
+    },
   },
-  
+
   production: {
     name: 'Production',
     url: 'https://xcloud-bot.example.com',
@@ -46,14 +46,14 @@ export const deploymentConfig = {
     monitoring: {
       enabled: true,
       metricsEndpoint: 'https://xcloud-bot.example.com/metrics',
-      alerting: true
+      alerting: true,
     },
     rollback: {
       enabled: true,
       automaticOnFailure: false,
-      requiresApproval: true
-    }
-  }
+      requiresApproval: true,
+    },
+  },
 };
 
 /**
