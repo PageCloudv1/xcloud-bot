@@ -742,12 +742,24 @@ Closes #${task.issue.number}
 
     return (
       `Tarefa do tipo "${analysis.type}" executada com ${successful}/${total} ações bem-sucedidas. ` +
-      `${result.files_changed.length} arquivos modificados, ${result.tests_added.length} testes adicionados. ` +
-      `Issue #${task.issue.number} processada automaticamente pelo xCloud Bot.`
-    );
-  }
-
-  /**
+        exec(`podman stop ${containerId}`, (error, stdout, stderr) => {
+          if (error) {
+            logger.warn(`Erro ao parar container ${containerId}: ${error.message}`);
+            if (stderr) logger.warn(`stderr: ${stderr}`);
+          }
+          resolve();
+        });
+      });
+      
+      // Remover container
+      await new Promise((resolve) => {
+        exec(`podman rm ${containerId}`, (error, stdout, stderr) => {
+          if (error) {
+            logger.warn(`Erro ao remover container ${containerId}: ${error.message}`);
+            if (stderr) logger.warn(`stderr: ${stderr}`);
+          }
+          resolve();
+        });
    * Comenta no issue
    * @param {Object} task - Tarefa
    * @param {string} message - Mensagem
