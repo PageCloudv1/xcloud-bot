@@ -404,12 +404,27 @@ Para mais informações, consulte a [documentação completa](https://github.com
     const results = [];
 
     for (const repoInfo of repositories) {
-      const [owner, repo] = repoInfo.split('/');
+      // Handle both string format ("owner/repo") and object format ({repository: "owner/repo", options: {}})
+      let owner,
+        repo,
+        repoOptions = {};
+
+      if (typeof repoInfo === 'string') {
+        [owner, repo] = repoInfo.split('/');
+      } else if (repoInfo && repoInfo.repository) {
+        [owner, repo] = repoInfo.repository.split('/');
+        repoOptions = repoInfo.options || {};
+      } else {
+        console.error('❌ Formato de repositório inválido:', repoInfo);
+        continue;
+      }
+
       const result = await this.expandToRepository(owner, repo, {
-      const [owner, repo] = repoInfo.repository.split('/');
-      const result = await this.expandToRepository(owner, repo, {
-      const [owner, repo] = repoInfo.repository.split('/');
-        ...(repoInfo.options || {})
+        ...options,
+        ...repoOptions,
+      });
+
+      results.push(result);
 
       // Aguardar entre expansões para evitar rate limiting
       await new Promise(resolve => setTimeout(resolve, 2000));
