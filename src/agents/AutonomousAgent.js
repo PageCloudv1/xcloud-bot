@@ -585,7 +585,11 @@ ${task.issue.body || 'Documentação atualizada automaticamente pelo xBot.'}
    * @returns {Object} Pull request criado
    */
   async createPullRequest(task, result) {
-    logger.info(`📤 Criando pull request para tarefa ${task.id}`);
+      // Write commit message to a file to avoid shell injection
+      await this.runContainerCommand(container, `echo ${JSON.stringify(commitMessage)} > /workspace/repo/.git_commit_msg`);
+      await this.runContainerCommand(container, `cd /workspace/repo && git commit -F .git_commit_msg`);
+      // Optionally, remove the commit message file after commit
+      await this.runContainerCommand(container, `rm /workspace/repo/.git_commit_msg`);
 
     const [owner, repo] = task.repository.split('/');
     const branchName = `xbot/issue-${task.issue.number}`;
