@@ -405,8 +405,10 @@ Para mais informações, consulte a [documentação completa](https://github.com
 
     for (const repoInfo of repositories) {
       // Handle both string format ("owner/repo") and object format ({repository: "owner/repo", options: {}})
-      let owner, repo, repoOptions = {};
-      
+      let owner,
+        repo,
+        repoOptions = {};
+
       if (typeof repoInfo === 'string') {
         [owner, repo] = repoInfo.split('/');
       } else if (repoInfo && repoInfo.repository) {
@@ -419,9 +421,9 @@ Para mais informações, consulte a [documentação completa](https://github.com
 
       const result = await this.expandToRepository(owner, repo, {
         ...options,
-        ...repoOptions
+        ...repoOptions,
       });
-      
+
       results.push(result);
 
       // Aguardar entre expansões para evitar rate limiting
