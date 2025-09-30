@@ -226,7 +226,7 @@ class AutonomousAgent {
         this.containerRegistry.set(containerId, container);
         logger.info(`✅ Container ${containerId} criado: ${container.podmanId}`);
         resolve(container);
-      });
+      `'apk add --no-cache git && echo "https://${process.env.GITHUB_TOKEN}:x-oauth-basic@github.com" > /root/.git-credentials && git config --global credential.helper store && git clone https://github.com/${task.repository}.git /workspace/repo'`
     });
   }
 
