@@ -751,31 +751,33 @@ Closes #${task.issue.number}
   generateTaskSummary(task, analysis, result) {
     const successful = result.actions.filter(a => a.status === 'completed').length;
     const total = result.actions.length;
+    const successRate = total > 0 ? Math.round((successful / total) * 100) : 0;
 
-    return (
-      `Tarefa do tipo "${analysis.type}" executada com ${successful}/${total} ações bem-sucedidas. ` +
-        exec(`podman stop ${containerId}`, (error, stdout, stderr) => {
-          if (error) {
-            logger.warn(`Erro ao parar container ${containerId}: ${error.message}`);
-            if (stderr) logger.warn(`stderr: ${stderr}`);
-          }
-          resolve();
-        });
-      });
-      
-      // Remover container
-      await new Promise((resolve) => {
-        exec(`podman rm ${containerId}`, (error, stdout, stderr) => {
-          if (error) {
-            logger.warn(`Erro ao remover container ${containerId}: ${error.message}`);
-            if (stderr) logger.warn(`stderr: ${stderr}`);
-          }
-          resolve();
-        });
-   * Comenta no issue
-   * @param {Object} task - Tarefa
-   * @param {string} message - Mensagem
-   */
+    const filesChanged = result.files_changed?.length || 0;
+    const testsAdded = result.tests_added?.length || 0;
+
+    let summary = `Tarefa do tipo "${analysis.type}" executada com ${successful}/${total} ações bem-sucedidas (${successRate}%).`;
+    
+    if (filesChanged > 0) {
+      summary += ` ${filesChanged} arquivo(s) modificado(s).`;
+    }
+    
+    if (testsAdded > 0) {
+      summary += ` ${testsAdded} teste(s) adicionado(s).`;
+    }
+
+    // Adicionar detalhes das ações executadas
+    if (result.actions && result.actions.length > 0) {
+      const actionSummary = result.actions
+        .map(action => `${action.action}: ${action.status}`)
+        .join(', ');
+      summary += ` Ações: ${actionSummary}.`;
+    }
+
+    return summary;
+  }
+
+  /**
   async commentOnIssue(task, message) {
     const [owner, repo] = task.repository.split('/');
 
