@@ -406,10 +406,10 @@ Para mais informações, consulte a [documentação completa](https://github.com
     for (const repoInfo of repositories) {
       const [owner, repo] = repoInfo.split('/');
       const result = await this.expandToRepository(owner, repo, {
+      const [owner, repo] = repoInfo.repository.split('/');
+      const result = await this.expandToRepository(owner, repo, {
         ...options,
-        ...repoInfo.options,
-      });
-      results.push(result);
+        ...(repoInfo.options || {})
 
       // Aguardar entre expansões para evitar rate limiting
       await new Promise(resolve => setTimeout(resolve, 2000));
