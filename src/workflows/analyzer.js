@@ -223,25 +223,39 @@ function calculateOverallScore(performance, _runs) {
 function generateActionItems(performance, aiAnalysis = {}) {
     const actions = [];
 
-    // Baseado na performance
-    if (performance.issues.slowWorkflows.length > 0) {
+    // Se não há workflows, sugere criar
+    if (!performance.hasWorkflows) {
         actions.push({
-            type: 'optimization',
-            priority: 'medium',
-            title: 'Otimizar workflows lentos',
-            description: `Workflows com tempo médio alto: ${performance.issues.slowWorkflows.map(w => w.name).join(', ')}`,
-            estimated_effort: 'medium'
-        });
-    }
-
-    if (performance.issues.unreliableWorkflows.length > 0) {
-        actions.push({
-            type: 'reliability',
+            type: 'implementation',
             priority: 'high',
-            title: 'Corrigir workflows instáveis',
-            description: `Workflows com baixa taxa de sucesso: ${performance.issues.unreliableWorkflows.map(w => w.name).join(', ')}`,
+            title: 'Implementar workflows CI/CD',
+            description: performance.recommendation || 'Nenhum workflow encontrado no repositório',
             estimated_effort: 'high'
         });
+        return actions;
+    }
+
+    // Baseado na performance (se houver issues)
+    if (performance.issues) {
+        if (performance.issues.slowWorkflows && performance.issues.slowWorkflows.length > 0) {
+            actions.push({
+                type: 'optimization',
+                priority: 'medium',
+                title: 'Otimizar workflows lentos',
+                description: `Workflows com tempo médio alto: ${performance.issues.slowWorkflows.map(w => w.name).join(', ')}`,
+                estimated_effort: 'medium'
+            });
+        }
+
+        if (performance.issues.unreliableWorkflows && performance.issues.unreliableWorkflows.length > 0) {
+            actions.push({
+                type: 'reliability',
+                priority: 'high',
+                title: 'Corrigir workflows instáveis',
+                description: `Workflows com baixa taxa de sucesso: ${performance.issues.unreliableWorkflows.map(w => w.name).join(', ')}`,
+                estimated_effort: 'high'
+            });
+        }
     }
 
     // Baseado na análise AI
@@ -418,3 +432,50 @@ export async function generateXCloudReport() {
 
 // Re-exporta funções de github-api para conveniência
 export { getXCloudRepositories } from '../integrations/github-api.js';
+
+// CLI entry point
+if (process.argv[1]?.endsWith('analyzer.js')) {
+    const args = process.argv.slice(2);
+    const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+
+    (async () => {
+        try {
+            if (args.includes('--all')) {
+                console.log('🔍 Analisando todos os repositórios xCloud...');
+                const report = await generateXCloudReport();
+                console.log('\n📊 Relatório:', JSON.stringify(report.summary, null, 2));
+            } else if (args.length > 0) {
+                // Aceita nome do repositório como argumento
+                const repoInput = args[0];
+                console.log(`🔍 Analisando repositório: ${repoInput}`);
+                
+                const analysis = await analyzeRepository(repoInput, 'detailed');
+                console.log('\n📊 Análise:', JSON.stringify(analysis, null, 2));
+            } else {
+                console.log(`
+🔍 xCloud Workflow Analyzer
+
+Uso:
+  npm run analyze:repo <repository>    Analisa um repositório específico
+  npm run analyze:all                  Analisa todos os repositórios xCloud
+
+Exemplos:
+  npm run analyze:repo PageCloudv1/xcloud-bot
+  npm run analyze:repo xcloud-bot
+  npm run analyze:all
+                `);
+                process.exit(0);
+            }
+
+            if (isCI) {
+                console.log('✅ Análise concluída (modo CI)');
+            }
+        } catch (error) {
+            console.error('❌ Erro na análise:', error.message);
+            if (!isCI) {
+                console.error(error);
+            }
+            process.exit(1);
+        }
+    })();
+}

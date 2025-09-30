@@ -3,6 +3,9 @@ node_modules
 .gemini/
 gha-creds-*.json
 
+# Build output
+dist/
+
 # Coverage directory used by tools like istanbul
 coverage/
 *.lcov
