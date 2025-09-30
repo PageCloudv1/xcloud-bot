@@ -19,6 +19,8 @@ Bot inteligente para automação e assistência em repositórios GitHub, desenvo
 - 📋 [REGISTRATION_CHECKLIST.md](./REGISTRATION_CHECKLIST.md) - Checklist de registro
 - 📖 [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md) - Guia completo de configuração
 - 🤖 [GITHUB_BOT_SETUP_GUIDE.md](./GITHUB_BOT_SETUP_GUIDE.md) - Guia detalhado do bot
+- 🚨 [QUICK_TROUBLESHOOTING.md](./QUICK_TROUBLESHOOTING.md) - Solução rápida de problemas
+- 🔍 [BOT_NOT_RESPONDING.md](./BOT_NOT_RESPONDING.md) - Diagnóstico completo
 
 ## ✨ Funcionalidades
 
