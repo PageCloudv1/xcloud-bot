@@ -1,0 +1,471 @@
+name: '🏷️ Issue Management - Automação de Issues'
+
+on:
+  issues:
+    types: [opened, edited, reopened, labeled, unlabeled]
+  schedule:
+    # Executa a cada 6 horas para triagem de issues pendentes
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Número da issue para processar (deixe vazio para processar todas as issues abertas)'
+        required: false
+        type: string
+      force_reanalysis:
+        description: 'Forçar reanálise mesmo se já processada'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.event_name }}-${{ github.event.issue.number || inputs.issue_number || "all" }}'
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # Job 1: Processar issue específica (quando evento é de issue)
+  process-issue:
+    name: 'Processar Issue'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' || inputs.issue_number
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+
+      - name: 'Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 'Install dependencies'
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 'Processar issue com AI'
+        uses: actions/github-script@v7
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.0-flash-exp' }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { GoogleGenerativeAI } = require('@google/generative-ai');
+            
+            // Obter número da issue
+            const issueNumber = context.payload.issue?.number || parseInt(process.env.ISSUE_NUMBER || '');
+            
+            if (!issueNumber) {
+              core.info('Nenhuma issue para processar');
+              return;
+            }
+
+            core.info(`🔍 Processando issue #${issueNumber}...`);
+
+            // Buscar dados da issue
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            core.info(`📋 Issue: ${issue.title}`);
+
+            // Verificar se já foi processada pelo bot (para evitar duplicatas)
+            const botComments = issue.body?.includes('xcloud-bot') || 
+                               issue.comments > 0 && await (async () => {
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+              return comments.some(c => c.user.login === 'github-actions[bot]' && c.body.includes('xcloud-bot'));
+            })();
+
+            const forceReanalysis = process.env.FORCE_REANALYSIS === 'true';
+
+            if (botComments && !forceReanalysis && context.payload.action === 'opened') {
+              core.info('✅ Issue já processada anteriormente, pulando...');
+              return;
+            }
+
+            // Analisar issue com Gemini AI
+            let analysis = null;
+            
+            try {
+              if (process.env.GEMINI_API_KEY) {
+                const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+                const model = genAI.getGenerativeModel({ 
+                  model: process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp' 
+                });
+
+                const promptText = [
+                  'Analise esta issue do GitHub e forneça uma resposta em JSON',
+                  '',
+                  'Título - ' + issue.title,
+                  'Descrição - ' + (issue.body || 'Sem descrição'),
+                  'Labels existentes - ' + (issue.labels?.map(l => l.name).join(', ') || 'Nenhuma'),
+                  '',
+                  'Forneça uma análise em JSON com estes campos',
+                  '1. labels - array de labels sugeridas (bug, enhancement, documentation, question, duplicate, help wanted, good first issue, priority-high, priority-medium, priority-low, etc.)',
+                  '2. priority - prioridade (low, medium, high, critical)',
+                  '3. category - categoria técnica (frontend, backend, database, security, ci-cd, workflow, bot, infrastructure, documentation, etc.)',
+                  '4. estimated_complexity - complexidade estimada (simple, medium, complex)',
+                  '5. suggested_assignees - array de tipos de desenvolvedores necessários',
+                  '6. response - resposta amigável em português para comentar na issue, dando boas-vindas e explicando próximos passos',
+                  '',
+                  'Responda APENAS com JSON válido, sem markdown ou texto adicional.'
+                ].join('\n');
+                const prompt = promptText;
+
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const text = response.text();
+                
+                // Tentar fazer parse do JSON
+                const jsonMatch = text.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                  analysis = JSON.parse(jsonMatch[0]);
+                  core.info(`✅ Análise AI concluída: ${JSON.stringify(analysis, null, 2)}`);
+                }
+              }
+            } catch (error) {
+              core.warning(`⚠️ Erro na análise AI: ${error.message}`);
+            }
+
+            // Fallback se AI falhar
+            if (!analysis) {
+              core.info('📝 Usando análise padrão (fallback)...');
+              
+              const title = issue.title.toLowerCase();
+              const body = (issue.body || '').toLowerCase();
+              
+              let labels = [];
+              let priority = 'medium';
+              let category = 'general';
+              
+              // Detectar tipo
+              if (title.includes('bug') || title.includes('erro') || title.includes('error') || body.includes('erro') || body.includes('bug')) {
+                labels.push('bug');
+                priority = 'high';
+              } else if (title.includes('feature') || title.includes('enhancement') || title.includes('implementar') || title.includes('adicionar')) {
+                labels.push('enhancement');
+              } else if (title.includes('doc') || title.includes('documentation') || body.includes('documentação')) {
+                labels.push('documentation');
+              } else if (title.includes('?') || title.includes('question') || title.includes('dúvida') || title.includes('como')) {
+                labels.push('question');
+                priority = 'low';
+              }
+
+              // Detectar categoria
+              if (body.includes('workflow') || body.includes('github actions') || body.includes('ci') || body.includes('cd')) {
+                category = 'ci-cd';
+                labels.push('workflow');
+              } else if (body.includes('bot') || body.includes('automação') || body.includes('automation')) {
+                category = 'bot';
+                labels.push('bot');
+              }
+
+              // Detectar prioridade
+              if (title.includes('critical') || title.includes('urgente') || body.includes('crítico')) {
+                priority = 'critical';
+                labels.push('priority-high');
+              } else if (title.includes('importante') || body.includes('importante')) {
+                priority = 'high';
+                labels.push('priority-high');
+              } else {
+                labels.push(`priority-${priority}`);
+              }
+
+              analysis = {
+                labels: labels.length > 0 ? labels : ['needs-triage'],
+                priority: priority,
+                category: category,
+                estimated_complexity: 'medium',
+                suggested_assignees: ['developer'],
+                response: `👋 Olá! Obrigado por abrir esta issue.\n\n🤖 **Análise Automática:**\n- **Categoria**: ${category}\n- **Prioridade**: ${priority}\n- **Labels sugeridas**: ${labels.join(', ')}\n\n📋 **Próximos passos:**\n- A equipe foi notificada e irá revisar em breve\n- As labels apropriadas foram adicionadas\n- Você pode adicionar mais informações se necessário\n\n_Análise gerada automaticamente pelo xcloud-bot 🤖_`
+              };
+            }
+
+            // Adicionar comentário de boas-vindas (apenas para issues novas)
+            if (context.payload.action === 'opened' && !botComments) {
+              const commentBody = '🤖 **xcloud-bot** - Análise Automática de Issue\n\n' +
+                analysis.response + '\n\n' +
+                '---\n' +
+                '*Este comentário foi gerado automaticamente. Mencione @xcloud-bot nos comentários se precisar de ajuda!*';
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: commentBody
+              });
+              core.info('✅ Comentário de boas-vindas adicionado');
+            }
+
+            // Adicionar labels
+            if (analysis.labels && analysis.labels.length > 0) {
+              // Filtrar labels que já existem
+              const existingLabels = issue.labels.map(l => l.name);
+              const newLabels = analysis.labels.filter(l => !existingLabels.includes(l));
+              
+              if (newLabels.length > 0) {
+                try {
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNumber,
+                    labels: newLabels
+                  });
+                  core.info(`✅ Labels adicionadas: ${newLabels.join(', ')}`);
+                } catch (error) {
+                  core.warning(`⚠️ Algumas labels podem não existir: ${error.message}`);
+                }
+              } else {
+                core.info('ℹ️ Todas as labels já estão aplicadas');
+              }
+            }
+
+            core.info(`✅ Issue #${issueNumber} processada com sucesso!`);
+
+  # Job 2: Triagem em lote (cron ou manual)
+  batch-triage:
+    name: 'Triagem em Lote'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.issue_number)
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+
+      - name: 'Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 'Install dependencies'
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 'Buscar e processar issues pendentes'
+        uses: actions/github-script@v7
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.0-flash-exp' }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            core.info('🔍 Buscando issues sem labels ou marcadas para triagem...');
+
+            // Buscar issues abertas sem labels ou com label "needs-triage"
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 20,
+              sort: 'created',
+              direction: 'desc'
+            });
+
+            // Filtrar issues que precisam de triagem
+            const issuesToTriage = issues.filter(issue => {
+              // Pular PRs
+              if (issue.pull_request) return false;
+              
+              // Processar se não tem labels ou tem label "needs-triage"
+              return issue.labels.length === 0 || 
+                     issue.labels.some(l => l.name === 'needs-triage');
+            });
+
+            core.info(`📋 Encontradas ${issuesToTriage.length} issues para triagem`);
+
+            if (issuesToTriage.length === 0) {
+              core.info('✅ Nenhuma issue pendente de triagem!');
+              return;
+            }
+
+            // Processar cada issue (limitar a 10 para não sobrecarregar)
+            const limit = Math.min(issuesToTriage.length, 10);
+            core.info(`🔄 Processando ${limit} issues...`);
+
+            for (let i = 0; i < limit; i++) {
+              const issue = issuesToTriage[i];
+              core.info(`\n📝 [${i+1}/${limit}] Processando issue #${issue.number}: ${issue.title}`);
+
+              try {
+                // Verificar se já tem comentário do bot
+                const { data: comments } = await github.rest.issues.listComments({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  per_page: 100
+                });
+
+                const hasBotComment = comments.some(c => 
+                  c.user.login === 'github-actions[bot]' && 
+                  c.body.includes('xcloud-bot')
+                );
+
+                if (hasBotComment) {
+                  core.info(`  ℹ️ Issue #${issue.number} já processada, pulando...`);
+                  continue;
+                }
+
+                // Análise simples sem AI (para processar mais rápido no batch)
+                const title = issue.title.toLowerCase();
+                const body = (issue.body || '').toLowerCase();
+                
+                let labels = [];
+                let priority = 'medium';
+                let category = 'general';
+                
+                // Detectar tipo
+                if (title.includes('bug') || title.includes('erro') || body.includes('erro')) {
+                  labels.push('bug');
+                  priority = 'high';
+                } else if (title.includes('feature') || title.includes('enhancement')) {
+                  labels.push('enhancement');
+                } else if (title.includes('doc')) {
+                  labels.push('documentation');
+                } else if (title.includes('?') || title.includes('question')) {
+                  labels.push('question');
+                  priority = 'low';
+                }
+
+                // Detectar categoria
+                if (body.includes('workflow') || body.includes('github actions')) {
+                  category = 'workflow';
+                  labels.push('workflow');
+                } else if (body.includes('bot') || body.includes('automação')) {
+                  category = 'bot';
+                  labels.push('bot');
+                }
+
+                // Adicionar prioridade
+                labels.push(`priority-${priority}`);
+
+                // Garantir pelo menos uma label
+                if (labels.length === 0) {
+                  labels.push('needs-triage');
+                }
+
+                // Aplicar labels
+                try {
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    labels: labels
+                  });
+                  core.info(`  ✅ Labels aplicadas: ${labels.join(', ')}`);
+                } catch (error) {
+                  core.warning(`  ⚠️ Erro ao aplicar labels: ${error.message}`);
+                }
+
+                // Adicionar comentário
+                const triageComment = '🤖 **xcloud-bot** - Triagem Automática\n\n' +
+                  '📋 **Análise:**\n' +
+                  '- **Categoria**: ' + category + '\n' +
+                  '- **Prioridade**: ' + priority + '\n' +
+                  '- **Labels aplicadas**: ' + labels.join(', ') + '\n\n' +
+                  'Esta issue foi automaticamente triada. A equipe irá revisar em breve!\n\n' +
+                  '---\n' +
+                  '_Triagem automática realizada pelo xcloud-bot 🤖_';
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: triageComment
+                });
+                core.info('  ✅ Comentário adicionado');
+
+                // Pequeno delay para não sobrecarregar a API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+              } catch (error) {
+                core.error(`  ❌ Erro ao processar issue #${issue.number}: ${error.message}`);
+              }
+            }
+
+            core.info(`\n✅ Triagem em lote concluída! ${limit} issues processadas.`);
+
+  # Job 3: Relatório de estatísticas
+  report-statistics:
+    name: 'Relatório de Estatísticas'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    needs: [batch-triage]
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: read
+    
+    steps:
+      - name: 'Gerar estatísticas'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            core.info('📊 Gerando estatísticas de issues...');
+
+            // Buscar todas as issues abertas
+            const { data: openIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            // Filtrar apenas issues (não PRs)
+            const issues = openIssues.filter(i => !i.pull_request);
+
+            // Estatísticas
+            const stats = {
+              total: issues.length,
+              withLabels: issues.filter(i => i.labels.length > 0).length,
+              withoutLabels: issues.filter(i => i.labels.length === 0).length,
+              needsTriage: issues.filter(i => i.labels.some(l => l.name === 'needs-triage')).length,
+              bugs: issues.filter(i => i.labels.some(l => l.name === 'bug')).length,
+              enhancements: issues.filter(i => i.labels.some(l => l.name === 'enhancement')).length,
+              questions: issues.filter(i => i.labels.some(l => l.name === 'question')).length
+            };
+
+            core.info('\n📊 **Estatísticas de Issues:**');
+            core.info(`   Total de issues abertas: ${stats.total}`);
+            core.info(`   Com labels: ${stats.withLabels} (${Math.round(stats.withLabels/stats.total*100)}%)`);
+            core.info(`   Sem labels: ${stats.withoutLabels}`);
+            core.info(`   Precisam triagem: ${stats.needsTriage}`);
+            core.info(`   Bugs: ${stats.bugs}`);
+            core.info(`   Melhorias: ${stats.enhancements}`);
+            core.info(`   Perguntas: ${stats.questions}`);
+            core.info('');
+
+            // Criar resumo
+            core.summary
+              .addHeading('📊 Relatório de Issues - ' + new Date().toLocaleDateString('pt-BR'))
+              .addTable([
+                [{data: 'Métrica', header: true}, {data: 'Valor', header: true}],
+                ['Total de Issues Abertas', stats.total.toString()],
+                ['Issues com Labels', `${stats.withLabels} (${Math.round(stats.withLabels/stats.total*100)}%)`],
+                ['Issues sem Labels', stats.withoutLabels.toString()],
+                ['Precisam Triagem', stats.needsTriage.toString()],
+                ['Bugs', stats.bugs.toString()],
+                ['Melhorias', stats.enhancements.toString()],
+                ['Perguntas', stats.questions.toString()]
+              ])
+              .write();

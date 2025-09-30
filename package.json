@@ -49,6 +49,7 @@
     "multi-repo:export": "node -e \"const {multiRepoManager} = require('./src/config/multi-repo'); console.log(JSON.stringify(multiRepoManager.exportConfig(), null, 2))\"",
     "workflow:validate": "find .github/workflows -name '*.yml' -exec yamllint {} \\;",
     "workflow:test": "act --list",
+    "workflow:test-issue-mgmt": "node tests/validate-issue-management.js",
     "agent:test": "node scripts/test-autonomous-agent.js",
     "agent:tasks": "curl -s http://localhost:3000/api/agent/tasks | jq",
     "agent:stop": "curl -s -X POST http://localhost:3000/api/agent/stop | jq",
