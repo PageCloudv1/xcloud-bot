@@ -32,13 +32,13 @@ Este script irá guiá-lo através de todo o processo de registro.
 
 Configure os seguintes campos:
 
-| Campo | Valor |
-|-------|-------|
-| **GitHub App name** | `xCloud Bot` (ou nome de sua preferência) |
-| **Description** | `Intelligent automation bot for code review, AI assistance, and repository management` |
-| **Homepage URL** | `https://github.com/PageCloudv1/xcloud-bot` |
-| **Webhook URL** | Deixe em branco por enquanto (opcional para uso local) |
-| **Webhook secret** | Gere um secret seguro ou deixe em branco |
+| Campo               | Valor                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| **GitHub App name** | `xCloud Bot` (ou nome de sua preferência)                                              |
+| **Description**     | `Intelligent automation bot for code review, AI assistance, and repository management` |
+| **Homepage URL**    | `https://github.com/PageCloudv1/xcloud-bot`                                            |
+| **Webhook URL**     | Deixe em branco por enquanto (opcional para uso local)                                 |
+| **Webhook secret**  | Gere um secret seguro ou deixe em branco                                               |
 
 ### Passo 3: Configurar Permissões do Repositório
 
@@ -61,6 +61,7 @@ Marque as seguintes permissões (Repository permissions):
 Selecione os seguintes eventos para que o bot seja notificado:
 
 **Eventos Essenciais:**
+
 - ✅ **Issues**
 - ✅ **Issue comments**
 - ✅ **Pull requests**
@@ -69,6 +70,7 @@ Selecione os seguintes eventos para que o bot seja notificado:
 - ✅ **Push**
 
 **Eventos Recomendados:**
+
 - ✅ **Check runs**
 - ✅ **Check suites**
 - ✅ **Workflow runs**
@@ -86,7 +88,7 @@ Selecione os seguintes eventos para que o bot seja notificado:
 
 1. **App ID**: Anote o número do App ID (visível na página da app)
 2. **Client ID**: Anote o Client ID (visível na página da app)
-3. **Private Key**: 
+3. **Private Key**:
    - Clique em **"Generate a private key"**
    - Um arquivo `.pem` será baixado automaticamente
    - Guarde este arquivo com segurança!
@@ -99,23 +101,27 @@ Selecione os seguintes eventos para que o bot seja notificado:
 4. Adicione os seguintes secrets:
 
 #### Secret: GITHUB_APP_ID
+
 ```
 Nome: GITHUB_APP_ID
 Valor: <seu-app-id>
 ```
 
 #### Secret: GITHUB_PRIVATE_KEY
+
 ```
 Nome: GITHUB_PRIVATE_KEY
 Valor: <conteúdo-completo-do-arquivo-pem>
 ```
 
 **Dica:** Para obter o conteúdo do arquivo .pem:
+
 ```bash
 cat caminho/para/seu-arquivo.pem
 ```
 
 #### Secret: WEBHOOK_SECRET (Opcional)
+
 ```
 Nome: WEBHOOK_SECRET
 Valor: <seu-webhook-secret>
@@ -136,11 +142,13 @@ Valor: <seu-webhook-secret>
 Se você planeja executar o bot localmente:
 
 1. Copie o arquivo de exemplo:
+
 ```bash
 cp .env.example .env
 ```
 
 2. Edite o arquivo `.env` com suas credenciais:
+
 ```env
 # GitHub App Configuration
 GITHUB_APP_ID=123456
@@ -157,6 +165,7 @@ GEMINI_API_KEY=sua_chave_gemini
 ### Passo 10: Testar a Instalação
 
 1. Execute o bot localmente:
+
 ```bash
 npm run bot:start
 ```
