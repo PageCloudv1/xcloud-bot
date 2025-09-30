@@ -116,6 +116,13 @@ test-results/
 coverage/
 playwright-report/
 
+# Environment files
+.env
+.env.local
+
+# Python cache
+__pycache__/
+*.pyc
 # Gemini AI
 .gemini/
 gha-creds-*.json
