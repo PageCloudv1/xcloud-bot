@@ -34,8 +34,18 @@ async function main(): Promise<void> {
       }
     };
 
-    process.on('SIGINT', () => void shutdown('SIGINT'));
-    process.on('SIGTERM', () => void shutdown('SIGTERM'));
+    process.on('SIGINT', () => {
+      shutdown('SIGINT').catch(error => {
+        logger.error('❌ Error during SIGINT shutdown:', error);
+        process.exitCode = 1;
+      });
+    });
+    process.on('SIGTERM', () => {
+      shutdown('SIGTERM').catch(error => {
+        logger.error('❌ Error during SIGTERM shutdown:', error);
+        process.exitCode = 1;
+      });
+    });
 
     logger.info('✅ xCloud Bot started successfully');
   } catch (error) {
