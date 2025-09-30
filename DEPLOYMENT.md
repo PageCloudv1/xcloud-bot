@@ -3,6 +3,7 @@
 ## Production Server Setup
 
 ### Server Information
+
 - **IP**: 72.167.222.237
 - **OS**: Ubuntu 22.04 LTS
 - **User**: rootkit
@@ -11,6 +12,7 @@
 ## Quick Setup
 
 ### 1. Initial Server Setup
+
 Run the setup script on your Ubuntu server:
 
 ```bash
@@ -24,13 +26,15 @@ chmod +x scripts/setup-server.sh
 ```
 
 ### 2. Configure GitHub Secrets
+
 Add the following secrets to your GitHub repository:
 
-| Secret Name | Value |
-|-------------|-------|
+| Secret Name    | Value        |
+| -------------- | ------------ |
 | `SSH_PASSWORD` | `103020Aa@@` |
 
 ### 3. Deploy Application
+
 ```bash
 # Deploy to production
 npm run deploy:production
@@ -66,6 +70,7 @@ pm2 restart xcloud-bot
 ## Application Management
 
 ### PM2 Commands
+
 ```bash
 # Check status
 pm2 status
@@ -84,6 +89,7 @@ pm2 monit
 ```
 
 ### Nginx Commands
+
 ```bash
 # Check status
 sudo systemctl status nginx
@@ -99,6 +105,7 @@ sudo tail -f /var/log/nginx/error.log
 ```
 
 ### Application Logs
+
 ```bash
 # Application logs
 tail -f /var/log/xcloud-bot/app.log
@@ -113,6 +120,7 @@ journalctl -u nginx -f
 ## Environment Configuration
 
 ### Production Environment Variables
+
 Edit `/opt/xcloud-bot/current/.env`:
 
 ```env
@@ -136,6 +144,7 @@ LOG_FILE=/var/log/xcloud-bot/app.log
 ## Monitoring & Maintenance
 
 ### Health Checks
+
 ```bash
 # Check if app is running
 curl http://localhost:3000/health
@@ -145,6 +154,7 @@ curl http://72.167.222.237/health
 ```
 
 ### Backup Management
+
 ```bash
 # Manual backup
 /opt/xcloud-bot/scripts/backup.sh
@@ -158,6 +168,7 @@ tar -xzf backups/xcloud-bot-backup-YYYYMMDD_HHMMSS.tar.gz -C current/
 ```
 
 ### System Updates
+
 ```bash
 # Update system packages
 sudo apt update && sudo apt upgrade -y
@@ -175,6 +186,7 @@ pm2 restart xcloud-bot
 ### Common Issues
 
 #### App Won't Start
+
 ```bash
 # Check logs
 pm2 logs xcloud-bot
@@ -188,6 +200,7 @@ pm2 start dist/index.js --name xcloud-bot
 ```
 
 #### Nginx Issues
+
 ```bash
 # Test configuration
 sudo nginx -t
@@ -200,6 +213,7 @@ sudo systemctl restart nginx
 ```
 
 #### Port Issues
+
 ```bash
 # Check what's using port 3000
 sudo netstat -tlnp | grep 3000
@@ -209,6 +223,7 @@ sudo fuser -k 3000/tcp
 ```
 
 ### Performance Monitoring
+
 ```bash
 # System resources
 htop
@@ -226,6 +241,7 @@ pm2 monit
 ## Security Considerations
 
 ### Firewall Rules
+
 ```bash
 # Check UFW status
 sudo ufw status
@@ -237,6 +253,7 @@ sudo ufw allow 22/tcp
 ```
 
 ### SSL/HTTPS Setup
+
 To add SSL certificate:
 
 ```bash
@@ -268,6 +285,7 @@ The CD pipeline automatically:
 ## Support
 
 For issues or questions:
+
 - Check logs: `pm2 logs xcloud-bot`
 - Monitor system: `pm2 monit`
 - View deployment status in GitHub Actions

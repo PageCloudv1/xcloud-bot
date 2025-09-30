@@ -111,6 +111,6 @@ ${isPR ? `
 
       - name: 'Trigger Gemini Review (if PR)'
         if: github.event_name == 'pull_request'
-        uses: './.github/workflows/gemini-review.yml'
+        uses: ./.github/workflows/gemini-review.yml@main
         with:
           additional_context: 'Review automático solicitado via workflow auto-copilot-review'

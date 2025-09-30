@@ -75,7 +75,7 @@ jobs:
           npm ci
           # Instalar gemini-cli se não estiver presente
           if ! command -v gemini &> /dev/null; then
-            npm install -g @google/generative-ai-cli
+            npm install -g @google/gemini-cli@0.3.0
           fi
 
       - name: 'Execute Gemini CLI Command'
@@ -98,27 +98,26 @@ jobs:
               echo "📊 Analisando código..."
               find src -name "*.js" -o -name "*.ts" -o -name "*.py" | head -10 | while read file; do
                 echo "Analisando: $file"
-                gemini generate "Analise este código e sugira melhorias: $(cat "$file")" >> .gemini-results/code-analysis.md
-              done
+                gemini generate <<EOF >> .gemini-results/code-analysis.md
               ;;
             "review-pr")
               echo "🔍 Revisando PR..."
               if [ -n "${{ github.event.pull_request.number }}" ]; then
                 gh pr view ${{ github.event.pull_request.number }} --json files,diff > .gemini-results/pr-data.json
-                gemini generate "Revise este PR: $(cat .gemini-results/pr-data.json)" > .gemini-results/pr-review.md
+                gemini generate <<EOF > .gemini-results/pr-review.md
               fi
               ;;
             "generate-docs")
               echo "📚 Gerando documentação..."
-              gemini generate "Gere documentação para este projeto baseado na estrutura: $(find . -name "*.md" -o -name "*.js" -o -name "*.ts" | head -20)" > .gemini-results/documentation.md
+              gemini generate <<EOF > .gemini-results/documentation.md
               ;;
             "suggest-improvements")
               echo "💡 Sugerindo melhorias..."
-              gemini generate "Analise este repositório e sugira melhorias: $(ls -la)" > .gemini-results/improvements.md
+              gemini generate <<EOF > .gemini-results/improvements.md
               ;;
             "security-scan")
               echo "🔒 Executando scan de segurança..."
-              gemini generate "Analise possíveis vulnerabilidades de segurança neste código: $(find src -name "*.js" -o -name "*.ts" | head -5 | xargs cat)" > .gemini-results/security-scan.md
+              gemini generate <<EOF > .gemini-results/security-scan.md
               ;;
             "performance-analysis")
               echo "⚡ Analisando performance..."
