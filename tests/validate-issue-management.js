@@ -143,10 +143,10 @@ testCases.forEach((testCase, index) => {
   const correctPriority = result.priority === testCase.expectedPriority;
 
   if (hasExpectedLabels && correctPriority) {
-    console.log("   ✅ PASSOU - Análise correta");
+    console.log('   ✅ PASSOU - Análise correta');
     passed++;
   } else {
-    console.log("   ❌ FALHOU");
+    console.log('   ❌ FALHOU');
     if (!hasExpectedLabels) {
       console.log(`      Esperado labels: ${testCase.expectedLabels.join(', ')}`);
       console.log(`      Recebido: ${result.labels.join(', ')}`);
@@ -160,7 +160,7 @@ testCases.forEach((testCase, index) => {
 });
 
 console.log('\n' + '='.repeat(60));
-console.log("\n📊 Resultado dos Testes:");
+console.log('\n📊 Resultado dos Testes:');
 console.log(`   ✅ Passou: ${passed}/${testCases.length}`);
 console.log(`   ❌ Falhou: ${failed}/${testCases.length}`);
 console.log(`   📈 Taxa de sucesso: ${Math.round((passed / testCases.length) * 100)}%`);

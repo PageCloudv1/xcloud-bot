@@ -98,10 +98,10 @@ async function validateRequiredVariables() {
             'red'
           );
           log(
-            "     App ID should be a numeric value (e.g., 123456), found in the GitHub App settings page",
+            '     App ID should be a numeric value (e.g., 123456), found in the GitHub App settings page',
             'yellow'
           );
-          log("     Client ID is different from App ID - please use the App ID instead", 'yellow');
+          log('     Client ID is different from App ID - please use the App ID instead', 'yellow');
           allValid = false;
         } else if (!/^\d+$/.test(appIdValue)) {
           log(

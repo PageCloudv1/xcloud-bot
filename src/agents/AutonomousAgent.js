@@ -276,7 +276,7 @@ class AutonomousAgent {
           return;
         }
 
-        logger.info("✅ Repositório clonado com sucesso");
+        logger.info('✅ Repositório clonado com sucesso');
         resolve();
       });
     });
@@ -341,7 +341,7 @@ class AutonomousAgent {
       analysis.files = [...new Set(fileMatches)];
     }
 
-    logger.info("📊 Análise concluída:", analysis);
+    logger.info('📊 Análise concluída:', analysis);
     return analysis;
   }
 
@@ -615,10 +615,10 @@ ${task.issue.body || 'Documentação atualizada automaticamente pelo xBot.'}
     );
     await this.runContainerCommand(
       container,
-      "cd /workspace/repo && git commit -F .git_commit_msg"
+      'cd /workspace/repo && git commit -F .git_commit_msg'
     );
     // Optionally, remove the commit message file after commit
-    await this.runContainerCommand(container, "rm /workspace/repo/.git_commit_msg");
+    await this.runContainerCommand(container, 'rm /workspace/repo/.git_commit_msg');
 
     const [owner, repo] = task.repository.split('/');
     const branchName = `xbot/issue-${task.issue.number}`;
