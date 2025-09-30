@@ -23,7 +23,7 @@ jobs:
       - name: '📥 Checkout repository'
         uses: 'actions/checkout@v4'
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GH_TOKEN || github.token }}
 
       - name: '⚙️ Setup Node.js'
         uses: 'actions/setup-node@v4'
@@ -47,7 +47,7 @@ jobs:
           
           echo ""
           echo "📋 Configuration files:"
-          ls -la github-app-manifest.json app.yml GH_APP_SETUP.md 2>/dev/null || echo "Some files missing"
+          ls -la github-app-manifest.json app.yml GITHUB_APP_SETUP.md 2>/dev/null || echo "Some files missing"
 
       - name: '📝 Generate Registration Instructions'
         if: steps.validate.outputs.validation_failed == 'true' && inputs.validate_only != true
@@ -58,7 +58,7 @@ jobs:
             const fs = require('fs');
             
             // Read the setup guide
-            const setupGuide = fs.readFileSync('GH_APP_SETUP.md', 'utf8');
+            const setupGuide = fs.readFileSync('GITHUB_APP_SETUP.md', 'utf8');
             
             const body = "# 🤖 xCloud Bot Registration Required\n\n" +
               "Para usar o xCloud Bot, você precisa registrar uma GitHub App.\n\n" +
@@ -69,7 +69,7 @@ jobs:
               "```\n\n" +
               "Este script irá guiá-lo através de todo o processo.\n\n" +
               "## 📝 Método Manual\n\n" +
-              "Siga as instruções completas em [GH_APP_SETUP.md](./GH_APP_SETUP.md)\n\n" +
+              "Siga as instruções completas em [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md)\n\n" +
               "### Passos Rápidos:\n\n" +
               "1. **Criar GitHub App**: https://github.com/settings/apps/new\n" +
               "2. **Configurar Permissões**:\n" +
@@ -98,8 +98,8 @@ jobs:
               "npm run validate:github-app\n" +
               "```\n\n" +
               "## 📚 Recursos\n\n" +
-              "- [Documentação Completa](./GH_APP_SETUP.md)\n" +
-              "- [Guia Detalhado](./GH_BOT_SETUP_GUIDE.md)\n" +
+              "- [Documentação Completa](./GITHUB_APP_SETUP.md)\n" +
+              "- [Guia Detalhado](./GITHUB_BOT_SETUP_GUIDE.md)\n" +
               "- [README](./README.md)\n\n" +
               "---\n\n" +
               "**Status da Configuração Atual:**\n" +
@@ -147,7 +147,7 @@ jobs:
           echo "   https://github.com/settings/apps/new"
           echo ""
           echo "2. 📚 Seguir instruções detalhadas:"
-          echo "   - GH_APP_SETUP.md (guia completo)"
+          echo "   - GITHUB_APP_SETUP.md (guia completo)"
           echo "   - Ou executar: npm run register:github-app"
           echo ""
           echo "3. 🔐 Configurar secrets no repositório:"
