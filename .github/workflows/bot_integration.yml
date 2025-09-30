@@ -1,32 +1,145 @@
 name: 🤖 xCloud Bot Integration
 
+# Workflow para integração completa do bot com GitHub
+# - Analisa repositório automaticamente
+# - Monitora status do CI/CD
+# - Cria issues automatizadas quando necessário
+#
+# Secrets necessários:
+# - GITHUB_TOKEN: Token automático do GitHub Actions (fornecido automaticamente)
+# - GITHUB_APP_ID: ID da GitHub App (opcional, para webhooks)
+# - GITHUB_PRIVATE_KEY: Chave privada da GitHub App (opcional, para webhooks)
+# - GEMINI_API_KEY: Chave da API Gemini (opcional, para análise IA)
+#
+# Permissões necessárias:
+# - contents: read - Para ler o repositório
+# - issues: write - Para criar e atualizar issues
+# - actions: read - Para monitorar workflows
+# - pull-requests: write - Para comentar em PRs
+
 on:
   workflow_dispatch:
+    inputs:
+      analyze_all:
+        description: 'Analisar todos os repositórios xCloud'
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: '0 */6 * * *'  # A cada 6 horas
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+      - 'src/bot/**'
+      - 'src/workflows/**'
+
+# Permissões necessárias para o bot funcionar
+permissions:
+  contents: read      # Ler código do repositório
+  issues: write       # Criar e editar issues
+  actions: read       # Ler status de workflows
+  pull-requests: write # Comentar em PRs
 
 jobs:
   bot-analysis:
     runs-on: ubuntu-latest
+    
+    # Variáveis de ambiente para o bot
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_OWNER: ${{ github.repository_owner }}
+      CI: 'true'
+      NODE_ENV: 'production'
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Histórico completo para análise
       
-      - name: Setup Node.js
+      - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'  # Cache de dependências para builds mais rápidos
 
-      - name: Install Dependencies
-        run: npm install
+      - name: 📦 Install Dependencies
+        run: |
+          echo "📦 Instalando dependências..."
+          npm ci --prefer-offline --no-audit
+          echo "✅ Dependências instaladas com sucesso"
 
-      - name: Build
-        run: npm run build
+      - name: 🏗️ Build Project
+        run: |
+          echo "🏗️ Compilando projeto TypeScript..."
+          npm run build
+          echo "✅ Build concluído"
           
       - name: 📊 Analyze Repository
-        run: npm run analyze:repo ${{ github.repository }}
+        id: analyze
+        continue-on-error: true
+        run: |
+          echo "📊 Iniciando análise do repositório..."
+          if [ "${{ github.event.inputs.analyze_all }}" == "true" ]; then
+            echo "🔍 Analisando todos os repositórios xCloud..."
+            npm run analyze:all
+          else
+            echo "🔍 Analisando repositório: ${{ github.repository }}"
+            npm run analyze:repo ${{ github.repository }}
+          fi
+          echo "✅ Análise concluída"
           
       - name: 🔍 Monitor CI Status
-        run: npm run scheduler:run
+        id: monitor
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 Monitorando status do CI..."
+          npm run scheduler:run
+          echo "✅ Monitoramento concluído"
           
       - name: 🤖 Create Issues if Needed
-        run: npm run create:issue ${{ github.repository }} "Automated Analysis Report"
+        id: create_issues
+        continue-on-error: true
+        if: success() || steps.analyze.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🤖 Verificando necessidade de criar issues..."
+          npm run create:issue ${{ github.repository }} "Automated Analysis Report"
+          echo "✅ Verificação de issues concluída"
+      
+      - name: 📝 Generate Summary
+        if: always()
+        run: |
+          echo "## 🤖 xCloud Bot Integration Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository:** \`${{ github.repository }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger:** \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Step Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Analysis:** ${{ steps.analyze.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Monitoring:** ${{ steps.monitor.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Issue Creation:** ${{ steps.create_issues.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Useful Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [Repository](${{ github.server_url }}/${{ github.repository }})" >> $GITHUB_STEP_SUMMARY
+          
+      - name: ❌ Report Failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "❌ Workflow falhou. Criando issue para investigação..."
+          # Note: This would create an issue about the workflow failure
+          # Uncomment when ready to enable automatic failure reporting
+          # gh issue create \
+          #   --title "🚨 Bot Integration Workflow Failed" \
+          #   --body "O workflow de integração do bot falhou. Veja os detalhes em: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+          #   --label "bug,ci-failure,bot-integration"
