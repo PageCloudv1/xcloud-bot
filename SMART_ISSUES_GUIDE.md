@@ -21,7 +21,7 @@ Quando uma nova issue é criada, o sistema **automaticamente**:
 3. **👥 Assignment Automático**
    ```
    Sempre: @xcloud-team
-   Se crítico/segurança: @xcloud-team + @rootkit-original
+   Se crítico/segurança: mencione @PageCloudv1/xcloud-team e confira disponibilidade
    ```
 
 4. **💬 Resposta Estruturada**
@@ -45,8 +45,8 @@ Quando uma nova issue é criada, o sistema **automaticamente**:
    3. Implementar correção na API
    
    ### 👥 Assignments
-   - Team: @xcloud-team
-   - Reviewer: @rootkit-original (ou qualquer membro autorizado)
+   - Owners: @PageCloudv1/xcloud-team · @xcloud-bot[bot]
+   - Acompanhamento: escolha membro disponível para atuar como reviewer principal
    ```
 
 ### Para Revisões Manuais (Qualquer Usuário)
@@ -79,7 +79,7 @@ Quando uma nova issue é criada, o sistema **automaticamente**:
 
 **Output Automático**:
 - Labels: `bug`, `priority:high`, `category:api`
-- Assignment: `@xcloud-team`, `@rootkit-original`
+- Assignment: `@PageCloudv1/xcloud-team`, `@xcloud-bot[bot]`
 - Comentário com análise técnica
 - Verificação de duplicatas
 

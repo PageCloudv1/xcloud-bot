@@ -41,6 +41,11 @@ jobs:
           app-id: '${{ vars.GH_APP_ID }}'
           private-key: '${{ secrets.GH_PRIVATE_KEY }}'
 
+      - name: '⚙️ Configure Node 20'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: '🤖 Processar Issue com Gemini + GitHub MCP'
         uses: 'google-github-actions/run-gemini-cli@v0'
         env:
@@ -52,7 +57,7 @@ jobs:
           GITHUB_TOKEN: '${{ steps.mint_token.outputs.token || github.token }}'
         with:
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
-          gemini_model: 'gemini-1.5-flash'
+          gemini_model: 'gemini-2.5-flash'
           gemini_debug: false
           settings: |-
             {
@@ -137,8 +142,9 @@ jobs:
 
             ### 3. 👥 **Assignment Automático**
             Use `mcp__github__update_issue` para:
-            - Sempre assignar para: `xcloud-team`
-            - Para issues críticas de segurança, também assignar: `rootkit-original`
+            - Garantir que `assignees` inclua `xcloud-bot`
+            - Selecione um membro disponível da equipe `PageCloudv1/xcloud-team`
+            - Para issues críticas de segurança, mencione `@PageCloudv1/xcloud-team` e garanta acompanhamento imediato
 
             ### 4. 💬 **Resposta Inteligente**
             Use `mcp__github__add_issue_comment` para adicionar um comentário estruturado:
@@ -163,19 +169,19 @@ jobs:
             3. [Se aplicável, menção a recursos ou documentação relevante]
 
             ### 👥 **Assignments**
-            - **Team**: @xcloud-team
-            - **Reviewer**: @rootkit-original [se crítico]
+            - **Owners**: @PageCloudv1/xcloud-team · @xcloud-bot[bot]
+            - **Atenção Extra**: mencione @PageCloudv1/xcloud-team em casos críticos/segurança
 
             ---
-            🤖 *Processado automaticamente pelo xCloud Bot | Dúvidas? Marque @rootkit-original*
+            🤖 *Processado automaticamente pelo xCloud Bot | Dúvidas? Marque @PageCloudv1/xcloud-team*
             ```
 
             ## ⚠️ Regras Importantes
             1. **SEMPRE** pesquise duplicatas antes de processar
             2. **SEMPRE** aplique pelo menos 2 labels (tipo + prioridade)
-            3. **SEMPRE** assigne para `xcloud-team`
+            3. **SEMPRE** mantenha `xcloud-bot` entre os assignees
             4. **SEMPRE** adicione um comentário explicativo
-            5. Se a issue for de **segurança** ou **crítica**, também assigne para `rootkit-original`
+            5. Se a issue for de **segurança** ou **crítica**, acione @PageCloudv1/xcloud-team imediatamente
             6. Seja **específico** e **útil** nos comentários
             7. Use linguagem **profissional** mas **acessível**
 

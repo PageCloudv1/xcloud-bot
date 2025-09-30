@@ -10,7 +10,7 @@
 | **🔎 Gemini Review** | `gemini-review.yml` | Review de PRs | `workflow_call` | ✅ Ativo |
 | **🤖 Autonomous Agent** | `autonomous-agent.yml` | Bot assignment handler | `issues`, `workflow_dispatch` | ✅ Ativo |
 | **🤖 Smart Issue Management** | `issue-management.yml` | **Gestão inteligente com MCP** | `issues`, `workflow_dispatch` | ✅ **NOVO** |
-| **👤 Manual Review** | `manual-review.yml` | **Revisão manual rootkit-original** | `issue_comment`, `workflow_dispatch` | ✅ **NOVO** |
+| **👤 Manual Review** | `manual-review.yml` | **Revisão manual com equipe CODEOWNERS** | `issue_comment`, `workflow_dispatch` | ✅ **NOVO** |
 | **🔍 CI** | `ci.yml` | Testes e validação | `push`, `pull_request` | ✅ Ativo |
 
 ## 🧪 Como Testar com `act`
@@ -91,8 +91,8 @@ Os seguintes workflows foram removidos por duplicação ou complexidade excessiv
 **Funcionalidades Automáticas:**
 - 🔍 **Detecção de Duplicatas**: Pesquisa issues similares antes de processar
 - 🏷️ **Labels Inteligentes**: Aplica labels baseados no conteúdo (bug, feature, priority, category)
-- 👥 **Assignment Automático**: Sempre assina para `xcloud-team`
-- 🔒 **Escalação Automática**: Issues críticas/segurança → também assina para `rootkit-original`
+- 👥 **Assignment Automático**: Mantém `xcloud-bot` como responsável e envolve `PageCloudv1/xcloud-team`
+- 🔒 **Escalação Automática**: Issues críticas/segurança → aciona `@PageCloudv1/xcloud-team`
 - 💬 **Respostas Contextuais**: Comentários informativos e úteis
 - 🧠 **Análise Técnica**: Powered by Gemini + GitHub MCP
 
@@ -103,11 +103,11 @@ Os seguintes workflows foram removidos por duplicação ou complexidade excessiv
 
 ### Manual Review (manual-review.yml)
 
-**Para rootkit-original:**
-- 👤 **Comentários especiais**: Responde quando `@rootkit-original` comenta
+**Para a equipe CODEOWNERS:**
+- 👤 **Comentários especiais**: Fluxo dedicado para qualquer membro autorizado iniciar revisões
 - 🔧 **Ações manuais**: review, escalate, close, reassign
-- 📊 **Resumos executivos**: Análise detalhada de issues
-- ⚡ **Controle total**: Override automações quando necessário
+- 📊 **Resumos executivos**: Análise detalhada de issues com atribuição dinâmica
+- ⚡ **Controle total**: Override das automações com visibilidade para @PageCloudv1/xcloud-team
 
 ## ✅ Validação
 
