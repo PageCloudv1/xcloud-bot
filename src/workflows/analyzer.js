@@ -232,7 +232,7 @@ function generateActionItems(performance, aiAnalysis = {}) {
   const actions = [];
 
   // Baseado na performance
-  if (performance.issues.slowWorkflows.length > 0) {
+  if (performance.issues?.slowWorkflows?.length > 0) {
     actions.push({
       type: 'optimization',
       priority: 'medium',
@@ -242,7 +242,7 @@ function generateActionItems(performance, aiAnalysis = {}) {
     });
   }
 
-  if (performance.issues.unreliableWorkflows.length > 0) {
+  if (performance.issues?.unreliableWorkflows?.length > 0) {
     actions.push({
       type: 'reliability',
       priority: 'high',
