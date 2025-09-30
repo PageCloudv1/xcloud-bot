@@ -42,7 +42,13 @@
     "quick:deploy": "cd scripts && npm install && node quick-deploy.js",
     "server:status": "pm2 status",
     "server:logs": "pm2 logs xcloud-bot",
-    "server:restart": "pm2 restart xcloud-bot"
+    "server:restart": "pm2 restart xcloud-bot",
+    "expand:repo": "node scripts/expand-to-repo.js",
+    "expand:batch": "node scripts/expand-to-repo.js --batch",
+    "multi-repo:list": "node -e \"const {multiRepoManager} = require('./src/config/multi-repo'); console.log(JSON.stringify(multiRepoManager.listRepositories(), null, 2))\"",
+    "multi-repo:export": "node -e \"const {multiRepoManager} = require('./src/config/multi-repo'); console.log(JSON.stringify(multiRepoManager.exportConfig(), null, 2))\"",
+    "workflow:validate": "find .github/workflows -name '*.yml' -exec yamllint {} \\;",
+    "workflow:test": "act --list"
   },
   "keywords": [
     "xcloud",
