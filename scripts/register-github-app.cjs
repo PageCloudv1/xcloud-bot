@@ -1,4 +1,3 @@
-
 /**
  * 🤖 xCloud Bot - GitHub App Registration Helper
  *
