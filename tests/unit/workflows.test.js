@@ -44,7 +44,7 @@ describe('Workflow Analyzer', () => {
     getWorkflowRuns.mockResolvedValue([]);
 
     const result = await analyzeWorkflowPerformance('test-repo');
-    
+
     expect(result).toBeDefined();
     expect(result.repository).toBe('test-repo');
     expect(result.error).toBeDefined();
@@ -56,7 +56,7 @@ describe('Workflow Analyzer', () => {
     getWorkflowRuns.mockResolvedValue([]);
 
     const result = await analyzeWorkflowPerformance('test-repo');
-    
+
     expect(result).toBeDefined();
     expect(result.repository).toBe('test-repo');
     expect(result.hasWorkflows).toBe(false);
@@ -64,9 +64,7 @@ describe('Workflow Analyzer', () => {
   });
 
   it('should handle analyzeWorkflowPerformance with valid workflows', async () => {
-    getRepositoryWorkflows.mockResolvedValue([
-      { id: 1, name: 'CI', state: 'active' },
-    ]);
+    getRepositoryWorkflows.mockResolvedValue([{ id: 1, name: 'CI', state: 'active' }]);
     getWorkflowRuns.mockResolvedValue([
       {
         workflow_id: 1,
@@ -77,7 +75,7 @@ describe('Workflow Analyzer', () => {
     ]);
 
     const result = await analyzeWorkflowPerformance('test-repo');
-    
+
     expect(result).toBeDefined();
     expect(result.repository).toBe('test-repo');
     expect(result.hasWorkflows).toBe(true);
