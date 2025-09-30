@@ -914,6 +914,6 @@ if (process.argv[1]?.endsWith('creator.js')) {
     }
   } catch (error) {
     console.error('❌ Error:', error.message);
-    process.exit(1);
+    process.exitCode = 1;
   }
 }

@@ -189,11 +189,13 @@ if (isCI) {
     runAllTasksOnce()
         .then(() => {
             console.log('✅ Scheduler concluído (modo CI)');
-            process.exit(0);
+            // Let process exit naturally with success code
+            process.exitCode = 0;
         })
         .catch(error => {
             console.error('❌ Scheduler falhou no modo CI:', error);
-            process.exit(1);
+            // Let process exit naturally with error code
+            process.exitCode = 1;
         });
 } else {
     // 📅 Agendamento das tarefas
