@@ -2,6 +2,22 @@
 
 Bot inteligente para automação e assistência em repositórios GitHub, desenvolvido para a organização PageCloudv1.
 
+## 🚀 Começando Rapidamente
+
+**Novo aqui?** Siga estes passos:
+
+1. 📖 Leia o [QUICK_START.md](./QUICK_START.md) para uma configuração rápida
+2. 🔧 Execute `npm run register:github-app` para o assistente de registro
+3. ✅ Use `npm run validate:github-app` para verificar sua configuração
+4. 📋 Siga a [REGISTRATION_CHECKLIST.md](./REGISTRATION_CHECKLIST.md) para acompanhamento completo
+
+**Guias disponíveis:**
+
+- 🚀 [QUICK_START.md](./QUICK_START.md) - Início rápido
+- 📋 [REGISTRATION_CHECKLIST.md](./REGISTRATION_CHECKLIST.md) - Checklist de registro
+- 📖 [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md) - Guia completo de configuração
+- 🤖 [GITHUB_BOT_SETUP_GUIDE.md](./GITHUB_BOT_SETUP_GUIDE.md) - Guia detalhado do bot
+
 ## ✨ Funcionalidades
 
 ### 🔍 Análise Automática de Issues
@@ -63,20 +79,38 @@ Bot inteligente para automação e assistência em repositórios GitHub, desenvo
 
 - Node.js 18+
 - Conta GitHub com permissões de administrador
-- GitHub App configurada
-- Chave da API Gemini (Google AI)
+- GitHub App configurada (veja abaixo)
+- Chave da API Gemini (Google AI) - opcional
 
 ### 1. Configuração da GitHub App
 
-A GitHub App já está configurada com ID: `Iv23ligqBuX1sUnHLfGY`
+⚠️ **IMPORTANTE**: Você precisa registrar sua própria GitHub App para usar o bot.
+
+**Método Rápido:**
+
+```bash
+# Clone o repositório
+git clone https://github.com/PageCloudv1/xcloud-bot.git
+cd xcloud-bot
+
+# Instale as dependências
+npm install
+
+# Execute o assistente de registro
+npm run register:github-app
+```
+
+**Ou siga o guia manual:** [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md)
 
 **Permissões necessárias:**
 
+- Actions: Read & Write
+- Checks: Read & Write
+- Contents: Read & Write
 - Issues: Read & Write
 - Pull requests: Read & Write
-- Contents: Read
 - Metadata: Read
-- Checks: Write
+- Repository projects: Read & Write
 
 ### 2. Instalação Local
 
@@ -303,4 +337,5 @@ MIT License - veja [LICENSE](LICENSE) para detalhes.
 _Bot inteligente que torna o desenvolvimento mais eficiente e organizado!_ 🚀
 
 ## Bot Registration
+
 Consulte GITHUB_APP_SETUP.md para registrar o bot.

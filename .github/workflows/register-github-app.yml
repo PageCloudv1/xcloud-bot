@@ -3,8 +3,8 @@ name: '🔧 Register xCloud Bot GitHub App'
 on:
   workflow_dispatch:
     inputs:
-      force_register:
-        description: 'Force re-register the GitHub App'
+      validate_only:
+        description: 'Only validate existing configuration (do not create issue)'
         required: false
         default: false
         type: boolean
@@ -20,103 +20,161 @@ jobs:
       actions: 'write'
     
     steps:
-      - name: 'Checkout repository'
+      - name: '📥 Checkout repository'
         uses: 'actions/checkout@v4'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 'Create Setup Instructions'
-        run: |
-          cat > GITHUB_APP_SETUP.md << 'EOF'
-          # xCloud Bot - GitHub App Setup
-          
-          ## Registro da GitHub App
-          
-          Para que o xCloud Bot funcione corretamente, você precisa registrar uma GitHub App.
-          
-          ### Método Manual (Recomendado)
-          
-          1. Acesse: https://github.com/settings/apps/new
-          2. Use as configurações do arquivo github-app-manifest.json
-          3. Após criar a app, configure as variáveis de ambiente
-          
-          ## Permissões Necessárias
-          
-          - Actions (write)
-          - Checks (write)
-          - Contents (write)
-          - Issues (write)
-          - Pull Requests (write)
-          - Repository Projects (write)
-          
-          ## Após o Registro
-          
-          1. Instale a app em seus repositórios
-          2. Configure as variáveis de ambiente no GitHub Secrets
-          3. Execute o workflow xCloud Bot Setup nos repositórios alvo
-          EOF
+      - name: '⚙️ Setup Node.js'
+        uses: 'actions/setup-node@v4'
+        with:
+          node-version: '20'
 
-      - name: 'Update README'
+      - name: '📋 Validate GitHub App Configuration'
+        id: validate
         run: |
-          if [ -f "README.md" ]; then
-            if ! grep -q "Bot Status" README.md; then
-              echo "" >> README.md
-              echo "## Bot Status" >> README.md
-              echo "" >> README.md
-              echo "Para usar o xCloud Bot, registre uma GitHub App." >> README.md
-              echo "Consulte GITHUB_APP_SETUP.md para instruções." >> README.md
-            fi
+          echo "Running validation script..."
+          node scripts/validate-github-app.cjs || echo "validation_failed=true" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: '📊 Display Validation Results'
+        run: |
+          if [ -f .env ]; then
+            echo "✅ .env file exists"
+          else
+            echo "❌ .env file not found"
           fi
-
-      - name: 'Commit Setup Files'
-        run: |
-          git config --local user.email "xcloud-bot@pagecloud.dev"
-          git config --local user.name "xCloud Bot Setup"
           
-          git add app.yml github-app-manifest.json GITHUB_APP_SETUP.md README.md
-          
-          if ! git diff --staged --quiet; then
-            git commit -m "Add GitHub App registration files"
-            git push
-          fi
+          echo ""
+          echo "📋 Configuration files:"
+          ls -la github-app-manifest.json app.yml GITHUB_APP_SETUP.md 2>/dev/null || echo "Some files missing"
 
-      - name: 'Create Registration Issue'
+      - name: '📝 Generate Registration Instructions'
+        if: steps.validate.outputs.validation_failed == 'true' && inputs.validate_only != true
         uses: 'actions/github-script@v7'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const body = `# xCloud Bot Registration Required
+            const fs = require('fs');
+            
+            // Read the setup guide
+            const setupGuide = fs.readFileSync('GITHUB_APP_SETUP.md', 'utf8');
+            
+            const body = `# 🤖 xCloud Bot Registration Required
 
-Para usar o xCloud Bot, registre uma GitHub App.
+Para usar o xCloud Bot, você precisa registrar uma GitHub App.
 
-## Como Registrar
+## 🚀 Método Rápido - Script Interativo
 
-1. Acesse: https://github.com/settings/apps/new
-2. Cole o conteúdo do arquivo github-app-manifest.json
-3. Configure as permissões necessárias
+Execute o script de registro interativo:
 
-## Próximos Passos
+\`\`\`bash
+npm run register:github-app
+\`\`\`
 
-- Registrar GitHub App
-- Configurar secrets
-- Instalar nos repositórios
-- Testar funcionalidade
+Este script irá guiá-lo através de todo o processo.
 
-Consulte GITHUB_APP_SETUP.md para instruções detalhadas.`;
+## 📝 Método Manual
 
-            await github.rest.issues.create({
+Siga as instruções completas em [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md)
+
+### Passos Rápidos:
+
+1. **Criar GitHub App**: https://github.com/settings/apps/new
+2. **Configurar Permissões**:
+   - Actions: Read and write
+   - Checks: Read and write
+   - Contents: Read and write
+   - Issues: Read and write
+   - Pull requests: Read and write
+   
+3. **Configurar Eventos**:
+   - Issues
+   - Pull requests
+   - Push
+   - Check runs
+
+4. **Salvar Credenciais**:
+   - App ID
+   - Private Key (baixar .pem)
+   
+5. **Configurar Secrets** em Settings > Secrets > Actions:
+   \`\`\`
+   GITHUB_APP_ID=<seu-app-id>
+   GITHUB_PRIVATE_KEY=<conteúdo-do-pem>
+   \`\`\`
+
+6. **Instalar a App** nos repositórios
+
+## 🔍 Validar Configuração
+
+Após configurar, valide sua instalação:
+
+\`\`\`bash
+npm run validate:github-app
+\`\`\`
+
+## 📚 Recursos
+
+- [Documentação Completa](./GITHUB_APP_SETUP.md)
+- [Guia Detalhado](./GITHUB_BOT_SETUP_GUIDE.md)
+- [README](./README.md)
+
+---
+
+**Status da Configuração Atual:**
+- [ ] GitHub App criada
+- [ ] Credenciais configuradas
+- [ ] App instalada nos repositórios
+- [ ] Configuração validada
+`;
+
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'xCloud Bot - GitHub App Registration Required',
-              body: body,
-              labels: ['xcloud-bot', 'setup', 'github-app']
+              state: 'open',
+              labels: 'github-app-registration'
             });
 
-      - name: 'Summary'
+            if (issues.data.length > 0) {
+              console.log('Registration issue already exists. Updating...');
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: body
+              });
+            } else {
+              console.log('Creating new registration issue...');
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🤖 xCloud Bot Registration Required',
+                body: body,
+                labels: ['xcloud-bot', 'setup', 'github-app-registration']
+              });
+            }
+
+      - name: '✅ Summary'
         run: |
-          echo "Setup do xCloud Bot preparado!"
+          echo "═══════════════════════════════════════════════════════"
+          echo "  🤖 xCloud Bot Registration Helper"
+          echo "═══════════════════════════════════════════════════════"
           echo ""
-          echo "Próximos passos:"
-          echo "1. Registrar GitHub App: https://github.com/settings/apps/new"
-          echo "2. Configurar secrets no repositório"
-          echo "3. Instalar a app nos repositórios alvo"
+          echo "📋 Next Steps:"
+          echo ""
+          echo "1. 🔗 Registrar GitHub App:"
+          echo "   https://github.com/settings/apps/new"
+          echo ""
+          echo "2. 📚 Seguir instruções detalhadas:"
+          echo "   - GITHUB_APP_SETUP.md (guia completo)"
+          echo "   - Ou executar: npm run register:github-app"
+          echo ""
+          echo "3. 🔐 Configurar secrets no repositório:"
+          echo "   Settings > Secrets and variables > Actions"
+          echo ""
+          echo "4. 🔍 Validar configuração:"
+          echo "   npm run validate:github-app"
+          echo ""
+          echo "═══════════════════════════════════════════════════════"

@@ -56,7 +56,9 @@
     "agent:simulate": "node -e \"console.log('Usage: npm run agent:simulate -- REPO ISSUE_NUMBER'); process.exit(1)\"",
     "podman:setup": "echo 'Setting up Podman...' && podman --version || echo 'Please install Podman first'",
     "podman:cleanup": "podman stop $(podman ps -q --filter 'name=xbot-') 2>/dev/null || true; podman rm $(podman ps -aq --filter 'name=xbot-') 2>/dev/null || true",
-    "debug:assignment": "node scripts/debug-bot-assignment.js"
+    "debug:assignment": "node scripts/debug-bot-assignment.js",
+    "register:github-app": "node scripts/register-github-app.cjs",
+    "validate:github-app": "node scripts/validate-github-app.cjs"
   },
   "keywords": [
     "xcloud",
