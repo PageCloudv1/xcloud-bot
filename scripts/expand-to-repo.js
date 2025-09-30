@@ -25,7 +25,7 @@ class RepoExpansion {
    */
   async expandToRepository(owner, repo, options = {}) {
     try {
-      console.log(`🚀 Expandindo xCloud Bot para ${owner}/${repo}...`);
+      logger.info(`🚀 Expandindo xCloud Bot para ${owner}/${repo}...`);
 
       // Verificar se o repositório existe e temos acesso
       const { data: repoData } = await this.octokit.rest.repos.get({
