@@ -393,8 +393,7 @@ async function main() {
 
   if (args.includes('--create-issue')) {
     const index = args.indexOf('--create-issue');
-    const targetRepo =
-      args[index + 1] || process.env.GH_REPOSITORY || `${defaultOwner}/xcloud-bot`;
+    const targetRepo = args[index + 1] || process.env.GH_REPOSITORY || `${defaultOwner}/xcloud-bot`;
     const issueTitle = args[index + 2] || 'Automated Analysis Report';
 
     await createAnalysisIssue(targetRepo, issueTitle);

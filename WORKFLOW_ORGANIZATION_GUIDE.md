@@ -323,4 +323,3 @@ Para contribuir com melhorias:
 ---
 
 _Este guia foi gerado automaticamente pelo xCloud Bot v1.0.0_
-

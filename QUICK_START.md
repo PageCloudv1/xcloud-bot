@@ -187,4 +187,3 @@ Seu xCloud Bot está configurado! Próximos passos:
 ---
 
 **Need help?** Abra uma issue: https://github.com/PageCloudv1/xcloud-bot/issues
-

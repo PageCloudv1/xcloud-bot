@@ -8,15 +8,17 @@
 ## Passo 2: Configurar a GitHub App
 
 ### Informações Básicas
+
 - **GitHub App name**: `xCloud Bot`
 - **Description**: `Intelligent automation bot for code review, AI assistance, and repository management`
 - **Homepage URL**: `https://github.com/PageCloudv1/xcloud-bot`
 
 ### Permissions (Repository permissions)
+
 Marque as seguintes permissões:
 
 - ✅ **Actions**: Read and write
-- ✅ **Checks**: Read and write  
+- ✅ **Checks**: Read and write
 - ✅ **Contents**: Read and write
 - ✅ **Issues**: Read and write
 - ✅ **Metadata**: Read
@@ -24,10 +26,11 @@ Marque as seguintes permissões:
 - ✅ **Repository projects**: Read and write
 
 ### Events (Subscribe to events)
+
 Marque os seguintes eventos:
 
 - ✅ **Issues**
-- ✅ **Issue comments** 
+- ✅ **Issue comments**
 - ✅ **Pull requests**
 - ✅ **Pull request reviews**
 - ✅ **Pull request review comments**
@@ -72,7 +75,7 @@ WEBHOOK_SECRET=seu_webhook_secret
 
 ## 🚀 Pronto!
 
-Seu xCloud Bot está agora registrado e funcionando! 
+Seu xCloud Bot está agora registrado e funcionando!
 
 ### Comandos Disponíveis
 
@@ -88,4 +91,4 @@ Seu xCloud Bot está agora registrado e funcionando!
 
 ---
 
-*Documentação completa: [README.md](./README.md)*
+_Documentação completa: [README.md](./README.md)_
