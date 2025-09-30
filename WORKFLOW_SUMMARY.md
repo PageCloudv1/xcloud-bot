@@ -183,4 +183,3 @@ Nos comentários de issues/PRs:
 ---
 
 _Organização concluída em $(date) - xCloud Bot v1.0.0_
-

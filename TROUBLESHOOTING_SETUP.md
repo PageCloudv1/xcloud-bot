@@ -373,4 +373,3 @@ cp .env.example .env
 ---
 
 **Última atualização:** 2024
-

@@ -279,4 +279,3 @@ Seu **xcloud-bot** está agora funcionando como o Copilot! 🤖
 **🚀 Seu bot está live e funcionando!**
 
 _Qualquer dúvida, mencione `@xcloud-bot` em uma issue!_
-

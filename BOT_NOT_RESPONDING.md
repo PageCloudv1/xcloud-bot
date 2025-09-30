@@ -367,4 +367,3 @@ Se seguiu todos os passos e ainda não funciona:
 1. App não está registrada → Execute `npm run register:github-app`
 2. App não está instalada → Instale em https://github.com/apps/SEU-APP
 3. Webhook URL incorreta → Configure ngrok e atualize a URL
-
