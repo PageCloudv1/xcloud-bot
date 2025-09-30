@@ -131,6 +131,7 @@ Se tudo estiver configurado corretamente, você verá:
 Durante o desenvolvimento, use **ngrok** ou **smee.io** para receber webhooks:
 
 **Opção 1: ngrok (recomendado)**
+
 ```bash
 # Instale ngrok: https://ngrok.com/download
 ngrok http 3000
@@ -141,6 +142,7 @@ ngrok http 3000
 ```
 
 **Opção 2: smee.io**
+
 ```bash
 npm install -g smee-client
 smee --url https://smee.io/seu-canal --target http://localhost:3000/webhooks/github
@@ -151,6 +153,7 @@ smee --url https://smee.io/seu-canal --target http://localhost:3000/webhooks/git
 1. **Crie uma issue de teste** no repositório onde instalou o bot
 
 2. **Adicione um comentário mencionando o bot:**
+
    ```
    @xcloud-bot help
    ```
@@ -166,6 +169,7 @@ npm run validate:github-app
 ```
 
 Este comando verifica:
+
 - ✅ Arquivo `.env` existe
 - ✅ Variáveis obrigatórias estão configuradas
 - ✅ Arquivos de manifesto existem

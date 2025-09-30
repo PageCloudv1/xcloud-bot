@@ -15,17 +15,20 @@ npm run validate:github-app
 ```
 
 **O que esperar:**
+
 - ✅ Todos os checks devem passar
 - ❌ Se houver falhas, siga as instruções exibidas
 
 #### 2. Verifique se a GitHub App está registrada
 
 **Sintomas de app não registrada:**
+
 - `GITHUB_APP_ID` está vazio ou com valor de exemplo
 - `GITHUB_PRIVATE_KEY` está vazio ou com valor de exemplo
 - Validação falha com "missing environment variables"
 
 **Solução:**
+
 ```bash
 npm run register:github-app
 ```
@@ -46,6 +49,7 @@ npm run bot:start
 ```
 
 **O que esperar:**
+
 ```
 🤖 xcloud-bot iniciado na porta 3000
 📡 Webhooks disponíveis em: /webhooks/github
@@ -53,6 +57,7 @@ npm run bot:start
 ```
 
 **Se ver erros:**
+
 - Verifique o `.env` file
 - Verifique se as credenciais estão corretas
 - Execute `npm install` para garantir dependências
@@ -77,18 +82,21 @@ Copie a URL HTTPS (ex: `https://abc123.ngrok.io`) e:
 A GitHub App precisa ter estas permissões:
 
 **Repository permissions:**
+
 - ✅ **Issues**: Read & Write ← OBRIGATÓRIO para responder
 - ✅ **Pull requests**: Read & Write
 - ✅ **Contents**: Read & Write
 - ✅ **Metadata**: Read-only (automático)
 
 **Subscribe to events:**
+
 - ✅ **Issue comment** ← OBRIGATÓRIO para receber menções
 - ✅ **Issues**
 - ✅ **Pull request**
 - ✅ **Pull request review**
 
 **Como verificar:**
+
 1. Acesse: `https://github.com/settings/apps/SEU-APP/permissions`
 2. Confira cada permissão
 3. Se precisar alterar, salve e reinstale a app
@@ -106,6 +114,7 @@ A GitHub App precisa ter estas permissões:
    - ❌ Response: 404/500 (problema)
 
 **Se não ver webhooks chegando:**
+
 - Webhook URL está incorreta
 - Bot não está rodando
 - Firewall bloqueando (se auto-hospedado)
@@ -115,11 +124,13 @@ A GitHub App precisa ter estas permissões:
 ### Cenário 1: "Nunca configurei o bot"
 
 **Sintomas:**
+
 - Primeira vez usando o bot
 - Não sei se a app está registrada
 - `.env` com valores de exemplo
 
 **Solução:**
+
 1. Execute: `npm run register:github-app`
 2. Siga o assistente completo
 3. Configure o `.env` com as credenciais obtidas
@@ -128,12 +139,14 @@ A GitHub App precisa ter estas permissões:
 6. Configure ngrok para desenvolvimento
 
 **Guias úteis:**
+
 - [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md) - Guia completo
 - [QUICK_START.md](./QUICK_START.md) - Início rápido
 
 ### Cenário 2: "Já configurei mas não funciona"
 
 **Sintomas:**
+
 - App está registrada
 - Bot inicia sem erros
 - Mas não responde a menções
@@ -141,6 +154,7 @@ A GitHub App precisa ter estas permissões:
 **Causas possíveis:**
 
 **A) Webhook URL incorreta**
+
 ```bash
 # Verifique se ngrok está rodando
 curl http://localhost:4040/api/tunnels
@@ -149,17 +163,20 @@ curl http://localhost:4040/api/tunnels
 ```
 
 **B) Permissões insuficientes**
+
 - Acesse configurações da app
 - Verifique "Issues: Read & Write"
 - Salve e reinstale se necessário
 
 **C) Evento não subscrito**
+
 - Acesse configurações da app
 - Verifique "Subscribe to events"
 - Marque "Issue comment"
 - Salve as alterações
 
 **D) Bot não reconhece menções**
+
 - Use `@xcloud-bot` (exatamente como configurado)
 - Verifique nome da app nas configurações
 - Nome deve corresponder ao usado nas menções
@@ -169,6 +186,7 @@ curl http://localhost:4040/api/tunnels
 **Causas possíveis:**
 
 **A) Ngrok URL expirou** (free tier)
+
 ```bash
 # Inicie novo ngrok
 ngrok http 3000
@@ -177,12 +195,14 @@ ngrok http 3000
 ```
 
 **B) Bot parou de rodar**
+
 ```bash
 # Reinicie o bot
 npm run bot:start
 ```
 
 **C) Token/credenciais expiraram**
+
 ```bash
 # Regenere private key se necessário
 # Baixe novo .pem
@@ -190,6 +210,7 @@ npm run bot:start
 ```
 
 **D) App foi desinstalada**
+
 - Reinstale a app no repositório
 
 ### Cenário 4: "Funciona em um repo mas não em outro"
@@ -197,6 +218,7 @@ npm run bot:start
 **Causa:** App não está instalada no segundo repositório
 
 **Solução:**
+
 1. Acesse: `https://github.com/apps/SEU-APP`
 2. Clique em "Configure"
 3. Adicione o novo repositório
@@ -216,12 +238,14 @@ Bot mencionado na issue #1 em usuario/repo
 ```
 
 **Se não vê logs quando menciona o bot:**
+
 - Webhook não está chegando ao bot
 - Verifique ngrok/webhook URL
 
 ### Logs de erro comuns
 
 **Erro: `Error: Missing required environment variable`**
+
 ```bash
 # Solução: Configure o .env
 cp .env.example .env
@@ -230,6 +254,7 @@ npm run validate:github-app
 ```
 
 **Erro: `HttpError: Bad credentials`**
+
 ```bash
 # Solução: Credenciais inválidas
 # Verifique GITHUB_APP_ID e GITHUB_PRIVATE_KEY no .env
@@ -237,6 +262,7 @@ npm run validate:github-app
 ```
 
 **Erro: `Error: Installation not found`**
+
 ```bash
 # Solução: App não instalada no repositório
 # Instale a app: https://github.com/apps/SEU-APP
@@ -263,6 +289,7 @@ curl http://localhost:3000/health
 ```
 
 **Resposta esperada:**
+
 ```json
 {
   "status": "ok",
@@ -336,6 +363,7 @@ Se seguiu todos os passos e ainda não funciona:
 ---
 
 **💡 Dica:** Na maioria dos casos, o problema é:
+
 1. App não está registrada → Execute `npm run register:github-app`
 2. App não está instalada → Instale em https://github.com/apps/SEU-APP
 3. Webhook URL incorreta → Configure ngrok e atualize a URL

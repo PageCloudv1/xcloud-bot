@@ -355,6 +355,7 @@ npm run bot:start
 ```
 
 Você deve ver:
+
 ```
 🤖 xcloud-bot iniciado na porta 3000
 📡 Webhooks disponíveis em: /webhooks/github
@@ -372,11 +373,13 @@ Você deve ver:
 #### 5. Verifique as permissões da app
 
 A app precisa ter estas permissões:
+
 - ✅ **Issues**: Read & Write
-- ✅ **Pull Requests**: Read & Write  
+- ✅ **Pull Requests**: Read & Write
 - ✅ **Contents**: Read & Write
 
 E deve estar subscrita a estes eventos:
+
 - ✅ **Issue comment**
 - ✅ **Issues**
 - ✅ **Pull request**
