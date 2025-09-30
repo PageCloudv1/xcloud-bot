@@ -386,7 +386,7 @@ export async function generateXCloudReport() {
         }
 
         const summary = {
-            timestamp: new new Date().toISOString(),
+            timestamp: new Date().toISOString(),
             total_repositories: repos.length,
             repositories_with_workflows: reports.filter(r => r.workflows.total > 0).length,
             total_workflows: reports.reduce((acc, r) => acc + r.workflows.total, 0),
