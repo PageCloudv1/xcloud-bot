@@ -43,9 +43,10 @@
 ### 🤖 **GitHub App** (`src/bot/github-app.js`)
 - 🔔 Recebimento e processamento de webhooks
 - 🏷️ Auto-labeling automático de issues e PRs
-- 🔍 Análise automática de falhas de workflow
+- � Comentários automáticos com resumo e recomendações do Gemini em issues novas
+- �🔍 Análise automática de falhas de workflow
 - 📝 Criação automática de issues para investigação
-- � Monitoramento de mudanças em workflows
+- 👀 Monitoramento de mudanças em workflows
 
 ### 🔧 **Integrações** (`src/integrations/`)
 - **Gemini CLI**: Análise inteligente de código e workflows
@@ -126,6 +127,8 @@ npm install
 # Configurar ambiente
 cp .env.example .env
 # Editar .env com suas credenciais
+
+> 📌 Preencha os campos `GITHUB_APP_ID`, `GITHUB_PRIVATE_KEY`, `GITHUB_APP_INSTALLATION_ID`, `WEBHOOK_SECRET` e `GEMINI_API_KEY`. Certifique-se de que o GitHub App está inscrito nos eventos **Issues** e com a URL `/webhook` apontando para o bot em execução.
 
 # Executar bot completo
 npm run bot:start    # GitHub App
