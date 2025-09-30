@@ -16,13 +16,16 @@ Este guia ajuda a resolver problemas comuns durante a configuração do xCloud B
 
 ### Sintomas
 
+
 - Bot inicia mas mostra erro: `⚠️ Could not get bot info: Bad credentials`
 - Webhooks não funcionam
 - Bot não responde a eventos
 
+
 ### Causa Principal
 
 **Você provavelmente usou o Client ID em vez do App ID.**
+
 
 Na página da GitHub App existem **DOIS** identificadores diferentes:
 
@@ -31,11 +34,13 @@ Na página da GitHub App existem **DOIS** identificadores diferentes:
 
 ### Solução
 
+
 #### Passo 1: Verificar qual ID você está usando
 
 Execute o validador:
 
 ```bash
+
 npm run validate:github-app
 ```
 
@@ -57,6 +62,7 @@ Então você precisa corrigir!
    ```
    App ID: 123456          ← Use este (número)
    Client ID: Iv1.xxxxx    ← Não use este
+
    ```
 
 #### Passo 3: Atualizar o valor
@@ -66,6 +72,7 @@ Então você precisa corrigir!
 ```bash
 # Abra o arquivo .env
 nano .env  # ou seu editor preferido
+
 
 # Atualize a linha GITHUB_APP_ID
 GITHUB_APP_ID=123456  # Use o número, sem aspas
@@ -92,6 +99,7 @@ npm run validate:github-app
 npm run bot:start
 
 # Não deve mais mostrar erro "Bad credentials"
+
 ```
 
 ---
@@ -101,10 +109,12 @@ npm run bot:start
 ### Sintomas
 
 - Bot está rodando mas não responde a issues
+
 - Bot não comenta em PRs
 - Sem mensagens de erro aparentes
 
 ### Possíveis Causas
+
 
 #### 1. App não está instalada no repositório
 
@@ -116,10 +126,12 @@ npm run bot:start
 
 **Solução:**
 
+
 1. Na mesma página, clique em **Configure**
 2. Em "Repository access":
    - Selecione "All repositories" ou
    - Adicione o repositório específico
+
 3. Clique em **Save**
 
 #### 2. Permissões insuficientes
@@ -127,6 +139,7 @@ npm run bot:start
 **Verificar:**
 
 1. Acesse: https://github.com/settings/apps
+
 2. Clique na sua app
 3. Clique em **"Permissions & events"**
 
@@ -134,6 +147,7 @@ npm run bot:start
 
 - ✅ Actions: Read and write
 - ✅ Checks: Read and write
+
 - ✅ Contents: Read and write
 - ✅ Issues: Read and write
 - ✅ Pull requests: Read and write
@@ -143,12 +157,14 @@ npm run bot:start
 - ✅ Issues
 - ✅ Issue comments
 - ✅ Pull requests
+
 - ✅ Pull request reviews
 - ✅ Push
 
 **Solução:**
 
 1. Marque as permissões faltantes
+
 2. Clique em **Save changes**
 3. Reinstale a app nos repositórios se solicitado
 
@@ -156,14 +172,17 @@ npm run bot:start
 
 Se estiver usando em produção (servidor web):
 
+
 **Verificar:**
 
 1. Acesse a página da GitHub App
 2. Clique em **"General"**
 3. Verifique se "Webhook URL" está preenchida
 
+
 **Solução:**
 Configure a URL do webhook apontando para seu servidor:
+
 
 ```
 https://seu-servidor.com/webhook
@@ -177,9 +196,11 @@ https://seu-servidor.com/webhook
 cat .env | grep GITHUB_OWNER
 ```
 
+
 **Deve ser:**
 
 - Seu username se for conta pessoal
+
 - O nome da organização se for org
 
 **Exemplo:**
@@ -209,6 +230,7 @@ GITHUB_OWNER=PageCloudv1       # para organização
 
 #### Passo 1: Copiar a private key corretamente
 
+
 ```bash
 # No terminal, exiba o conteúdo do arquivo .pem
 cat caminho/para/sua-chave.pem
@@ -232,6 +254,7 @@ MIIEowIBAAKCAQEAs+EKLBylAXs7RLKbTdVjc2MfZ37KfJXb...
 
 - ✅ Use aspas duplas `"`
 - ✅ Mantenha todas as quebras de linha
+
 - ✅ Inclua as linhas BEGIN e END
 - ❌ Não adicione espaços extras
 - ❌ Não remova quebras de linha
@@ -243,6 +266,7 @@ npm run validate:github-app
 
 # Deve mostrar:
 # ✅ GITHUB_PRIVATE_KEY - GitHub App Private Key
+
 ```
 
 ---
@@ -261,22 +285,29 @@ npm run validate:github-app
 4. Clique em **Save changes**
 5. Aceite a solicitação de atualização nos repositórios instalados
 
+
 ### Erro: "Not installed"
 
 **Causa:** A app não está instalada no repositório.
 
+
 **Solução:**
+
 
 1. Vá para a página da app
 2. Clique em **"Install App"**
 3. Selecione o repositório
+
 4. Confirme a instalação
 
 ---
 
+
 ## Validação falhando
 
+
 ### Executar validação completa
+
 
 ```bash
 npm run validate:github-app
@@ -297,6 +328,7 @@ npm run validate:github-app
 ```
 ⚠️ GITHUB_PRIVATE_KEY - Invalid format (should contain BEGIN PRIVATE KEY)
 ```
+
 
 **Solução:** Veja [Private Key inválida](#private-key-inválida)
 
