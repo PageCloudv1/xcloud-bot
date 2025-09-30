@@ -2,6 +2,8 @@
 
 Bot inteligente para automação e assistência em repositórios GitHub, desenvolvido para a organização PageCloudv1.
 
+> **⚠️ O bot não está respondendo?** Consulte o [guia de troubleshooting](./BOT_NOT_RESPONDING.md) para resolver problemas comuns.
+
 ## 🚀 Começando Rapidamente
 
 **Novo aqui?** Siga estes passos:
@@ -320,11 +322,73 @@ npm run test:coverage
 - 🔒 Rate limiting e segurança
 - 📊 Sistema de logs estruturado
 
+## ❓ Troubleshooting
+
+### O bot não está respondendo às menções?
+
+**📖 Consulte o [Guia Completo de Troubleshooting](./BOT_NOT_RESPONDING.md)** para diagnóstico detalhado e soluções passo a passo.
+
+**Checklist rápida:**
+
+#### 1. Verifique se a GitHub App está registrada
+
+```bash
+npm run validate:github-app
+```
+
+Se você ver erros sobre variáveis de ambiente faltando, você precisa registrar a app primeiro:
+
+```bash
+npm run register:github-app
+```
+
+#### 2. Verifique se a app está instalada no repositório
+
+- Acesse: https://github.com/apps/seu-app-name
+- Verifique se o repositório está na lista de instalações
+- Se não estiver, clique em "Install" e selecione o repositório
+
+#### 3. Verifique se o bot está rodando
+
+```bash
+npm run bot:start
+```
+
+Você deve ver:
+```
+🤖 xcloud-bot iniciado na porta 3000
+📡 Webhooks disponíveis em: /webhooks/github
+```
+
+#### 4. Verifique a configuração de webhooks
+
+- Durante desenvolvimento, use **ngrok** para expor o webhook:
+  ```bash
+  ngrok http 3000
+  ```
+- Configure a Webhook URL nas configurações da app com a URL do ngrok
+- Exemplo: `https://abc123.ngrok.io/webhooks/github`
+
+#### 5. Verifique as permissões da app
+
+A app precisa ter estas permissões:
+- ✅ **Issues**: Read & Write
+- ✅ **Pull Requests**: Read & Write  
+- ✅ **Contents**: Read & Write
+
+E deve estar subscrita a estes eventos:
+- ✅ **Issue comment**
+- ✅ **Issues**
+- ✅ **Pull request**
+
+**Para mais detalhes**, consulte o [guia completo de troubleshooting](./GITHUB_APP_SETUP.md#-troubleshooting) no GITHUB_APP_SETUP.md.
+
 ## 📞 Suporte
 
 - **Issues**: [GitHub Issues](https://github.com/PageCloudv1/xcloud-bot/issues)
 - **Documentação**: Este README
-- **Contato**: Mencione `@xcloud-bot` em qualquer issue
+- **Guia de configuração**: [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md)
+- **Contato**: Mencione `@xcloud-bot` em qualquer issue (após configurar!)
 
 ## 📄 Licença
 
