@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 /**
  * 🤖 xCloud Bot - GitHub App Registration Helper
