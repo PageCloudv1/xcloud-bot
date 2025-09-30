@@ -26,18 +26,25 @@ jobs:
 
       - name: Build TypeScript
         run: npm run build
+        continue-on-error: false
           
       - name: 📊 Analyze Repository
         run: npm run analyze:repo -- ${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        continue-on-error: true
           
       - name: 🔍 Monitor CI Status
         run: npm run scheduler:run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        continue-on-error: true
           
       - name: 🤖 Create Issues if Needed
         run: npm run create:issue -- ${{ github.repository }} "Automated Analysis Report"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        continue-on-error: true
