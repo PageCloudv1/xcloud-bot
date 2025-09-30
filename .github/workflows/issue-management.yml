@@ -144,7 +144,7 @@ jobs:
             Use `mcp__github__update_issue` para:
             - Garantir que `assignees` inclua `xcloud-bot`
             - Selecione um membro disponível da equipe `PageCloudv1/xcloud-team`
-            - Para issues críticas de segurança, mencione `@PageCloudv1/xcloud-team` e garanta acompanhamento imediato
+            - Para issues críticas de segurança, mencione a equipe adicionando o sinal de arroba manualmente (`PageCloudv1/xcloud-team`) e garanta acompanhamento imediato
 
             ### 4. 💬 **Resposta Inteligente**
             Use `mcp__github__add_issue_comment` para adicionar um comentário estruturado:
