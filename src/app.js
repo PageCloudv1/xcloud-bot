@@ -1,28 +1,29 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-const express = require('express');
-const helmet = require('helmet');
-const cors = require('cors');
-const { createNodeMiddleware } = require('@octokit/webhooks');
-const { RateLimiterMemory } = require('rate-limiter-flexible');
+import express from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+import { createNodeMiddleware } from '@octokit/webhooks';
+import { RateLimiterMemory } from 'rate-limiter-flexible';
 
-const { app: githubApp } = require('./config/github-app');
-const logger = require('./utils/logger');
+import { app as githubApp } from './config/github-app.js';
+import logger from './utils/logger.js';
 
 // Importa handlers de webhooks
-const {
+import {
   handleIssueOpened,
   handleIssueEdited,
   handleIssueClosed,
   handleIssueComment,
-} = require('./webhooks/issues');
+} from './webhooks/issues.js';
 
-const {
+import {
   handlePullRequestOpened,
   handlePullRequestEdited,
   handlePullRequestClosed,
   handlePullRequestReview,
-} = require('./webhooks/pull-requests');
+} from './webhooks/pull-requests.js';
 
 // Configuração do servidor Express
 const server = express();
@@ -90,7 +91,7 @@ githubApp.webhooks.on('installation.deleted', async ({ payload }) => {
 githubApp.webhooks.onAny(({ id, name, payload }) => {
   logger.debug(`Webhook recebido: ${name} (${id})`);
 });
-server.use('/webhook', createNodeMiddleware(githubApp.webhooks, {
+
 // Middleware para webhooks do GitHub
 server.use(
   '/webhooks/github',
@@ -205,4 +206,4 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 
-module.exports = server;
+export default server;

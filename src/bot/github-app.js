@@ -14,10 +14,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import { analyzeIssue } from '../integrations/gemini-cli.js';
 import { analyzeRepository } from '../workflows/analyzer.js';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
-const { AssignmentHandler } = require('../webhooks/assignments.js');
+import { AssignmentHandler } from '../webhooks/assignments.js';
 
 dotenv.config();
 

@@ -1,5 +1,5 @@
-const logger = require('../utils/logger');
-const { AutonomousAgent } = require('../agents/AutonomousAgent');
+import logger from '../utils/logger.js';
+import { AutonomousAgent } from '../agents/AutonomousAgent.js';
 
 /**
  * Handler para webhooks de assignments
@@ -148,4 +148,4 @@ class AssignmentHandler {
   }
 }
 
-module.exports = { AssignmentHandler };
+export { AssignmentHandler };

@@ -1,9 +1,9 @@
-const { spawn, exec } = require('child_process');
-const fs = require('fs').promises;
-const path = require('path');
-const { Octokit } = require('@octokit/rest');
-const logger = require('../utils/logger');
-const { multiRepoManager } = require('../config/multi-repo');
+import { spawn, exec } from 'child_process';
+import fs from 'fs/promises';
+import path from 'path';
+import { Octokit } from '@octokit/rest';
+import logger from '../utils/logger.js';
+import { multiRepoManager } from '../config/multi-repo.js';
 
 /**
  * Agente Autônomo xCloud Bot
@@ -248,7 +248,7 @@ class AutonomousAgent {
         this.containerRegistry.set(containerId, container);
         logger.info(`✅ Container ${containerId} criado: ${container.podmanId}`);
         resolve(container);
-      `'apk add --no-cache git && echo "https://${process.env.GITHUB_TOKEN}:x-oauth-basic@github.com" > /root/.git-credentials && git config --global credential.helper store && git clone https://github.com/${task.repository}.git /workspace/repo'`
+      });
     });
   }
 
@@ -449,30 +449,20 @@ class AutonomousAgent {
         actionResult.output = await this.runContainerCommand(
           container,
           `echo "Ação ${action} executada"`
-    // Implementação de correção de bug baseada na análise fornecida
-    const files = [];
-    
-    // Espera-se que analysis contenha { filePath, lineNumber, buggyLine, fixedLine }
-    if (
-      analysis &&
-      analysis.filePath &&
-      typeof analysis.lineNumber === 'number' &&
-      analysis.fixedLine
-    ) {
-      const filePath = analysis.filePath;
-      const lineNumber = analysis.lineNumber;
-      const fixedLine = analysis.fixedLine.replace(/'/g, "'\\''"); // escape single quotes for shell
-
-      // Usa sed para substituir a linha problemática pela linha corrigida
-      // sed -i "${lineNumber}s/.*/<fixedLine>/" <filePath>
-      const sedCmd = `sed -i "${lineNumber}s/.*/${fixedLine}/" /workspace/repo/${filePath}`;
-      await this.runContainerCommand(container, sedCmd);
-      files.push(filePath);
-    } else {
-      // Se não houver análise suficiente, loga erro
-      logger.error('Análise insuficiente para aplicar correção de bug', { analysis });
+        );
+        break;
     }
-    
+
+    return actionResult;
+  }
+
+  /**
+   * Executa comando em container
+   * @param {Object} container - Container info
+   * @param {string} command - Comando a executar
+   * @returns {Promise<string>} Output do comando
+   */
+  async runContainerCommand(container, command) {
     return new Promise((resolve, reject) => {
       const cmd = `podman exec ${container.id} sh -c "${command}"`;
 
@@ -892,4 +882,4 @@ ${task.result.summary}
   }
 }
 
-module.exports = { AutonomousAgent };
+export { AutonomousAgent };
