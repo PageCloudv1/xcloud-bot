@@ -408,7 +408,7 @@ Para mais informações, consulte a [documentação completa](https://github.com
       const result = await this.expandToRepository(owner, repo, {
       const [owner, repo] = repoInfo.repository.split('/');
       const result = await this.expandToRepository(owner, repo, {
-        ...options,
+      const [owner, repo] = repoInfo.repository.split('/');
         ...(repoInfo.options || {})
 
       // Aguardar entre expansões para evitar rate limiting
