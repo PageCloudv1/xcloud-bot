@@ -17,7 +17,10 @@ export interface DeploymentInfo {
   version: string;
   branch: string;
   status: 'deploying' | 'deployed' | 'failed';
+  strategy: 'rolling' | 'blue-green' | 'canary';
   timestamp: Date;
+  url?: string;
+  healthEndpoint?: string;
 }
 
 export class DevOpsService {
@@ -98,8 +101,8 @@ export class DevOpsService {
   /**
    * Trigger deployment
    */
-  async triggerDeployment(branch: string, environment: string): Promise<DeploymentInfo> {
-    this.logger.info(`🚀 Triggering deployment of ${branch} to ${environment}`);
+  async triggerDeployment(branch: string, environment: string, strategy: 'rolling' | 'blue-green' | 'canary' = 'rolling'): Promise<DeploymentInfo> {
+    this.logger.info(`🚀 Triggering ${strategy} deployment of ${branch} to ${environment}`);
 
     // Mock implementation
     return {
@@ -107,7 +110,10 @@ export class DevOpsService {
       version: '1.0.0',
       branch,
       status: 'deploying',
+      strategy,
       timestamp: new Date(),
+      url: `https://${environment === 'production' ? '' : environment + '.'}xcloud-bot.example.com`,
+      healthEndpoint: `https://${environment === 'production' ? '' : environment + '.'}xcloud-bot.example.com/health`
     };
   }
 
@@ -123,7 +129,10 @@ export class DevOpsService {
       version: '1.0.0',
       branch: 'main',
       status: 'deployed',
+      strategy: 'rolling',
       timestamp: new Date(Date.now() - 600000), // 10 minutes ago
+      url: `https://${environment === 'production' ? '' : environment + '.'}xcloud-bot.example.com`,
+      healthEndpoint: `https://${environment === 'production' ? '' : environment + '.'}xcloud-bot.example.com/health`
     };
   }
 

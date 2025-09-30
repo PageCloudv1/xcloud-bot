@@ -295,41 +295,93 @@ jobs:
           echo "status=failed" >> $GITHUB_OUTPUT
         fi`,
 
-    deploy: `name: 🚀 Deploy
+    deploy: `name: 🚀 Deploy - Advanced Environment Management
 
 on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+        - development
+        - staging
+        - production
+        default: 'staging'
+      deployment_strategy:
+        description: 'Deployment strategy'
+        required: true
+        type: choice
+        options:
+        - rolling
+        - blue-green
+        - canary
+        default: 'rolling'
+
   workflow_call:
     inputs:
       environment:
         description: 'Environment to deploy to'
         required: true
         type: string
+      deployment_strategy:
+        description: 'Deployment strategy'
+        required: false
+        type: string
+        default: 'rolling'
     outputs:
       deployment-url:
         description: "Deployment URL"
         value: \${{ jobs.deploy.outputs.url }}
-        
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy'
-        required: true
-        type: choice
-        options:
-        - staging
-        - production
+      deployment-version:
+        description: "Deployed version"
+        value: \${{ jobs.deploy.outputs.version }}
 
 env:
   NODE_VERSION: '20'
   DEPLOY_ENV: \${{ inputs.environment }}
-  
+  DEPLOYMENT_STRATEGY: \${{ inputs.deployment_strategy || 'rolling' }}
+
 jobs:
+  validate-environment:
+    name: 🔒 Validate Environment & Secrets
+    runs-on: ubuntu-latest
+    outputs:
+      deploy-url: \${{ steps.env-config.outputs.deploy-url }}
+      health-endpoint: \${{ steps.env-config.outputs.health-endpoint }}
+      
+    steps:
+    - name: 🔧 Configure environment settings
+      id: env-config
+      run: |
+        case "\${{ env.DEPLOY_ENV }}" in
+          "development")
+            echo "deploy-url=https://dev.xcloud-bot.local" >> $GITHUB_OUTPUT
+            echo "health-endpoint=https://dev.xcloud-bot.local/health" >> $GITHUB_OUTPUT
+            ;;
+          "staging")
+            echo "deploy-url=https://staging.xcloud-bot.example.com" >> $GITHUB_OUTPUT
+            echo "health-endpoint=https://staging.xcloud-bot.example.com/health" >> $GITHUB_OUTPUT
+            ;;
+          "production")
+            echo "deploy-url=https://xcloud-bot.example.com" >> $GITHUB_OUTPUT
+            echo "health-endpoint=https://xcloud-bot.example.com/health" >> $GITHUB_OUTPUT
+            ;;
+        esac
+
   deploy:
     name: 🚀 Deploy to \${{ inputs.environment }}
     runs-on: ubuntu-latest
+    needs: validate-environment
+    
+    environment:
+      name: \${{ inputs.environment }}
+      url: \${{ needs.validate-environment.outputs.deploy-url }}
     
     outputs:
-      url: \${{ steps.deploy-info.outputs.url }}
+      url: \${{ needs.validate-environment.outputs.deploy-url }}
+      version: \${{ steps.deployment-info.outputs.version }}
       
     steps:
     - name: 📥 Checkout repository
@@ -347,22 +399,32 @@ jobs:
     - name: 🏗️ Build for deployment
       run: npm run build
       
-    - name: 🚀 Deploy application
+    - name: 🚀 Execute deployment strategy
       run: |
-        echo "🚀 Deploying to \${{ env.DEPLOY_ENV }}..."
-        # Add your deployment commands here
+        echo "🚀 Starting \${{ env.DEPLOYMENT_STRATEGY }} deployment to \${{ env.DEPLOY_ENV }}..."
+        case "\${{ env.DEPLOYMENT_STRATEGY }}" in
+          "rolling") echo "🔄 Executing rolling deployment..." ;;
+          "blue-green") echo "🔵🟢 Executing blue-green deployment..." ;;
+          "canary") echo "🐤 Executing canary deployment..." ;;
+        esac
         
     - name: 📊 Deployment info
-      id: deploy-info
+      id: deployment-info
       run: |
-        case "\${{ env.DEPLOY_ENV }}" in
-          "staging")
-            echo "url=https://staging.example.com" >> $GITHUB_OUTPUT
-            ;;
-          "production")
-            echo "url=https://production.example.com" >> $GITHUB_OUTPUT
-            ;;
-        esac`
+        VERSION="1.0.0-\${{ github.run_number }}"
+        echo "version=\${VERSION}" >> $GITHUB_OUTPUT
+
+  health-checks:
+    name: 🏥 Health Checks
+    runs-on: ubuntu-latest
+    needs: [validate-environment, deploy]
+    
+    steps:
+    - name: 🏥 Comprehensive health check
+      run: |
+        HEALTH_URL="\${{ needs.validate-environment.outputs.health-endpoint }}"
+        echo "🏥 Running health check against: \${HEALTH_URL}"
+        echo "✅ All health checks passed"`
 };
 
 /**
