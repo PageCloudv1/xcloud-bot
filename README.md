@@ -19,6 +19,7 @@ Bot inteligente para automação e assistência em repositórios GitHub, desenvo
 - 📋 [REGISTRATION_CHECKLIST.md](./REGISTRATION_CHECKLIST.md) - Checklist de registro
 - 📖 [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md) - Guia completo de configuração
 - 🤖 [GITHUB_BOT_SETUP_GUIDE.md](./GITHUB_BOT_SETUP_GUIDE.md) - Guia detalhado do bot
+- 💬 [BOT_COMMANDS_GUIDE.md](./BOT_COMMANDS_GUIDE.md) - Guia de comandos do bot
 - 🔧 [TROUBLESHOOTING_SETUP.md](./TROUBLESHOOTING_SETUP.md) - Solução de problemas
 - 🚨 [QUICK_TROUBLESHOOTING.md](./QUICK_TROUBLESHOOTING.md) - Solução rápida de problemas
 - 🔍 [BOT_NOT_RESPONDING.md](./BOT_NOT_RESPONDING.md) - Diagnóstico completo
@@ -77,6 +78,8 @@ Bot inteligente para automação e assistência em repositórios GitHub, desenvo
 - `@xcloud-bot` - Mencione para interagir
 - `@xcloud-bot help` - Ajuda sobre comandos
 - `@xcloud-bot analyze` - Re-análise do item atual
+
+📖 **[Guia Completo de Comandos →](./BOT_COMMANDS_GUIDE.md)**
 
 ## 🛠️ Instalação e Configuração
 
