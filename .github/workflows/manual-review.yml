@@ -1,4 +1,4 @@
-name: '👤 Manual Review - rootkit-original'
+name: '👤 Manual Review'
 
 on:
   issue_comment:
@@ -23,10 +23,6 @@ jobs:
   manual-review:
     name: '🔍 Revisão Manual'
     runs-on: ubuntu-latest
-    # Só executa se comentário for de rootkit-original ou via workflow_dispatch
-    if: >
-      (github.event_name == 'issue_comment' && github.event.comment.user.login == 'rootkit-original') ||
-      github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
       issues: write
@@ -45,10 +41,15 @@ jobs:
           app-id: '${{ vars.GH_APP_ID }}'
           private-key: '${{ secrets.GH_PRIVATE_KEY }}'
 
+      - name: '⚙️ Configure Node 20'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: '🤖 Assistente de Revisão'
         uses: 'google-github-actions/run-gemini-cli@v0'
         env:
-          REVIEWER: 'rootkit-original'
+          REVIEWER: '${{ github.actor }}'
           COMMENT_BODY: '${{ github.event.comment.body }}'
           ISSUE_NUMBER: '${{ github.event.issue.number || inputs.issue_number }}'
           ACTION_TYPE: '${{ inputs.action || github.event.comment.body }}'
@@ -84,10 +85,10 @@ jobs:
               }
             }
           prompt: |-
-            # 👤 Assistente de Revisão - rootkit-original
+            # 👤 Assistente de Revisão
 
             ## Contexto
-            Você está auxiliando **rootkit-original** na revisão manual da issue #${ISSUE_NUMBER}.
+            Você está auxiliando **${REVIEWER}** na revisão manual da issue #${ISSUE_NUMBER}.
 
             ## Dados da Revisão
             - **Revisor**: ${REVIEWER}
@@ -119,7 +120,7 @@ jobs:
 
             ## Formato do Comentário de Revisão
             ```markdown
-            ## 👤 Revisão Manual - @rootkit-original
+            ## 👤 Revisão Manual - @${REVIEWER}
 
             ### 📊 **Resumo Executivo**
             [Resumo conciso da issue e status atual]
@@ -135,7 +136,7 @@ jobs:
             2. [Recomendação específica 2]
 
             ---
-            ✅ *Revisão manual concluída por @rootkit-original*
+            ✅ *Revisão manual concluída por @${REVIEWER}*
             ```
 
             Execute a ação solicitada para a issue #${ISSUE_NUMBER}.
