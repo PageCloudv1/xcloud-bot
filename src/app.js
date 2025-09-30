@@ -90,7 +90,7 @@ githubApp.webhooks.on('installation.deleted', async ({ payload }) => {
 githubApp.webhooks.onAny(({ id, name, payload }) => {
   logger.debug(`Webhook recebido: ${name} (${id})`);
 });
-
+server.use('/webhook', createNodeMiddleware(githubApp.webhooks, {
 // Middleware para webhooks do GitHub
 server.use(
   '/webhooks/github',
