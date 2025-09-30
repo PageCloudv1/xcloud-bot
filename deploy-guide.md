@@ -3,6 +3,7 @@
 ## 📋 Pré-requisitos
 
 ✅ **Você já tem:**
+
 - GitHub App criada (ID: `Iv23ligqBuX1sUnHLfGY`)
 - Chave privada da GitHub App
 - Token do GitHub
@@ -136,11 +137,13 @@ vercel
 ### 1. Atualizar Webhook URL
 
 Após o deploy, você terá uma URL como:
+
 - Railway: `https://xcloud-bot-production.up.railway.app`
 - Heroku: `https://xcloud-bot-pagecloud.herokuapp.com`
 - Vercel: `https://xcloud-bot.vercel.app`
 
 **Configure na GitHub App:**
+
 1. Vá para `https://github.com/settings/apps/xcloud-bot`
 2. Atualize **Webhook URL**: `https://sua-url.com/webhooks/github`
 3. Salve as alterações
@@ -158,11 +161,13 @@ Após o deploy, você terá uma URL como:
 ## 🧪 Teste da Instalação
 
 ### 1. Verificar Health Check
+
 ```bash
 curl https://sua-url.com/health
 ```
 
 **Resposta esperada:**
+
 ```json
 {
   "status": "ok",
@@ -197,10 +202,11 @@ curl https://sua-url.com/health
 ### Bot não responde?
 
 1. **Verifique logs:**
+
    ```bash
    # Railway
    railway logs
-   
+
    # Heroku
    heroku logs --tail
    ```
@@ -211,10 +217,11 @@ curl https://sua-url.com/health
    - Status deve ser 200
 
 3. **Verifique variáveis:**
+
    ```bash
    # Railway
    railway variables
-   
+
    # Heroku
    heroku config
    ```
@@ -234,6 +241,7 @@ curl https://sua-url.com/health
 ## 📊 Monitoramento
 
 ### Logs em Produção
+
 ```bash
 # Railway
 railway logs --follow
@@ -243,6 +251,7 @@ heroku logs --tail --app xcloud-bot-pagecloud
 ```
 
 ### Métricas
+
 - **Health**: `GET /health`
 - **Info**: `GET /info`
 - **Stats**: `GET /stats`
@@ -256,7 +265,7 @@ Seu **xcloud-bot** está agora funcionando como o Copilot! 🤖
 ✅ **Issues** - Análise automática e labels  
 ✅ **PRs** - Análise de tamanho e qualidade  
 ✅ **Menções** - Resposta inteligente  
-✅ **Automação** - Labels e comentários  
+✅ **Automação** - Labels e comentários
 
 ### Próximos passos:
 
@@ -269,4 +278,4 @@ Seu **xcloud-bot** está agora funcionando como o Copilot! 🤖
 
 **🚀 Seu bot está live e funcionando!**
 
-*Qualquer dúvida, mencione `@xcloud-bot` em uma issue!*
+_Qualquer dúvida, mencione `@xcloud-bot` em uma issue!_

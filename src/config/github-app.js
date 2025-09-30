@@ -43,7 +43,7 @@ async function getInstallationInfo(installationId) {
     const { data: installation } = await octokit.rest.apps.getInstallation({
       installation_id: installationId,
     });
-    
+
     return installation;
   } catch (error) {
     logger.error('Erro ao obter informações da instalação:', error);

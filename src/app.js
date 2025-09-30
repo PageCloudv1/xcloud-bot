@@ -29,14 +29,16 @@ const server = express();
 
 // Middlewares de segurança
 server.use(helmet());
-server.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  credentials: true,
-}));
+server.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || '*',
+    credentials: true,
+  })
+);
 
 // Rate limiting
 const rateLimiter = new RateLimiterMemory({
-  keyGenerator: (req) => req.ip,
+  keyGenerator: req => req.ip,
   points: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   duration: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000, // 15 minutos
 });
@@ -90,9 +92,12 @@ githubApp.webhooks.onAny(({ id, name, payload }) => {
 });
 
 // Middleware para webhooks do GitHub
-server.use('/webhooks/github', createNodeMiddleware(githubApp.webhooks, {
-  path: '/',
-}));
+server.use(
+  '/webhooks/github',
+  createNodeMiddleware(githubApp.webhooks, {
+    path: '/',
+  })
+);
 
 // ==================== ROTAS DA API ====================
 
@@ -147,7 +152,7 @@ server.get('/stats', async (req, res) => {
 // Middleware de tratamento de erros
 server.use((error, req, res, next) => {
   logger.error('Erro não tratado:', error);
-  
+
   res.status(500).json({
     error: 'Erro interno do servidor',
     message: process.env.NODE_ENV === 'development' ? error.message : 'Algo deu errado',
@@ -172,7 +177,7 @@ server.listen(PORT, () => {
   logger.info(`📡 Webhooks disponíveis em: /webhooks/github`);
   logger.info(`🏥 Health check em: /health`);
   logger.info(`ℹ️  Informações em: /info`);
-  
+
   if (process.env.NODE_ENV === 'development') {
     logger.info(`🔧 Modo de desenvolvimento ativo`);
   }
@@ -190,7 +195,7 @@ process.on('SIGINT', () => {
 });
 
 // Tratamento de erros não capturados
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   logger.error('Exceção não capturada:', error);
   process.exit(1);
 });

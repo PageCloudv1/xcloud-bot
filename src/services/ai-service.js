@@ -4,8 +4,8 @@ const logger = require('../utils/logger');
 class AIService {
   constructor() {
     this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    this.model = this.genAI.getGenerativeModel({ 
-      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp' 
+    this.model = this.genAI.getGenerativeModel({
+      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp',
     });
   }
 
@@ -37,7 +37,7 @@ Responda APENAS com JSON válido.
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      
+
       // Tenta fazer parse do JSON
       try {
         return JSON.parse(text);
@@ -59,8 +59,10 @@ Responda APENAS com JSON válido.
    */
   async analyzePullRequest(pr, files = []) {
     try {
-      const filesList = files.map(f => `${f.filename} (+${f.additions}/-${f.deletions})`).join('\n');
-      
+      const filesList = files
+        .map(f => `${f.filename} (+${f.additions}/-${f.deletions})`)
+        .join('\n');
+
       const prompt = `
 Analise este Pull Request do GitHub:
 
@@ -86,7 +88,7 @@ Responda APENAS com JSON válido.
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      
+
       try {
         return JSON.parse(text);
       } catch (parseError) {
@@ -134,26 +136,26 @@ Resposta:
   getFallbackIssueAnalysis(issue) {
     const title = issue.title.toLowerCase();
     const body = (issue.body || '').toLowerCase();
-    
+
     let labels = [];
     let priority = 'medium';
     let category = 'general';
-    
+
     // Análise simples baseada em palavras-chave
     if (title.includes('bug') || body.includes('erro') || body.includes('error')) {
       labels.push('bug');
       priority = 'high';
     }
-    
+
     if (title.includes('feature') || title.includes('funcionalidade')) {
       labels.push('enhancement');
     }
-    
+
     if (title.includes('doc') || body.includes('documentação')) {
       labels.push('documentation');
       category = 'documentation';
     }
-    
+
     if (title.includes('urgent') || title.includes('crítico')) {
       priority = 'critical';
     }
@@ -174,7 +176,7 @@ Resposta:
 - Vou adicionar as labels apropriadas
 - A equipe será notificada automaticamente
 
-*Análise gerada pelo xcloud-bot* 🤖`
+*Análise gerada pelo xcloud-bot* 🤖`,
     };
   }
 
@@ -185,7 +187,7 @@ Resposta:
     const additions = pr.additions || 0;
     const deletions = pr.deletions || 0;
     const total = additions + deletions;
-    
+
     let size = 'M';
     if (total < 10) size = 'XS';
     else if (total < 50) size = 'S';
@@ -193,7 +195,7 @@ Resposta:
     else if (total < 500) size = 'L';
     else if (total < 1000) size = 'XL';
     else size = 'XXL';
-    
+
     return {
       size,
       type: 'feature',
@@ -211,7 +213,7 @@ Resposta:
 - ${total > 500 ? 'Considere dividir este PR em partes menores' : 'Tamanho adequado para review'}
 - Verifique se há testes cobrindo as mudanças
 
-*Análise gerada pelo xcloud-bot* 🤖`
+*Análise gerada pelo xcloud-bot* 🤖`,
     };
   }
 }
