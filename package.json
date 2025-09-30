@@ -49,7 +49,13 @@
     "multi-repo:export": "node -e \"const {multiRepoManager} = require('./src/config/multi-repo'); console.log(JSON.stringify(multiRepoManager.exportConfig(), null, 2))\"",
     "workflow:validate": "find .github/workflows -name '*.yml' -exec yamllint {} \\;",
     "workflow:test": "act --list",
-    "workflow:test-issue-mgmt": "node tests/validate-issue-management.js"
+    "workflow:test-issue-mgmt": "node tests/validate-issue-management.js",
+    "agent:test": "node scripts/test-autonomous-agent.js",
+    "agent:tasks": "curl -s http://localhost:3000/api/agent/tasks | jq",
+    "agent:stop": "curl -s -X POST http://localhost:3000/api/agent/stop | jq",
+    "agent:simulate": "node -e \"console.log('Usage: npm run agent:simulate -- REPO ISSUE_NUMBER'); process.exit(1)\"",
+    "podman:setup": "echo 'Setting up Podman...' && podman --version || echo 'Please install Podman first'",
+    "podman:cleanup": "podman stop $(podman ps -q --filter 'name=xbot-') 2>/dev/null || true; podman rm $(podman ps -aq --filter 'name=xbot-') 2>/dev/null || true"
   },
   "keywords": [
     "xcloud",

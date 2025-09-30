@@ -53,7 +53,7 @@ describe('XCloudBot', () => {
         logLevel: 'error',
       };
       const testBot = new XCloudBot(testConfig);
-      
+
       // Mock the config.load method to throw an error
       jest.spyOn(testBot['config'], 'load').mockRejectedValue(new Error('Config load failed'));
 

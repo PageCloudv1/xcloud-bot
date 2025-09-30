@@ -1,6 +1,6 @@
 /**
  * 🧪 Build Workflow Tests
- * 
+ *
  * Tests for the build.yml workflow configuration
  */
 
@@ -97,7 +97,7 @@ describe('Build Workflow', () => {
 
     it('should have required build steps', () => {
       const stepNames = buildJob.steps.map(step => step.name);
-      
+
       expect(stepNames).toContain('📥 Checkout repository');
       expect(stepNames).toContain('🟢 Setup Node.js');
       expect(stepNames).toContain('📦 Install dependencies');
@@ -119,7 +119,9 @@ describe('Build Workflow', () => {
     });
 
     it('should have documentation generation step', () => {
-      const docsStep = buildJob.steps.find(step => step.name === '📚 Generate documentation (if configured)');
+      const docsStep = buildJob.steps.find(
+        step => step.name === '📚 Generate documentation (if configured)'
+      );
       expect(docsStep).toBeDefined();
     });
 
@@ -175,48 +177,66 @@ describe('Build Workflow', () => {
     });
 
     it('should download artifacts', () => {
-      const downloadStep = qualityJob.steps.find(step => step.name === '📥 Download build artifacts');
+      const downloadStep = qualityJob.steps.find(
+        step => step.name === '📥 Download build artifacts'
+      );
       expect(downloadStep).toBeDefined();
       expect(downloadStep.uses).toBe('actions/download-artifact@v4');
     });
 
     it('should validate artifacts', () => {
-      const validateStep = qualityJob.steps.find(step => step.name === '✅ Validate build artifacts');
+      const validateStep = qualityJob.steps.find(
+        step => step.name === '✅ Validate build artifacts'
+      );
       expect(validateStep).toBeDefined();
     });
 
     it('should have performance benchmarks', () => {
-      const perfStep = qualityJob.steps.find(step => step.name === '📊 Performance benchmarks (placeholder)');
+      const perfStep = qualityJob.steps.find(
+        step => step.name === '📊 Performance benchmarks (placeholder)'
+      );
       expect(perfStep).toBeDefined();
     });
   });
 
   describe('Issue Requirements Checklist', () => {
     it('should implement build da aplicação Node.js', () => {
-      const buildStep = workflowConfig.jobs.build.steps.find(step => step.name === '🏗️ Build project');
+      const buildStep = workflowConfig.jobs.build.steps.find(
+        step => step.name === '🏗️ Build project'
+      );
       expect(buildStep).toBeDefined();
     });
 
     it('should implement empacotamento de artefatos', () => {
-      const uploadStep = workflowConfig.jobs.build.steps.find(step => step.name === '📤 Upload build artifacts');
+      const uploadStep = workflowConfig.jobs.build.steps.find(
+        step => step.name === '📤 Upload build artifacts'
+      );
       expect(uploadStep).toBeDefined();
     });
 
     it('should implement geração de documentação', () => {
-      const docsStep = workflowConfig.jobs.build.steps.find(step => step.name === '📚 Generate documentation (if configured)');
+      const docsStep = workflowConfig.jobs.build.steps.find(
+        step => step.name === '📚 Generate documentation (if configured)'
+      );
       expect(docsStep).toBeDefined();
     });
 
     it('should implement compressão e otimização', () => {
-      const optimizeStep = workflowConfig.jobs.build.steps.find(step => step.name === '🗜️ Optimize artifacts (placeholder)');
+      const optimizeStep = workflowConfig.jobs.build.steps.find(
+        step => step.name === '🗜️ Optimize artifacts (placeholder)'
+      );
       expect(optimizeStep).toBeDefined();
-      
-      const uploadStep = workflowConfig.jobs.build.steps.find(step => step.name === '📤 Upload build artifacts');
+
+      const uploadStep = workflowConfig.jobs.build.steps.find(
+        step => step.name === '📤 Upload build artifacts'
+      );
       expect(uploadStep.with['compression-level']).toBe(9);
     });
 
     it('should implement versionamento automático', () => {
-      const versionStep = workflowConfig.jobs.build.steps.find(step => step.name === '🏷️ Generate version info');
+      const versionStep = workflowConfig.jobs.build.steps.find(
+        step => step.name === '🏷️ Generate version info'
+      );
       expect(versionStep).toBeDefined();
     });
 
@@ -225,7 +245,9 @@ describe('Build Workflow', () => {
     });
 
     it('should implement bundle size analysis', () => {
-      const sizeStep = workflowConfig.jobs.build.steps.find(step => step.name === '📊 Artifact size analysis');
+      const sizeStep = workflowConfig.jobs.build.steps.find(
+        step => step.name === '📊 Artifact size analysis'
+      );
       expect(sizeStep).toBeDefined();
     });
 

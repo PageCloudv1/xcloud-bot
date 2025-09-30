@@ -14,6 +14,10 @@ import dotenv from 'dotenv';
 import express from 'express';
 import { analyzeIssue } from '../integrations/gemini-cli.js';
 import { analyzeRepository } from '../workflows/analyzer.js';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const { AssignmentHandler } = require('../webhooks/assignments.js');
 
 dotenv.config();
 
@@ -28,6 +32,9 @@ const app = new App({
     secret: process.env.WEBHOOK_SECRET,
   },
 });
+
+// Inicializar handler de assignments
+const assignmentHandler = new AssignmentHandler();
 
 // 🎯 Event Handlers
 
@@ -207,6 +214,43 @@ _Issue criada automaticamente pelo xCloud Bot_`,
   }
 });
 
+// 🤖 Handler para assignments do xBot
+app.webhooks.on('issues.assigned', async ({ octokit, payload }) => {
+  console.log(`🎯 Issue assignado: #${payload.issue.number} para ${payload.assignee.login}`);
+
+  try {
+    const result = await assignmentHandler.handle(payload, { octokit });
+
+    if (result.success) {
+      console.log(`✅ Assignment processado: ${result.message}`);
+      if (result.taskId) {
+        console.log(`📋 Tarefa criada: ${result.taskId}`);
+      }
+    } else {
+      console.log(`ℹ️ Assignment ignorado: ${result.message}`);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao processar assignment:', error);
+  }
+});
+
+// Handler para unassignments
+app.webhooks.on('issues.unassigned', async ({ octokit, payload }) => {
+  console.log(`🎯 Issue unassigned: #${payload.issue.number} de ${payload.assignee.login}`);
+
+  try {
+    const result = await assignmentHandler.handle(payload, { octokit });
+
+    if (result.success) {
+      console.log(`✅ Unassignment processado: ${result.message}`);
+    } else {
+      console.log(`ℹ️ Unassignment ignorado: ${result.message}`);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao processar unassignment:', error);
+  }
+});
+
 function parseRepositoryIdentifier(repoInput) {
   if (!repoInput) {
     return [defaultOwner, 'xcloud-bot'];
@@ -327,6 +371,71 @@ async function main() {
       res.json({
         repository,
         analysis,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // API endpoints para o agente autônomo
+  server.get('/api/agent/tasks', (req, res) => {
+    try {
+      const tasks = assignmentHandler.getActiveTasks();
+      res.json({
+        tasks,
+        count: tasks.length,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  server.post('/api/agent/stop', async (req, res) => {
+    try {
+      await assignmentHandler.stopAllTasks();
+      res.json({
+        message: 'Todas as tarefas foram paradas',
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  server.post('/api/agent/simulate', async (req, res) => {
+    try {
+      const { repository, issue_number, assignee = 'xcloud-bot' } = req.body;
+
+      if (!repository || !issue_number) {
+        return res.status(400).json({
+          error: 'repository e issue_number são obrigatórios',
+        });
+      }
+
+      // Simular payload de assignment
+      const simulatedPayload = {
+        action: 'assigned',
+        issue: {
+          number: parseInt(issue_number),
+          title: `Simulated task for issue #${issue_number}`,
+          body: 'This is a simulated assignment for testing purposes.',
+          html_url: `https://github.com/${repository}/issues/${issue_number}`,
+        },
+        assignee: {
+          login: assignee,
+        },
+        repository: {
+          full_name: repository,
+        },
+      };
+
+      const result = await assignmentHandler.handle(simulatedPayload, {});
+
+      res.json({
+        result,
+        payload: simulatedPayload,
         timestamp: new Date().toISOString(),
       });
     } catch (error) {

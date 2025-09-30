@@ -17,8 +17,8 @@ export default defineConfig({
         'tests/e2e/**',
         '**/*.config.js',
         '**/*.test.js',
-        '**/*.spec.js'
-      ]
-    }
-  }
+        '**/*.spec.js',
+      ],
+    },
+  },
 });

@@ -1,0 +1,70 @@
+name: 'Setup xCloud Bot GitHub App'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create setup instructions
+        run: |
+          cat > GITHUB_APP_SETUP.md << 'EOF'
+          # xCloud Bot - GitHub App Setup
+          
+          ## Como Registrar o Bot
+          
+          1. Acesse: https://github.com/settings/apps/new
+          2. Cole o conteudo do arquivo github-app-manifest.json
+          3. Configure as permissoes necessarias
+          4. Anote as credenciais geradas
+          5. Configure os secrets no repositorio
+          
+          ## Permissoes Necessarias
+          
+          - Actions: write
+          - Checks: write
+          - Contents: write
+          - Issues: write
+          - Pull Requests: write
+          
+          ## Proximos Passos
+          
+          1. Registrar GitHub App
+          2. Configurar secrets
+          3. Instalar nos repositorios
+          4. Testar funcionalidade
+          EOF
+
+      - name: Update README
+        run: |
+          if [ -f "README.md" ]; then
+            if ! grep -q "Bot Registration" README.md; then
+              echo "" >> README.md
+              echo "## Bot Registration" >> README.md
+              echo "Consulte GITHUB_APP_SETUP.md para registrar o bot." >> README.md
+            fi
+          fi
+
+      - name: Commit files
+        run: |
+          git config user.name "xCloud Bot"
+          git config user.email "xcloud-bot@pagecloud.dev"
+          git add .
+          if ! git diff --staged --quiet; then
+            git commit -m "Add GitHub App setup files"
+            git push
+          fi
+
+      - name: Create issue
+        run: |
+          gh issue create --title "xCloud Bot Registration Required" --body "Registre o GitHub App seguindo as instrucoes em GITHUB_APP_SETUP.md" --label "setup"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

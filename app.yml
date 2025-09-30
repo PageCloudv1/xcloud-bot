@@ -1,0 +1,80 @@
+# GitHub App Manifest for xCloud Bot
+name: "xCloud Bot"
+description: "Intelligent automation bot for code review, AI assistance, and repository management"
+
+# GitHub App configuration
+url: "https://github.com/PageCloudv1/xcloud-bot"
+homepage_url: "https://github.com/PageCloudv1/xcloud-bot"
+
+# Permissions
+default_permissions:
+  # Repository permissions
+  actions: write
+  checks: write
+  contents: write
+  deployments: write
+  issues: write
+  metadata: read
+  pages: write
+  pull_requests: write
+  repository_projects: write
+  security_events: write
+  statuses: write
+  vulnerability_alerts: read
+  
+  # Account permissions
+  members: read
+  organization_administration: read
+  organization_hooks: read
+  organization_plan: read
+  organization_projects: read
+  organization_secrets: read
+  organization_self_hosted_runners: read
+  organization_user_blocking: read
+
+# Events the app subscribes to
+default_events:
+  - check_run
+  - check_suite
+  - commit_comment
+  - create
+  - delete
+  - deployment
+  - deployment_status
+  - fork
+  - gollum
+  - issue_comment
+  - issues
+  - label
+  - milestone
+  - page_build
+  - project
+  - project_card
+  - project_column
+  - public
+  - pull_request
+  - pull_request_review
+  - pull_request_review_comment
+  - push
+  - release
+  - repository
+  - star
+  - status
+  - watch
+  - workflow_dispatch
+  - workflow_run
+
+# Installation
+installation:
+  # Can be installed on repositories and organizations
+  type: "both"
+
+# Features
+features:
+  - "Auto Code Review with AI"
+  - "Issue Triage and Management"
+  - "Pull Request Automation"
+  - "Security Scanning"
+  - "Performance Analysis"
+  - "Documentation Generation"
+  - "Multi-repository Support"
