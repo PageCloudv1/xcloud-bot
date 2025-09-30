@@ -25,8 +25,8 @@ export interface DeploymentInfo {
 
 export class DevOpsService {
   private readonly logger: Logger;
-  private initialized: boolean = false;
-  private running: boolean = false;
+  private initialized = false;
+  private running = false;
 
   constructor() {
     this.logger = new Logger('DevOpsService');
@@ -101,7 +101,11 @@ export class DevOpsService {
   /**
    * Trigger deployment
    */
-  async triggerDeployment(branch: string, environment: string, strategy: 'rolling' | 'blue-green' | 'canary' = 'rolling'): Promise<DeploymentInfo> {
+  async triggerDeployment(
+    branch: string,
+    environment: string,
+    strategy: 'rolling' | 'blue-green' | 'canary' = 'rolling'
+  ): Promise<DeploymentInfo> {
     this.logger.info(`🚀 Triggering ${strategy} deployment of ${branch} to ${environment}`);
 
     // Mock implementation
@@ -113,7 +117,7 @@ export class DevOpsService {
       strategy,
       timestamp: new Date(),
       url: `https://${environment === 'production' ? '' : environment + '.'}xcloud-bot.example.com`,
-      healthEndpoint: `https://${environment === 'production' ? '' : environment + '.'}xcloud-bot.example.com/health`
+      healthEndpoint: `https://${environment === 'production' ? '' : environment + '.'}xcloud-bot.example.com/health`,
     };
   }
 
@@ -132,7 +136,7 @@ export class DevOpsService {
       strategy: 'rolling',
       timestamp: new Date(Date.now() - 600000), // 10 minutes ago
       url: `https://${environment === 'production' ? '' : environment + '.'}xcloud-bot.example.com`,
-      healthEndpoint: `https://${environment === 'production' ? '' : environment + '.'}xcloud-bot.example.com/health`
+      healthEndpoint: `https://${environment === 'production' ? '' : environment + '.'}xcloud-bot.example.com/health`,
     };
   }
 
