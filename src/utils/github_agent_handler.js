@@ -122,6 +122,6 @@ class GithubAgentHandler {
     }
   } catch (error) {
     console.error('❌ Erro durante a execução do agente:', error.message);
-    process.exit(1);
+    console.error('❌ Erro durante a execução do agente:', error);
   }
 })();
