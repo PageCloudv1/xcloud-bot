@@ -2,10 +2,12 @@
 
 > **Bot automatizado para gerenciamento de workflows e integração com GitHub Actions no ecossistema xCloud.**
 
-[![Status](https://img.shields.io/badge/Status-✅%20IMPLEMENTAÇÃO%20COMPLETA-brightgreen)](#)
-[![Workflows](https://img.shields.io/badge/Workflows-6%20Implementados-blue)](#)
-[![Issues](https://img.shields.io/badge/Issues%20de%20Teste-7%20Criadas-orange)](#)
-[![Licença](https://img.shields.io/github/license/PageCloudv1/xcloud-bot?color=blue)](https://github.com/PageCloudv1/xcloud-bot/blob/main/LICENSE)
+🤖 **Assistant inteligente para orquestração e gerenciamento da plataforma xCloud** - Simplifique DevOps, acesse documentação e monitore serviços através de conversação natural.
+
+[![CI/CD Pipeline](https://github.com/PageCloudv1/xcloud-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/PageCloudv1/xcloud-bot/actions/workflows/ci.yml)
+[![Test Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen.svg)](https://github.com/PageCloudv1/xcloud-bot)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/typescript-5.x-blue.svg)](https://www.typescriptlang.org/)
 
 ---
 
@@ -75,8 +77,9 @@ npm run test:e2e          # Testes end-to-end
 
 ---
 
-## �️ Arquitetura Completa
+## 🚀 Quick Start
 
+<<<<<<< HEAD
 ```
 xcloud-bot/
 ├── .github/workflows/     # 6 workflows padronizados
@@ -99,9 +102,14 @@ xcloud-bot/
 │       └── creator.js    # ✅ Criação automatizada
 └── package.json          # ✅ Scripts configurados
 ```
+=======
+### Pré-requisitos
+>>>>>>> 8387d10549a8f95f42469803be4ad415ca20a9b4
 
-## �🎯 Próximos Passos
+- **Node.js** >= 18.0.0
+- **npm** >= 9.0.0
 
+<<<<<<< HEAD
 1. **Ativar GitHub App** no repositório
 2. **Executar testes** das issues criadas
 3. **Monitorar automações** em ação
@@ -117,13 +125,19 @@ xcloud-bot/
 - **MongoDB**: Banco para testes de integração
 
 ## 🚀 Instalação e Execução
+=======
+### Instalação
+>>>>>>> 8387d10549a8f95f42469803be4ad415ca20a9b4
 
 ```bash
-# Clonar e instalar
+# Clone o repositório
 git clone https://github.com/PageCloudv1/xcloud-bot.git
 cd xcloud-bot
+
+# Instale as dependências
 npm install
 
+<<<<<<< HEAD
 # Configurar ambiente
 cp .env.example .env
 # Editar .env com suas credenciais
@@ -135,17 +149,98 @@ npm run bot:start    # GitHub App
 npm run scheduler:run # Scheduler (nova aba)
 
 # Validar funcionamento
+=======
+# Execute os testes
+>>>>>>> 8387d10549a8f95f42469803be4ad415ca20a9b4
 npm test
-npm run webhook:test
+
+# Execute o build
+npm run build
+
+# Execute o linting
+npm run lint
 ```
 
-## 📈 Status do Projeto
+### Executando o Bot
 
-- 🟢 **Implementação**: 100% Completa
-- 🟢 **Testes**: Issues criadas para validação
-- 🟢 **Documentação**: Completa e atualizada  
-- 🟢 **Integração**: Gemini CLI + GitHub API
-- 🟢 **Automação**: Workflows + Bot ativo
+```bash
+# Modo desenvolvimento
+npm run dev
+
+# Modo produção
+npm start
+```
+
+---
+
+## 🧪 Testes e Qualidade
+
+O projeto possui uma suite abrangente de testes com alta cobertura:
+
+### Comandos de Teste
+
+```bash
+# Executar todos os testes
+npm test
+
+# Executar testes por tipo
+npm run test:unit          # Testes unitários
+npm run test:integration   # Testes de integração
+npm run test:e2e          # Testes end-to-end
+
+# Executar com cobertura
+npm run test:coverage
+
+# Executar em modo watch
+npm run test:watch
+```
+
+### Comandos de Qualidade
+
+```bash
+# Verificar linting
+npm run lint
+
+# Corrigir problemas de linting
+npm run lint:fix
+
+# Verificar formatação
+npm run format:check
+
+# Aplicar formatação
+npm run format
+
+# Validação completa
+npm run validate
+```
+
+### Estatísticas de Qualidade
+
+- **📊 Cobertura de Código**: 84.25%
+- **🧪 Total de Testes**: 41 (33 unit, 4 integration, 4 e2e)
+- **🔍 Linting**: ESLint + Prettier
+- **🏗️ Build**: TypeScript
+- **🛡️ Segurança**: npm audit (0 vulnerabilidades)
+
+---
+
+## 🏗️ Arquitetura
+
+```
+src/
+├── core/              # Funcionalidade principal do bot
+│   └── XCloudBot.ts   # Classe principal do bot
+├── services/          # Serviços externos e integrações
+│   └── DevOpsService.ts # Orquestração de CI/CD
+└── utils/             # Utilitários e helpers
+    ├── Logger.ts      # Sistema de logging
+    └── ConfigManager.ts # Gerenciamento de configuração
+
+test/
+├── unit/              # Testes unitários
+├── integration/       # Testes de integração
+└── e2e/              # Testes end-to-end
+```
 
 ## 🎯 Ecossistema xCloud Platform
 
@@ -167,6 +262,23 @@ A xCloud Platform é composta por um conjunto de repositórios projetados para t
 ## 🤝 Como Contribuir
 
 O xCloud Bot está em desenvolvimento ativo e sua contribuição é bem-vinda! Para saber como ajudar, leia nosso **[Guia de Contribuição](CONTRIBUTING.md)**.
+
+### Fluxo de Desenvolvimento
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Execute os testes (`npm test`)
+5. Push para a branch (`git push origin feature/nova-funcionalidade`)
+6. Abra um Pull Request
+
+---
+
+<div align="center">
+
+**[Documentação](https://docs.xcloud.dev) • [Issues](https://github.com/PageCloudv1/xcloud-bot/issues) • [Releases](https://github.com/PageCloudv1/xcloud-bot/releases)**
+
+</div>
 
 ## 📝 Licença
 
