@@ -16,16 +16,13 @@ Este guia ajuda a resolver problemas comuns durante a configuração do xCloud B
 
 ### Sintomas
 
-
 - Bot inicia mas mostra erro: `⚠️ Could not get bot info: Bad credentials`
 - Webhooks não funcionam
 - Bot não responde a eventos
 
-
 ### Causa Principal
 
 **Você provavelmente usou o Client ID em vez do App ID.**
-
 
 Na página da GitHub App existem **DOIS** identificadores diferentes:
 
@@ -33,7 +30,6 @@ Na página da GitHub App existem **DOIS** identificadores diferentes:
 - **Client ID**: Começa com "Iv" (ex: `Iv1.abc123def456`) ❌ **ERRADO**
 
 ### Solução
-
 
 #### Passo 1: Verificar qual ID você está usando
 
@@ -59,6 +55,7 @@ Então você precisa corrigir!
 3. No menu lateral, clique em **"General"**
 4. Role até a seção **"About"**
 5. Você verá duas informações:
+
    ```
    App ID: 123456          ← Use este (número)
    Client ID: Iv1.xxxxx    ← Não use este
@@ -115,7 +112,6 @@ npm run bot:start
 
 ### Possíveis Causas
 
-
 #### 1. App não está instalada no repositório
 
 **Verificar:**
@@ -125,7 +121,6 @@ npm run bot:start
 3. Verifique se o repositório está na lista
 
 **Solução:**
-
 
 1. Na mesma página, clique em **Configure**
 2. Em "Repository access":
@@ -172,17 +167,14 @@ npm run bot:start
 
 Se estiver usando em produção (servidor web):
 
-
 **Verificar:**
 
 1. Acesse a página da GitHub App
 2. Clique em **"General"**
 3. Verifique se "Webhook URL" está preenchida
 
-
 **Solução:**
 Configure a URL do webhook apontando para seu servidor:
-
 
 ```
 https://seu-servidor.com/webhook
@@ -195,7 +187,6 @@ https://seu-servidor.com/webhook
 ```bash
 cat .env | grep GITHUB_OWNER
 ```
-
 
 **Deve ser:**
 
@@ -229,7 +220,6 @@ GITHUB_OWNER=PageCloudv1       # para organização
 ### Solução
 
 #### Passo 1: Copiar a private key corretamente
-
 
 ```bash
 # No terminal, exiba o conteúdo do arquivo .pem
@@ -285,14 +275,11 @@ npm run validate:github-app
 4. Clique em **Save changes**
 5. Aceite a solicitação de atualização nos repositórios instalados
 
-
 ### Erro: "Not installed"
 
 **Causa:** A app não está instalada no repositório.
 
-
 **Solução:**
-
 
 1. Vá para a página da app
 2. Clique em **"Install App"**
@@ -302,12 +289,9 @@ npm run validate:github-app
 
 ---
 
-
 ## Validação falhando
 
-
 ### Executar validação completa
-
 
 ```bash
 npm run validate:github-app
@@ -328,7 +312,6 @@ npm run validate:github-app
 ```
 ⚠️ GITHUB_PRIVATE_KEY - Invalid format (should contain BEGIN PRIVATE KEY)
 ```
-
 
 **Solução:** Veja [Private Key inválida](#private-key-inválida)
 
