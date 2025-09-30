@@ -8,6 +8,10 @@ on:
 jobs:
   bot-analysis:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_ENV: production
+    
     steps:
       - uses: actions/checkout@v4
       
@@ -15,18 +19,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build
+      - name: Build TypeScript
         run: npm run build
           
       - name: 📊 Analyze Repository
-        run: npm run analyze:repo ${{ github.repository }}
+        run: npm run analyze:repo -- ${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: 🔍 Monitor CI Status
         run: npm run scheduler:run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: 🤖 Create Issues if Needed
-        run: npm run create:issue ${{ github.repository }} "Automated Analysis Report"
+        run: npm run create:issue -- ${{ github.repository }} "Automated Analysis Report"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
