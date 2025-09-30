@@ -107,7 +107,7 @@ jobs:
             ### Se ACTION_TYPE = "escalate"  
             1. Adicione label "priority:critical"
             2. Assigne para "xcloud-team" se não estiver
-            3. Comente mencionando @xcloud-team sobre a escalação
+            3. Comente mencionando o grupo xcloud-team (adicione o caractere arroba na resposta final) sobre a escalação
 
             ### Se ACTION_TYPE = "close"
             1. Adicione comentário explicativo
@@ -120,7 +120,7 @@ jobs:
 
             ## Formato do Comentário de Revisão
             ```markdown
-            ## 👤 Revisão Manual - @${REVIEWER}
+            ## 👤 Revisão Manual - mencione explicitamente o revisor (ex.: usar arroba + ${REVIEWER})
 
             ### 📊 **Resumo Executivo**
             [Resumo conciso da issue e status atual]
@@ -136,7 +136,7 @@ jobs:
             2. [Recomendação específica 2]
 
             ---
-            ✅ *Revisão manual concluída por @${REVIEWER}*
+            ✅ *Revisão manual concluída por (menção ao revisor com arroba)*
             ```
 
             Execute a ação solicitada para a issue #${ISSUE_NUMBER}.

@@ -169,11 +169,11 @@ jobs:
             3. [Se aplicável, menção a recursos ou documentação relevante]
 
             ### 👥 **Assignments**
-            - **Owners**: @PageCloudv1/xcloud-team · @xcloud-bot[bot]
-            - **Atenção Extra**: mencione @PageCloudv1/xcloud-team em casos críticos/segurança
+            - **Owners**: inclua menções para PageCloudv1/xcloud-team e xcloud-bot[bot] (use o caractere arroba na resposta final)
+            - **Atenção Extra**: mencione a equipe PageCloudv1/xcloud-team em casos críticos/segurança (use arroba ao comentar)
 
             ---
-            🤖 *Processado automaticamente pelo xCloud Bot | Dúvidas? Marque @PageCloudv1/xcloud-team*
+            🤖 *Processado automaticamente pelo xCloud Bot | Dúvidas? Marque a equipe PageCloudv1/xcloud-team (com arroba na resposta)*
             ```
 
             ## ⚠️ Regras Importantes
@@ -181,7 +181,7 @@ jobs:
             2. **SEMPRE** aplique pelo menos 2 labels (tipo + prioridade)
             3. **SEMPRE** mantenha `xcloud-bot` entre os assignees
             4. **SEMPRE** adicione um comentário explicativo
-            5. Se a issue for de **segurança** ou **crítica**, acione @PageCloudv1/xcloud-team imediatamente
+            5. Se a issue for de **segurança** ou **crítica**, acione a equipe PageCloudv1/xcloud-team imediatamente (lembre de usar arroba na resposta final)
             6. Seja **específico** e **útil** nos comentários
             7. Use linguagem **profissional** mas **acessível**
 
