@@ -2,6 +2,14 @@
 
 Este guia explica como interagir com o xCloud Bot através de comandos em issues e pull requests.
 
+## ⚡ Feedback Instantâneo
+
+Quando você envia um comando para o bot, ele **imediatamente** responde com uma mensagem de "processamento" para confirmar que recebeu sua solicitação:
+
+> ⏳ Processando seu comando, @usuario... Por favor, aguarde.
+
+Esta mensagem será atualizada automaticamente com a resposta completa assim que o processamento for concluído.
+
 ## 📋 Comandos Disponíveis
 
 ### 1. Help Command (Comando de Ajuda)

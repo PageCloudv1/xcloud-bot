@@ -184,6 +184,16 @@ app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
 
     const commentLower = comment.body.toLowerCase();
     
+    // Cria comentário inicial indicando que está processando
+    const processingComment = await octokit.rest.issues.createComment({
+      owner: repository.owner.login,
+      repo: repository.name,
+      issue_number: issue.number,
+      body: `⏳ Processando seu comando, @${comment.user.login}... Por favor, aguarde.`,
+    });
+
+    console.log(`⏳ Comentário de processamento criado #${processingComment.data.id}`);
+    
     // Detecta o comando solicitado
     let responseBody;
     
@@ -256,11 +266,11 @@ Use um destes comandos para interagir comigo! 😊
 *xCloud Bot* 🤖`;
     }
 
-    // Envia a resposta
-    await octokit.rest.issues.createComment({
+    // Atualiza o comentário de processamento com a resposta final
+    await octokit.rest.issues.updateComment({
       owner: repository.owner.login,
       repo: repository.name,
-      issue_number: issue.number,
+      comment_id: processingComment.data.id,
       body: responseBody,
     });
 

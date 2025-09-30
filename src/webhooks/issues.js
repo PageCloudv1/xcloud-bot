@@ -152,6 +152,17 @@ async function handleIssueComment({ payload }) {
 
     const octokit = await getInstallationOctokit(installation.id);
     const commentLower = comment.body.toLowerCase();
+    
+    // Cria comentário inicial indicando que está processando
+    const processingComment = await octokit.rest.issues.createComment({
+      owner: repository.owner.login,
+      repo: repository.name,
+      issue_number: issue.number,
+      body: `⏳ Processando seu comando, @${comment.user.login}... Por favor, aguarde.`,
+    });
+
+    logger.info(`⏳ Comentário de processamento criado #${processingComment.data.id}`);
+    
     let responseBody;
 
     // Detecta comando específico
@@ -202,10 +213,11 @@ ${analysis.response}
 *Resposta gerada pelo xcloud-bot. Use \`@xcloud-bot help\` para ver comandos disponíveis!* 🤖`;
     }
 
-    await octokit.rest.issues.createComment({
+    // Atualiza o comentário de processamento com a resposta final
+    await octokit.rest.issues.updateComment({
       owner: repository.owner.login,
       repo: repository.name,
-      issue_number: issue.number,
+      comment_id: processingComment.data.id,
       body: responseBody,
     });
 
