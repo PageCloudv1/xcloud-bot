@@ -19,10 +19,12 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 ## 🤖 Criar GitHub App
 
 ### Acessar Página de Criação
+
 - [ ] Acessar: https://github.com/settings/apps/new
 - [ ] Fazer login com conta de administrador
 
 ### Informações Básicas
+
 - [ ] **GitHub App name**: `xCloud Bot` (ou preferência)
 - [ ] **Description**: `Intelligent automation bot for code review and repository management`
 - [ ] **Homepage URL**: `https://github.com/PageCloudv1/xcloud-bot`
@@ -30,6 +32,7 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 - [ ] **Webhook secret**: Gerar ou deixar em branco
 
 ### Configurar Permissões (Repository permissions)
+
 - [ ] **Actions**: Read and write
 - [ ] **Checks**: Read and write
 - [ ] **Contents**: Read and write
@@ -45,6 +48,7 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 ### Inscrever-se em Eventos (Subscribe to events)
 
 #### Eventos Essenciais
+
 - [ ] **Issues**
 - [ ] **Issue comments**
 - [ ] **Pull requests**
@@ -53,12 +57,14 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 - [ ] **Push**
 
 #### Eventos Recomendados
+
 - [ ] **Check runs**
 - [ ] **Check suites**
 - [ ] **Workflow runs**
 - [ ] **Workflow dispatch**
 
 ### Finalizar Criação
+
 - [ ] Rolar até o fim da página
 - [ ] Clicar em **"Create GitHub App"**
 - [ ] Aguardar confirmação
@@ -66,33 +72,39 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 ## 💾 Salvar Credenciais
 
 ### Anotar Informações
-- [ ] **App ID**: ___________________
-- [ ] **Client ID**: ___________________
+
+- [ ] **App ID**: **\*\*\*\***\_\_\_**\*\*\*\***
+- [ ] **Client ID**: **\*\*\*\***\_\_\_**\*\*\*\***
 
 ### Gerar e Baixar Private Key
+
 - [ ] Clicar em **"Generate a private key"**
 - [ ] Arquivo `.pem` baixado
 - [ ] Arquivo salvo em local seguro
 - [ ] Copiar conteúdo do arquivo (para uso posterior)
 
 ### Webhook Secret (se configurado)
-- [ ] **Webhook Secret**: ___________________
+
+- [ ] **Webhook Secret**: **\*\*\*\***\_\_\_**\*\*\*\***
 
 ## 🔐 Configurar Secrets no Repositório
 
 ### Acessar Configurações
+
 - [ ] Ir para o repositório alvo
 - [ ] **Settings > Secrets and variables > Actions**
 
 ### Adicionar Secrets
 
 #### GITHUB_APP_ID
+
 - [ ] Clicar em **"New repository secret"**
 - [ ] Nome: `GITHUB_APP_ID`
 - [ ] Valor: (App ID anotado acima)
 - [ ] Clicar em **"Add secret"**
 
 #### GITHUB_PRIVATE_KEY
+
 - [ ] Clicar em **"New repository secret"**
 - [ ] Nome: `GITHUB_PRIVATE_KEY`
 - [ ] Valor: (conteúdo completo do arquivo .pem)
@@ -101,12 +113,14 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 - [ ] Clicar em **"Add secret"**
 
 #### WEBHOOK_SECRET (Opcional)
+
 - [ ] Clicar em **"New repository secret"**
 - [ ] Nome: `WEBHOOK_SECRET`
 - [ ] Valor: (webhook secret configurado)
 - [ ] Clicar em **"Add secret"**
 
 #### GITHUB_OWNER (Para uso local)
+
 - [ ] Clicar em **"New repository secret"**
 - [ ] Nome: `GITHUB_OWNER`
 - [ ] Valor: `PageCloudv1` (ou seu organization)
@@ -115,6 +129,7 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 ## 📱 Instalar a App
 
 ### Instalação
+
 - [ ] Na página da GitHub App, menu lateral
 - [ ] Clicar em **"Install App"**
 - [ ] Selecionar organização/conta
@@ -125,6 +140,7 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 - [ ] Confirmar permissões
 
 ### Verificar Instalação
+
 - [ ] App aparece em **Settings > Integrations > Applications**
 - [ ] Repositórios corretos selecionados
 - [ ] Permissões concedidas
@@ -132,15 +148,18 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 ## ⚙️ Configurar Ambiente Local (Opcional)
 
 ### Arquivo .env
+
 - [ ] Copiar exemplo: `cp .env.example .env`
 - [ ] Abrir `.env` em editor de texto
 
 ### Variáveis Obrigatórias
+
 - [ ] `GITHUB_APP_ID=<seu-app-id>`
 - [ ] `GITHUB_PRIVATE_KEY="<conteúdo-do-pem>"`
 - [ ] `GITHUB_OWNER=PageCloudv1`
 
 ### Variáveis Opcionais
+
 - [ ] `WEBHOOK_SECRET=<seu-secret>`
 - [ ] `GEMINI_API_KEY=<chave-gemini>` (para IA)
 - [ ] `PORT=3000`
@@ -149,11 +168,13 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 ## ✅ Validação
 
 ### Executar Validador
+
 - [ ] Executar: `npm run validate:github-app`
 - [ ] Todos os checks passaram
 - [ ] Mensagem de sucesso exibida
 
 ### Teste Local (Opcional)
+
 - [ ] Executar: `npm run bot:start`
 - [ ] Bot iniciou sem erros
 - [ ] Logs mostram conexão com GitHub
@@ -161,16 +182,19 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 ## 🧪 Teste em Produção
 
 ### Criar Issue de Teste
+
 - [ ] Ir para repositório com app instalada
 - [ ] Criar nova issue
 - [ ] Aguardar resposta do bot (1-2 minutos)
 
 ### Verificar Funcionamento
+
 - [ ] Bot adicionou comentário
 - [ ] Labels foram aplicadas
 - [ ] Issue foi categorizada
 
 ### Criar PR de Teste
+
 - [ ] Criar novo Pull Request
 - [ ] Aguardar análise do bot
 - [ ] Verificar comentário de análise
@@ -216,12 +240,12 @@ Parabéns! Sua GitHub App está registrada e funcionando.
 
 ---
 
-**Data de conclusão**: ___________________
+**Data de conclusão**: **\*\*\*\***\_\_\_**\*\*\*\***
 
-**Pessoa responsável**: ___________________
+**Pessoa responsável**: **\*\*\*\***\_\_\_**\*\*\*\***
 
-**Notas adicionais**: 
+**Notas adicionais**:
 
-_______________________________________________________________________________
+---
 
-_______________________________________________________________________________
+---

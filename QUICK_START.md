@@ -31,6 +31,7 @@ O assistente interativo irá guiá-lo através dos seguintes passos:
 ### Passo 2: Configurar Permissões
 
 Marque estas permissões (Repository permissions):
+
 - ✅ Actions: Read and write
 - ✅ Checks: Read and write
 - ✅ Contents: Read and write
@@ -41,6 +42,7 @@ Marque estas permissões (Repository permissions):
 ### Passo 3: Selecionar Eventos
 
 Marque estes eventos:
+
 - ✅ Issues
 - ✅ Issue comments
 - ✅ Pull requests
@@ -64,6 +66,7 @@ GITHUB_PRIVATE_KEY=<conteúdo-completo-do-arquivo-pem>
 ```
 
 Para obter o conteúdo do .pem:
+
 ```bash
 cat caminho/para/arquivo.pem
 ```
@@ -131,6 +134,7 @@ npm run deploy:production      # Deploy para produção
 ## ⚠️ Solução de Problemas
 
 ### Bot não responde
+
 ```bash
 # Verificar configuração
 npm run validate:github-app
@@ -140,11 +144,13 @@ npm run bot:start
 ```
 
 ### Erro de permissões
+
 - Verifique se a app está instalada no repositório
 - Confirme que as permissões estão corretas
 - Reinstale a app se necessário
 
 ### Private key inválida
+
 - Copie TODO o conteúdo do arquivo .pem
 - Mantenha as quebras de linha
 - Use aspas duplas no .env
