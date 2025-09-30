@@ -217,10 +217,10 @@ _Issue criada automaticamente pelo xCloud Bot_`,
 // 🤖 Handler para assignments do xBot
 app.webhooks.on('issues.assigned', async ({ octokit, payload }) => {
   console.log(`🎯 Issue assignado: #${payload.issue.number} para ${payload.assignee.login}`);
-  
+
   try {
     const result = await assignmentHandler.handle(payload, { octokit });
-    
+
     if (result.success) {
       console.log(`✅ Assignment processado: ${result.message}`);
       if (result.taskId) {
@@ -237,10 +237,10 @@ app.webhooks.on('issues.assigned', async ({ octokit, payload }) => {
 // Handler para unassignments
 app.webhooks.on('issues.unassigned', async ({ octokit, payload }) => {
   console.log(`🎯 Issue unassigned: #${payload.issue.number} de ${payload.assignee.login}`);
-  
+
   try {
     const result = await assignmentHandler.handle(payload, { octokit });
-    
+
     if (result.success) {
       console.log(`✅ Unassignment processado: ${result.message}`);
     } else {
@@ -409,8 +409,8 @@ async function main() {
       const { repository, issue_number, assignee = 'xcloud-bot' } = req.body;
 
       if (!repository || !issue_number) {
-        return res.status(400).json({ 
-          error: 'repository e issue_number são obrigatórios' 
+        return res.status(400).json({
+          error: 'repository e issue_number são obrigatórios',
         });
       }
 
@@ -421,14 +421,14 @@ async function main() {
           number: parseInt(issue_number),
           title: `Simulated task for issue #${issue_number}`,
           body: 'This is a simulated assignment for testing purposes.',
-          html_url: `https://github.com/${repository}/issues/${issue_number}`
+          html_url: `https://github.com/${repository}/issues/${issue_number}`,
         },
         assignee: {
-          login: assignee
+          login: assignee,
         },
         repository: {
-          full_name: repository
-        }
+          full_name: repository,
+        },
       };
 
       const result = await assignmentHandler.handle(simulatedPayload, {});

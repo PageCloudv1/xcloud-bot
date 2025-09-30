@@ -20,7 +20,7 @@ class AssignmentHandler {
         action: payload.action,
         issue: payload.issue?.number,
         assignee: payload.assignee?.login,
-        repository: payload.repository?.full_name
+        repository: payload.repository?.full_name,
       });
 
       // Verificar se é um assignment (não unassignment)
@@ -43,22 +43,21 @@ class AssignmentHandler {
 
       // Processar assignment com o agente autônomo
       const task = await this.autonomousAgent.handleAssignment(payload);
-      
+
       if (task) {
         logger.info(`✅ Tarefa criada: ${task.id}`);
         return {
           success: true,
           taskId: task.id,
-          message: 'xBot assignment processado com sucesso'
+          message: 'xBot assignment processado com sucesso',
         };
       } else {
         logger.info('ℹ️ Assignment não é para o xBot');
         return {
           success: false,
-          message: 'Assignment não é para o xBot'
+          message: 'Assignment não é para o xBot',
         };
       }
-
     } catch (error) {
       logger.error('❌ Erro ao processar assignment:', error);
       throw error;
@@ -76,31 +75,30 @@ class AssignmentHandler {
         action: payload.action,
         issue: payload.issue?.number,
         assignee: payload.assignee?.login,
-        repository: payload.repository?.full_name
+        repository: payload.repository?.full_name,
       });
 
       // Verificar se é unassignment do xBot
       if (payload.action === 'unassigned' && payload.assignee) {
         const isXbot = this.autonomousAgent.isXbotAssignment(payload.assignee);
-        
+
         if (isXbot) {
           logger.info('🛑 xBot foi removido do assignment, cancelando tarefas relacionadas');
-          
+
           // Aqui poderíamos implementar lógica para cancelar tarefas em andamento
           // Por enquanto, apenas logamos
-          
+
           return {
             success: true,
-            message: 'xBot unassignment processado'
+            message: 'xBot unassignment processado',
           };
         }
       }
 
       return {
         success: false,
-        message: 'Unassignment não é do xBot'
+        message: 'Unassignment não é do xBot',
       };
-
     } catch (error) {
       logger.error('❌ Erro ao processar unassignment:', error);
       throw error;
@@ -117,15 +115,15 @@ class AssignmentHandler {
       switch (payload.action) {
         case 'assigned':
           return await this.handleAssignment(payload, context);
-          
+
         case 'unassigned':
           return await this.handleUnassignment(payload, context);
-          
+
         default:
           logger.info(`ℹ️ Ação de assignment não suportada: ${payload.action}`);
           return {
             success: false,
-            message: `Ação não suportada: ${payload.action}`
+            message: `Ação não suportada: ${payload.action}`,
           };
       }
     } catch (error) {

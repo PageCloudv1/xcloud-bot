@@ -13,13 +13,13 @@ class AutonomousAgent {
   constructor() {
     this.octokit = new Octokit({
       auth: process.env.GITHUB_TOKEN,
-      userAgent: 'xcloud-bot-autonomous/1.0.0'
+      userAgent: 'xcloud-bot-autonomous/1.0.0',
     });
-    
+
     this.containerRegistry = new Map();
     this.taskQueue = [];
     this.isProcessing = false;
-    
+
     // Configurações do container
     this.containerConfig = {
       image: 'node:18-alpine',
@@ -27,8 +27,8 @@ class AutonomousAgent {
       timeout: 30 * 60 * 1000, // 30 minutos
       resources: {
         memory: '2g',
-        cpu: '2'
-      }
+        cpu: '2',
+      },
     };
   }
 
@@ -39,7 +39,7 @@ class AutonomousAgent {
   async handleAssignment(payload) {
     try {
       const { issue, assignee, repository } = payload;
-      
+
       // Verificar se é assignment do xbot
       if (!this.isXbotAssignment(assignee)) {
         return;
@@ -53,12 +53,12 @@ class AutonomousAgent {
         repository: repository.full_name,
         issue: issue,
         assignedAt: new Date(),
-        status: 'pending'
+        status: 'pending',
       };
 
       // Adicionar à fila
       this.taskQueue.push(task);
-      
+
       // Processar fila se não estiver processando
       if (!this.isProcessing) {
         await this.processTaskQueue();
@@ -81,7 +81,7 @@ class AutonomousAgent {
       'xcloud-bot',
       'xbot',
       'xcloud-assistant',
-      process.env.XBOT_USERNAME
+      process.env.XBOT_USERNAME,
     ].filter(Boolean);
 
     return xbotUsernames.includes(assignee.login.toLowerCase());
@@ -102,7 +102,7 @@ class AutonomousAgent {
       while (this.taskQueue.length > 0) {
         const task = this.taskQueue.shift();
         await this.executeTask(task);
-        
+
         // Aguardar entre tarefas
         await new Promise(resolve => setTimeout(resolve, 5000));
       }
@@ -119,53 +119,57 @@ class AutonomousAgent {
    */
   async executeTask(task) {
     const containerId = `xbot-${task.id}`;
-    
+
     try {
       logger.info(`🚀 Executando tarefa ${task.id}`);
-      
+
       // Atualizar status
       task.status = 'running';
       task.startedAt = new Date();
-      
+
       // Comentar no issue que a tarefa foi iniciada
-      await this.commentOnIssue(task, '🤖 **xBot Iniciado**\n\nOlá! Fui assignado para esta tarefa e estou iniciando o trabalho.\n\n⏳ **Status**: Preparando ambiente...\n🐳 **Container**: Criando instância isolada\n📂 **Repositório**: Clonando projeto\n\n*Atualizarei este issue com o progresso.*');
+      await this.commentOnIssue(
+        task,
+        '🤖 **xBot Iniciado**\n\nOlá! Fui assignado para esta tarefa e estou iniciando o trabalho.\n\n⏳ **Status**: Preparando ambiente...\n🐳 **Container**: Criando instância isolada\n📂 **Repositório**: Clonando projeto\n\n*Atualizarei este issue com o progresso.*'
+      );
 
       // Criar e configurar container
       const container = await this.createContainer(containerId, task);
-      
+
       // Clonar repositório
       await this.cloneRepository(container, task);
-      
+
       // Analisar tarefa
       const analysis = await this.analyzeTask(task);
-      
+
       // Executar tarefa
       const result = await this.performTask(container, task, analysis);
-      
+
       // Criar pull request
       const pr = await this.createPullRequest(task, result);
-      
+
       // Finalizar tarefa
       task.status = 'completed';
       task.completedAt = new Date();
       task.result = result;
       task.pullRequest = pr;
-      
+
       // Comentar resultado
       await this.commentTaskResult(task);
-      
+
       logger.info(`✅ Tarefa ${task.id} concluída com sucesso`);
-      
     } catch (error) {
       logger.error(`❌ Erro na tarefa ${task.id}:`, error);
-      
+
       task.status = 'failed';
       task.error = error.message;
       task.failedAt = new Date();
-      
+
       // Comentar erro
-      await this.commentOnIssue(task, `❌ **Erro na Execução**\n\nOcorreu um erro durante a execução da tarefa:\n\n\`\`\`\n${error.message}\n\`\`\`\n\n*Verifique os logs para mais detalhes.*`);
-      
+      await this.commentOnIssue(
+        task,
+        `❌ **Erro na Execução**\n\nOcorreu um erro durante a execução da tarefa:\n\n\`\`\`\n${error.message}\n\`\`\`\n\n*Verifique os logs para mais detalhes.*`
+      );
     } finally {
       // Limpar container
       await this.cleanupContainer(containerId);
@@ -180,19 +184,30 @@ class AutonomousAgent {
    */
   async createContainer(containerId, task) {
     logger.info(`🐳 Criando container ${containerId}`);
-    
+
     const containerCmd = [
-      'podman', 'run', '-d',
-      '--name', containerId,
-      '--memory', this.containerConfig.resources.memory,
-      '--cpus', this.containerConfig.resources.cpu,
-      '--workdir', this.containerConfig.workDir,
-      '-e', `GITHUB_TOKEN=${process.env.GITHUB_TOKEN}`,
-      '-e', `TASK_ID=${task.id}`,
-      '-e', `REPOSITORY=${task.repository}`,
-      '-e', `ISSUE_NUMBER=${task.issue.number}`,
+      'podman',
+      'run',
+      '-d',
+      '--name',
+      containerId,
+      '--memory',
+      this.containerConfig.resources.memory,
+      '--cpus',
+      this.containerConfig.resources.cpu,
+      '--workdir',
+      this.containerConfig.workDir,
+      '-e',
+      `GITHUB_TOKEN=${process.env.GITHUB_TOKEN}`,
+      '-e',
+      `TASK_ID=${task.id}`,
+      '-e',
+      `REPOSITORY=${task.repository}`,
+      '-e',
+      `ISSUE_NUMBER=${task.issue.number}`,
       this.containerConfig.image,
-      'sleep', '1800' // 30 minutos
+      'sleep',
+      '1800', // 30 minutos
     ];
 
     return new Promise((resolve, reject) => {
@@ -201,13 +216,13 @@ class AutonomousAgent {
           reject(new Error(`Erro ao criar container: ${error.message}`));
           return;
         }
-        
+
         const container = {
           id: containerId,
           podmanId: stdout.trim(),
-          created: new Date()
+          created: new Date(),
         };
-        
+
         this.containerRegistry.set(containerId, container);
         logger.info(`✅ Container ${containerId} criado: ${container.podmanId}`);
         resolve(container);
@@ -222,11 +237,14 @@ class AutonomousAgent {
    */
   async cloneRepository(container, task) {
     logger.info(`📂 Clonando repositório ${task.repository}`);
-    
+
     const cloneCmd = [
-      'podman', 'exec', container.id,
-      'sh', '-c',
-      `'apk add --no-cache git && git clone https://${process.env.GITHUB_TOKEN}@github.com/${task.repository}.git /workspace/repo'`
+      'podman',
+      'exec',
+      container.id,
+      'sh',
+      '-c',
+      `'apk add --no-cache git && git clone https://${process.env.GITHUB_TOKEN}@github.com/${task.repository}.git /workspace/repo'`,
     ];
 
     return new Promise((resolve, reject) => {
@@ -235,7 +253,7 @@ class AutonomousAgent {
           reject(new Error(`Erro ao clonar repositório: ${error.message}`));
           return;
         }
-        
+
         logger.info(`✅ Repositório clonado com sucesso`);
         resolve();
       });
@@ -249,13 +267,13 @@ class AutonomousAgent {
    */
   async analyzeTask(task) {
     logger.info(`🔍 Analisando tarefa: ${task.issue.title}`);
-    
+
     const analysis = {
       type: 'unknown',
       actions: [],
       files: [],
       commands: [],
-      priority: 'medium'
+      priority: 'medium',
     };
 
     const title = task.issue.title.toLowerCase();
@@ -266,10 +284,18 @@ class AutonomousAgent {
     if (content.includes('bug') || content.includes('fix') || content.includes('erro')) {
       analysis.type = 'bugfix';
       analysis.actions.push('analyze_code', 'fix_bug', 'test_fix');
-    } else if (content.includes('feature') || content.includes('implement') || content.includes('add')) {
+    } else if (
+      content.includes('feature') ||
+      content.includes('implement') ||
+      content.includes('add')
+    ) {
       analysis.type = 'feature';
       analysis.actions.push('analyze_requirements', 'implement_feature', 'add_tests');
-    } else if (content.includes('refactor') || content.includes('improve') || content.includes('optimize')) {
+    } else if (
+      content.includes('refactor') ||
+      content.includes('improve') ||
+      content.includes('optimize')
+    ) {
       analysis.type = 'refactor';
       analysis.actions.push('analyze_code', 'refactor_code', 'test_changes');
     } else if (content.includes('test') || content.includes('coverage')) {
@@ -306,25 +332,28 @@ class AutonomousAgent {
    */
   async performTask(container, task, analysis) {
     logger.info(`⚙️ Executando tarefa tipo: ${analysis.type}`);
-    
+
     const result = {
       type: analysis.type,
       actions: [],
       files_changed: [],
       tests_added: [],
       documentation_updated: [],
-      summary: ''
+      summary: '',
     };
 
     // Atualizar status no issue
-    await this.commentOnIssue(task, `🔄 **Executando Tarefa**\n\n📋 **Tipo**: ${analysis.type}\n🎯 **Ações**: ${analysis.actions.join(', ')}\n⚡ **Prioridade**: ${analysis.priority}\n\n*Trabalhando nos arquivos...*`);
+    await this.commentOnIssue(
+      task,
+      `🔄 **Executando Tarefa**\n\n📋 **Tipo**: ${analysis.type}\n🎯 **Ações**: ${analysis.actions.join(', ')}\n⚡ **Prioridade**: ${analysis.priority}\n\n*Trabalhando nos arquivos...*`
+    );
 
     // Executar ações baseadas no tipo
     for (const action of analysis.actions) {
       try {
         const actionResult = await this.executeAction(container, task, action, analysis);
         result.actions.push(actionResult);
-        
+
         // Merge results
         if (actionResult.files_changed) {
           result.files_changed.push(...actionResult.files_changed);
@@ -337,14 +366,14 @@ class AutonomousAgent {
         result.actions.push({
           action,
           status: 'failed',
-          error: error.message
+          error: error.message,
         });
       }
     }
 
     // Gerar resumo
     result.summary = this.generateTaskSummary(task, analysis, result);
-    
+
     return result;
   }
 
@@ -358,41 +387,47 @@ class AutonomousAgent {
    */
   async executeAction(container, task, action, analysis) {
     logger.info(`🔧 Executando ação: ${action}`);
-    
+
     const actionResult = {
       action,
       status: 'completed',
       files_changed: [],
-      output: ''
+      output: '',
     };
 
     switch (action) {
       case 'analyze_code':
-        actionResult.output = await this.runContainerCommand(container, 'find /workspace/repo -name "*.js" -o -name "*.ts" | head -10 | xargs wc -l');
+        actionResult.output = await this.runContainerCommand(
+          container,
+          'find /workspace/repo -name "*.js" -o -name "*.ts" | head -10 | xargs wc -l'
+        );
         break;
-        
+
       case 'fix_bug':
         // Implementar lógica de fix de bug
         actionResult.files_changed = await this.fixBugInCode(container, task, analysis);
         break;
-        
+
       case 'implement_feature':
         // Implementar nova feature
         actionResult.files_changed = await this.implementFeature(container, task, analysis);
         break;
-        
+
       case 'add_tests':
         // Adicionar testes
         actionResult.tests_added = await this.addTests(container, task, analysis);
         break;
-        
+
       case 'update_docs':
         // Atualizar documentação
         actionResult.files_changed = await this.updateDocumentation(container, task, analysis);
         break;
-        
+
       default:
-        actionResult.output = await this.runContainerCommand(container, `echo "Ação ${action} executada"`);
+        actionResult.output = await this.runContainerCommand(
+          container,
+          `echo "Ação ${action} executada"`
+        );
     }
 
     return actionResult;
@@ -407,13 +442,13 @@ class AutonomousAgent {
   async runContainerCommand(container, command) {
     return new Promise((resolve, reject) => {
       const cmd = `podman exec ${container.id} sh -c "${command}"`;
-      
+
       exec(cmd, (error, stdout, stderr) => {
         if (error) {
           reject(new Error(`Comando falhou: ${error.message}`));
           return;
         }
-        
+
         resolve(stdout.trim());
       });
     });
@@ -429,17 +464,20 @@ class AutonomousAgent {
   async fixBugInCode(container, task, analysis) {
     // Implementação simplificada - em produção seria mais sofisticada
     const files = [];
-    
+
     // Exemplo: criar um arquivo de fix
     const fixContent = `// Bug fix for issue #${task.issue.number}
 // ${task.issue.title}
 
 console.log('Bug fix implemented');
 `;
-    
-    await this.runContainerCommand(container, `echo '${fixContent}' > /workspace/repo/bugfix-${task.issue.number}.js`);
+
+    await this.runContainerCommand(
+      container,
+      `echo '${fixContent}' > /workspace/repo/bugfix-${task.issue.number}.js`
+    );
     files.push(`bugfix-${task.issue.number}.js`);
-    
+
     return files;
   }
 
@@ -452,7 +490,7 @@ console.log('Bug fix implemented');
    */
   async implementFeature(container, task, analysis) {
     const files = [];
-    
+
     // Exemplo: criar arquivo de feature
     const featureContent = `// Feature implementation for issue #${task.issue.number}
 // ${task.issue.title}
@@ -470,10 +508,13 @@ class Feature${task.issue.number} {
 
 module.exports = Feature${task.issue.number};
 `;
-    
-    await this.runContainerCommand(container, `echo '${featureContent}' > /workspace/repo/feature-${task.issue.number}.js`);
+
+    await this.runContainerCommand(
+      container,
+      `echo '${featureContent}' > /workspace/repo/feature-${task.issue.number}.js`
+    );
     files.push(`feature-${task.issue.number}.js`);
-    
+
     return files;
   }
 
@@ -486,7 +527,7 @@ module.exports = Feature${task.issue.number};
    */
   async addTests(container, task, analysis) {
     const tests = [];
-    
+
     // Exemplo: criar arquivo de teste
     const testContent = `// Tests for issue #${task.issue.number}
 // ${task.issue.title}
@@ -501,10 +542,13 @@ describe('Issue #${task.issue.number}', () => {
   });
 });
 `;
-    
-    await this.runContainerCommand(container, `mkdir -p /workspace/repo/tests && echo '${testContent}' > /workspace/repo/tests/issue-${task.issue.number}.test.js`);
+
+    await this.runContainerCommand(
+      container,
+      `mkdir -p /workspace/repo/tests && echo '${testContent}' > /workspace/repo/tests/issue-${task.issue.number}.test.js`
+    );
     tests.push(`tests/issue-${task.issue.number}.test.js`);
-    
+
     return tests;
   }
 
@@ -517,7 +561,7 @@ describe('Issue #${task.issue.number}', () => {
    */
   async updateDocumentation(container, task, analysis) {
     const files = [];
-    
+
     // Exemplo: atualizar README
     const docUpdate = `
 
@@ -527,10 +571,10 @@ ${task.issue.body || 'Documentação atualizada automaticamente pelo xBot.'}
 
 *Atualizado automaticamente em ${new Date().toISOString()}*
 `;
-    
+
     await this.runContainerCommand(container, `echo '${docUpdate}' >> /workspace/repo/README.md`);
     files.push('README.md');
-    
+
     return files;
   }
 
@@ -542,24 +586,33 @@ ${task.issue.body || 'Documentação atualizada automaticamente pelo xBot.'}
    */
   async createPullRequest(task, result) {
     logger.info(`📤 Criando pull request para tarefa ${task.id}`);
-    
+
     const [owner, repo] = task.repository.split('/');
     const branchName = `xbot/issue-${task.issue.number}`;
-    
+
     try {
       // Primeiro, precisamos commitar as mudanças no container e fazer push
       const container = this.containerRegistry.get(`xbot-${task.id}`);
-      
+
       // Configurar git no container
-      await this.runContainerCommand(container, 'cd /workspace/repo && git config user.name "xCloud Bot"');
-      await this.runContainerCommand(container, 'cd /workspace/repo && git config user.email "xcloud-bot@pagecloud.dev"');
-      
+      await this.runContainerCommand(
+        container,
+        'cd /workspace/repo && git config user.name "xCloud Bot"'
+      );
+      await this.runContainerCommand(
+        container,
+        'cd /workspace/repo && git config user.email "xcloud-bot@pagecloud.dev"'
+      );
+
       // Criar branch
-      await this.runContainerCommand(container, `cd /workspace/repo && git checkout -b ${branchName}`);
-      
+      await this.runContainerCommand(
+        container,
+        `cd /workspace/repo && git checkout -b ${branchName}`
+      );
+
       // Adicionar mudanças
       await this.runContainerCommand(container, 'cd /workspace/repo && git add .');
-      
+
       // Commit
       const commitMessage = `🤖 ${result.type}: ${task.issue.title}
 
@@ -573,9 +626,13 @@ ${result.actions.map(a => `- ${a.action}: ${a.status}`).join('\n')}
 
 ${result.files_changed.map(f => `- ${f}`).join('\n')}
 
-${result.tests_added.length > 0 ? `## Testes Adicionados
+${
+  result.tests_added.length > 0
+    ? `## Testes Adicionados
 
-${result.tests_added.map(t => `- ${t}`).join('\n')}` : ''}
+${result.tests_added.map(t => `- ${t}`).join('\n')}`
+    : ''
+}
 
 ## Resumo
 
@@ -585,11 +642,17 @@ ${result.summary}
 *Implementado automaticamente pelo xCloud Bot*
 *Tarefa ID: ${task.id}*`;
 
-      await this.runContainerCommand(container, `cd /workspace/repo && git commit -m "${commitMessage}"`);
-      
+      await this.runContainerCommand(
+        container,
+        `cd /workspace/repo && git commit -m "${commitMessage}"`
+      );
+
       // Push
-      await this.runContainerCommand(container, `cd /workspace/repo && git push origin ${branchName}`);
-      
+      await this.runContainerCommand(
+        container,
+        `cd /workspace/repo && git push origin ${branchName}`
+      );
+
       // Criar PR via API
       const pr = await this.octokit.rest.pulls.create({
         owner,
@@ -616,9 +679,13 @@ ${result.actions.map(a => `- ✅ **${a.action}**: ${a.status}`).join('\n')}
 
 ${result.files_changed.map(f => `- \`${f}\``).join('\n')}
 
-${result.tests_added.length > 0 ? `### 🧪 Testes Adicionados
+${
+  result.tests_added.length > 0
+    ? `### 🧪 Testes Adicionados
 
-${result.tests_added.map(t => `- \`${t}\``).join('\n')}` : ''}
+${result.tests_added.map(t => `- \`${t}\``).join('\n')}`
+    : ''
+}
 
 ### 📝 Resumo
 
@@ -636,12 +703,11 @@ Closes #${task.issue.number}
 - Branch: \`${branchName}\`
 
 *Para questões sobre esta implementação, mencione @xcloud-bot nos comentários.*`,
-        draft: false
+        draft: false,
       });
 
       logger.info(`✅ Pull request criado: #${pr.data.number}`);
       return pr.data;
-      
     } catch (error) {
       logger.error('Erro ao criar pull request:', error);
       throw error;
@@ -658,10 +724,12 @@ Closes #${task.issue.number}
   generateTaskSummary(task, analysis, result) {
     const successful = result.actions.filter(a => a.status === 'completed').length;
     const total = result.actions.length;
-    
-    return `Tarefa do tipo "${analysis.type}" executada com ${successful}/${total} ações bem-sucedidas. ` +
-           `${result.files_changed.length} arquivos modificados, ${result.tests_added.length} testes adicionados. ` +
-           `Issue #${task.issue.number} processada automaticamente pelo xCloud Bot.`;
+
+    return (
+      `Tarefa do tipo "${analysis.type}" executada com ${successful}/${total} ações bem-sucedidas. ` +
+      `${result.files_changed.length} arquivos modificados, ${result.tests_added.length} testes adicionados. ` +
+      `Issue #${task.issue.number} processada automaticamente pelo xCloud Bot.`
+    );
   }
 
   /**
@@ -671,13 +739,13 @@ Closes #${task.issue.number}
    */
   async commentOnIssue(task, message) {
     const [owner, repo] = task.repository.split('/');
-    
+
     try {
       await this.octokit.rest.issues.createComment({
         owner,
         repo,
         issue_number: task.issue.number,
-        body: message
+        body: message,
       });
     } catch (error) {
       logger.error('Erro ao comentar no issue:', error);
@@ -724,20 +792,20 @@ ${task.result.summary}
   async cleanupContainer(containerId) {
     try {
       logger.info(`🧹 Limpando container ${containerId}`);
-      
+
       // Parar container
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         exec(`podman stop ${containerId}`, () => resolve());
       });
-      
+
       // Remover container
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         exec(`podman rm ${containerId}`, () => resolve());
       });
-      
+
       // Remover do registry
       this.containerRegistry.delete(containerId);
-      
+
       logger.info(`✅ Container ${containerId} removido`);
     } catch (error) {
       logger.error(`Erro ao limpar container ${containerId}:`, error);
@@ -752,7 +820,7 @@ ${task.result.summary}
     return Array.from(this.containerRegistry.values()).map(container => ({
       containerId: container.id,
       created: container.created,
-      status: 'running'
+      status: 'running',
     }));
   }
 
@@ -761,16 +829,16 @@ ${task.result.summary}
    */
   async stopAllTasks() {
     logger.info('🛑 Parando todas as tarefas ativas');
-    
+
     const containers = Array.from(this.containerRegistry.keys());
-    
+
     for (const containerId of containers) {
       await this.cleanupContainer(containerId);
     }
-    
+
     this.taskQueue = [];
     this.isProcessing = false;
-    
+
     logger.info('✅ Todas as tarefas foram paradas');
   }
 }

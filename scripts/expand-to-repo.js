@@ -13,7 +13,7 @@ class RepoExpansion {
   constructor() {
     this.octokit = new Octokit({
       auth: process.env.GITHUB_TOKEN,
-      userAgent: 'xcloud-bot-expansion/1.0.0'
+      userAgent: 'xcloud-bot-expansion/1.0.0',
     });
   }
 
@@ -30,7 +30,7 @@ class RepoExpansion {
       // Verificar se o repositório existe e temos acesso
       const { data: repoData } = await this.octokit.rest.repos.get({
         owner,
-        repo
+        repo,
       });
 
       console.log(`✅ Repositório encontrado: ${repoData.full_name}`);
@@ -44,15 +44,15 @@ class RepoExpansion {
           prAutomation: true,
           securityScanning: false,
           performanceMonitoring: false,
-          ...options.features
+          ...options.features,
         },
         workflows: {
           'auto-copilot-review': true,
           'enhanced-gemini-cli': true,
           'gemini-review': true,
           'gemini-triage': true,
-          ...options.workflows
-        }
+          ...options.workflows,
+        },
       };
 
       // Criar workflows no repositório de destino
@@ -73,19 +73,18 @@ class RepoExpansion {
       }
 
       console.log(`🎉 xCloud Bot expandido com sucesso para ${owner}/${repo}!`);
-      
+
       return {
         success: true,
         repository: `${owner}/${repo}`,
-        config
+        config,
       };
-
     } catch (error) {
       console.error(`❌ Erro ao expandir para ${owner}/${repo}:`, error.message);
       return {
         success: false,
         repository: `${owner}/${repo}`,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -102,7 +101,7 @@ class RepoExpansion {
     if (config.workflows['auto-copilot-review']) {
       workflowsToCreate.push({
         path: '.github/workflows/auto-copilot-review.yml',
-        source: '.github/workflows/auto-copilot-review.yml'
+        source: '.github/workflows/auto-copilot-review.yml',
       });
     }
 
@@ -110,7 +109,7 @@ class RepoExpansion {
     if (config.workflows['enhanced-gemini-cli']) {
       workflowsToCreate.push({
         path: '.github/workflows/enhanced-gemini-cli.yml',
-        source: '.github/workflows/enhanced-gemini-cli.yml'
+        source: '.github/workflows/enhanced-gemini-cli.yml',
       });
     }
 
@@ -118,7 +117,7 @@ class RepoExpansion {
     if (config.workflows['gemini-review']) {
       workflowsToCreate.push({
         path: '.github/workflows/gemini-review.yml',
-        source: '.github/workflows/gemini-review.yml'
+        source: '.github/workflows/gemini-review.yml',
       });
     }
 
@@ -126,7 +125,7 @@ class RepoExpansion {
     if (config.workflows['gemini-triage']) {
       workflowsToCreate.push({
         path: '.github/workflows/gemini-triage.yml',
-        source: '.github/workflows/gemini-triage.yml'
+        source: '.github/workflows/gemini-triage.yml',
       });
     }
 
@@ -143,7 +142,7 @@ class RepoExpansion {
           const { data } = await this.octokit.rest.repos.getContent({
             owner,
             repo,
-            path: workflow.path
+            path: workflow.path,
           });
           existingFile = data;
         } catch (error) {
@@ -158,7 +157,7 @@ class RepoExpansion {
             path: workflow.path,
             message: `🤖 Update xCloud Bot workflow: ${path.basename(workflow.path)}`,
             content: Buffer.from(content).toString('base64'),
-            sha: existingFile.sha
+            sha: existingFile.sha,
           });
           console.log(`  ✅ Atualizado: ${workflow.path}`);
         } else {
@@ -168,14 +167,13 @@ class RepoExpansion {
             repo,
             path: workflow.path,
             message: `🤖 Add xCloud Bot workflow: ${path.basename(workflow.path)}`,
-            content: Buffer.from(content).toString('base64')
+            content: Buffer.from(content).toString('base64'),
           });
           console.log(`  ✅ Criado: ${workflow.path}`);
         }
 
         // Aguardar um pouco entre criações
         await new Promise(resolve => setTimeout(resolve, 1000));
-
       } catch (error) {
         console.error(`  ❌ Erro ao criar ${workflow.path}:`, error.message);
       }
@@ -193,7 +191,7 @@ class RepoExpansion {
       features: config.features,
       workflows: config.workflows,
       setupDate: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
     };
 
     try {
@@ -203,7 +201,7 @@ class RepoExpansion {
         const { data } = await this.octokit.rest.repos.getContent({
           owner,
           repo,
-          path: '.xcloud-bot/config.json'
+          path: '.xcloud-bot/config.json',
         });
         existingFile = data;
       } catch (error) {
@@ -219,7 +217,7 @@ class RepoExpansion {
           path: '.xcloud-bot/config.json',
           message: '🤖 Update xCloud Bot configuration',
           content: Buffer.from(content).toString('base64'),
-          sha: existingFile.sha
+          sha: existingFile.sha,
         });
       } else {
         await this.octokit.rest.repos.createOrUpdateFileContents({
@@ -227,7 +225,7 @@ class RepoExpansion {
           repo,
           path: '.xcloud-bot/config.json',
           message: '🤖 Add xCloud Bot configuration',
-          content: Buffer.from(content).toString('base64')
+          content: Buffer.from(content).toString('base64'),
         });
       }
 
@@ -252,7 +250,7 @@ class RepoExpansion {
         const { data } = await this.octokit.rest.repos.getContent({
           owner,
           repo,
-          path: readmePath
+          path: readmePath,
         });
         readmeData = data;
       } catch (error) {
@@ -294,7 +292,7 @@ O bot responde automaticamente a:
       if (readmeData) {
         // README existe, verificar se já tem seção do bot
         const currentContent = Buffer.from(readmeData.content, 'base64').toString('utf8');
-        
+
         if (currentContent.includes('## 🤖 xCloud Bot')) {
           console.log('  ℹ️ Seção do xCloud Bot já existe no README');
           return;
@@ -313,7 +311,7 @@ O bot responde automaticamente a:
           path: readmePath,
           message: '🤖 Add xCloud Bot section to README',
           content: Buffer.from(newContent).toString('base64'),
-          sha: readmeData.sha
+          sha: readmeData.sha,
         });
       } else {
         await this.octokit.rest.repos.createOrUpdateFileContents({
@@ -321,7 +319,7 @@ O bot responde automaticamente a:
           repo,
           path: readmePath,
           message: '🤖 Create README with xCloud Bot section',
-          content: Buffer.from(newContent).toString('base64')
+          content: Buffer.from(newContent).toString('base64'),
         });
       }
 
@@ -388,7 +386,7 @@ Para mais informações, consulte a [documentação completa](https://github.com
         repo,
         title: '🤖 xCloud Bot - Configuração Concluída',
         body: welcomeMessage,
-        labels: ['xcloud-bot', 'setup', 'documentation']
+        labels: ['xcloud-bot', 'setup', 'documentation'],
       });
 
       console.log('  ✅ Issue de boas-vindas criado!');
@@ -409,7 +407,7 @@ Para mais informações, consulte a [documentação completa](https://github.com
       const [owner, repo] = repoInfo.split('/');
       const result = await this.expandToRepository(owner, repo, {
         ...options,
-        ...repoInfo.options
+        ...repoInfo.options,
       });
       results.push(result);
 
@@ -427,9 +425,11 @@ Para mais informações, consulte a [documentação completa](https://github.com
 
     if (failed > 0) {
       console.log(`\n❌ Repositórios com falha:`);
-      results.filter(r => !r.success).forEach(r => {
-        console.log(`  - ${r.repository}: ${r.error}`);
-      });
+      results
+        .filter(r => !r.success)
+        .forEach(r => {
+          console.log(`  - ${r.repository}: ${r.error}`);
+        });
     }
 
     return results;
@@ -439,7 +439,7 @@ Para mais informações, consulte a [documentação completa](https://github.com
 // CLI
 if (require.main === module) {
   const args = process.argv.slice(2);
-  
+
   if (args.length === 0) {
     console.log(`
 🤖 xCloud Bot Repository Expansion

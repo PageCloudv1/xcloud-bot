@@ -19,14 +19,14 @@ async function testAutonomousAgent() {
       number: 999,
       title: 'Test: Implement new feature for autonomous agent',
       body: 'This is a test issue to verify the autonomous agent functionality. Please implement a simple feature that demonstrates the bot capabilities.',
-      html_url: 'https://github.com/PageCloudv1/xcloud-bot/issues/999'
+      html_url: 'https://github.com/PageCloudv1/xcloud-bot/issues/999',
     },
     assignee: {
-      login: 'xcloud-bot'
+      login: 'xcloud-bot',
     },
     repository: {
-      full_name: 'PageCloudv1/xcloud-bot'
-    }
+      full_name: 'PageCloudv1/xcloud-bot',
+    },
   };
 
   try {
@@ -47,7 +47,7 @@ async function testAutonomousAgent() {
     console.log('🔍 Testando análise de tarefa...');
     const analysis = await agent.analyzeTask({
       issue: testPayload.issue,
-      repository: testPayload.repository.full_name
+      repository: testPayload.repository.full_name,
     });
 
     console.log('📊 Resultado da análise:');
@@ -57,8 +57,8 @@ async function testAutonomousAgent() {
     // Verificar se Podman está disponível
     console.log('🐳 Verificando disponibilidade do Podman...');
     const { exec } = require('child_process');
-    
-    const podmanAvailable = await new Promise((resolve) => {
+
+    const podmanAvailable = await new Promise(resolve => {
       exec('podman --version', (error, stdout) => {
         if (error) {
           console.log('❌ Podman não está disponível:', error.message);
@@ -84,17 +84,13 @@ async function testAutonomousAgent() {
       actions: [
         { action: 'analyze_code', status: 'completed' },
         { action: 'implement_feature', status: 'completed' },
-        { action: 'add_tests', status: 'completed' }
+        { action: 'add_tests', status: 'completed' },
       ],
       files_changed: ['feature-999.js'],
-      tests_added: ['tests/feature-999.test.js']
+      tests_added: ['tests/feature-999.test.js'],
     };
 
-    const summary = agent.generateTaskSummary(
-      { issue: testPayload.issue },
-      analysis,
-      mockResult
-    );
+    const summary = agent.generateTaskSummary({ issue: testPayload.issue }, analysis, mockResult);
 
     console.log('📄 Resumo gerado:');
     console.log(summary);
@@ -114,7 +110,6 @@ async function testAutonomousAgent() {
     console.log('2. Instale o Podman se não estiver disponível');
     console.log('3. Execute o bot e faça um assignment real');
     console.log('4. Monitore os logs para ver o agente em ação');
-
   } catch (error) {
     console.error('❌ Erro durante o teste:', error);
     process.exit(1);

@@ -87,17 +87,20 @@ CONTAINER_TIMEOUT=1800
 ### Instalação do Podman
 
 #### Ubuntu/Debian
+
 ```bash
 sudo apt-get update
 sudo apt-get install -y podman
 ```
 
 #### CentOS/RHEL
+
 ```bash
 sudo dnf install -y podman
 ```
 
 #### macOS
+
 ```bash
 brew install podman
 ```
@@ -116,53 +119,65 @@ podman info
 ## 🎯 Tipos de Tarefas Suportadas
 
 ### 🐛 Bug Fix
+
 **Detectado quando a issue contém**: `bug`, `fix`, `erro`
 
 **Ações executadas**:
+
 - Análise do código
 - Implementação do fix
 - Testes do fix
 
 **Exemplo de issue**:
+
 ```
 Título: "Bug: Login não funciona com emails longos"
 Descrição: "Quando o usuário tenta fazer login com um email muito longo..."
 ```
 
 ### ✨ Feature Implementation
+
 **Detectado quando a issue contém**: `feature`, `implement`, `add`
 
 **Ações executadas**:
+
 - Análise dos requisitos
 - Implementação da feature
 - Adição de testes
 
 **Exemplo de issue**:
+
 ```
 Título: "Feature: Adicionar autenticação 2FA"
 Descrição: "Implementar sistema de autenticação de dois fatores..."
 ```
 
 ### 🔄 Refactoring
+
 **Detectado quando a issue contém**: `refactor`, `improve`, `optimize`
 
 **Ações executadas**:
+
 - Análise do código
 - Refatoração
 - Testes das mudanças
 
 ### 🧪 Testing
+
 **Detectado quando a issue contém**: `test`, `coverage`
 
 **Ações executadas**:
+
 - Análise de cobertura
 - Adição de testes
 - Execução dos testes
 
 ### 📚 Documentation
+
 **Detectado quando a issue contém**: `doc`, `readme`
 
 **Ações executadas**:
+
 - Análise da documentação
 - Atualização dos docs
 - Validação
@@ -213,12 +228,15 @@ curl http://localhost:3000/health
 ### Problemas Comuns
 
 #### 1. Bot não responde ao assignment
+
 **Possíveis causas**:
+
 - Username não está na lista de xbot usernames
 - Webhook não está configurado
 - Variáveis de ambiente faltando
 
 **Solução**:
+
 ```bash
 # Verificar logs
 npm run server:logs
@@ -234,12 +252,15 @@ curl -X POST http://localhost:3000/webhook \
 ```
 
 #### 2. Erro ao criar container
+
 **Possíveis causas**:
+
 - Podman não instalado
 - Permissões insuficientes
 - Recursos insuficientes
 
 **Solução**:
+
 ```bash
 # Verificar Podman
 podman --version
@@ -254,12 +275,15 @@ df -h
 ```
 
 #### 3. Falha ao clonar repositório
+
 **Possíveis causas**:
+
 - Token GitHub inválido
 - Repositório privado sem acesso
 - Rate limiting
 
 **Solução**:
+
 ```bash
 # Testar token
 curl -H "Authorization: token $GITHUB_TOKEN" \
@@ -271,12 +295,15 @@ curl -H "Authorization: token $GITHUB_TOKEN" \
 ```
 
 #### 4. Erro ao criar PR
+
 **Possíveis causas**:
+
 - Permissões insuficientes
 - Branch já existe
 - Conflitos de merge
 
 **Solução**:
+
 ```bash
 # Verificar permissões da GitHub App
 # Ir para Settings > Developer settings > GitHub Apps
@@ -326,6 +353,7 @@ podman image prune -f
 ### Dashboard (Futuro)
 
 Planejamos implementar um dashboard web para:
+
 - Visualizar métricas em tempo real
 - Gerenciar tarefas ativas
 - Configurar o agente
@@ -379,4 +407,4 @@ Planejamos implementar um dashboard web para:
 
 **🤖 xCloud Bot Autonomous Agent v1.0.0**
 
-*Transformando issues em soluções automaticamente!*
+_Transformando issues em soluções automaticamente!_

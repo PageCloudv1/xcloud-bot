@@ -15,20 +15,20 @@ class MultiRepoManager {
         issueManagement: true,
         prAutomation: true,
         securityScanning: false,
-        performanceMonitoring: false
+        performanceMonitoring: false,
       },
       workflows: {
         'auto-copilot-review': true,
         'enhanced-gemini-cli': true,
         'gemini-review': true,
-        'gemini-triage': true
+        'gemini-triage': true,
       },
       permissions: {
         issues: 'write',
         pullRequests: 'write',
         contents: 'read',
-        actions: 'write'
-      }
+        actions: 'write',
+      },
     };
   }
 
@@ -41,18 +41,18 @@ class MultiRepoManager {
    */
   async registerRepository(owner, repo, installationId, config = {}) {
     const repoKey = `${owner}/${repo}`;
-    
+
     try {
       // Verificar se a instalação existe
       const installation = await getInstallationInfo(installationId);
-      
+
       // Mesclar configuração padrão com específica
       const repoConfig = {
         ...this.defaultConfig,
         ...config,
         features: { ...this.defaultConfig.features, ...config.features },
         workflows: { ...this.defaultConfig.workflows, ...config.workflows },
-        permissions: { ...this.defaultConfig.permissions, ...config.permissions }
+        permissions: { ...this.defaultConfig.permissions, ...config.permissions },
       };
 
       // Registrar repositório
@@ -62,7 +62,7 @@ class MultiRepoManager {
         installationId,
         config: repoConfig,
         registeredAt: new Date(),
-        lastActivity: new Date()
+        lastActivity: new Date(),
       });
 
       // Registrar instalação se não existir
@@ -71,7 +71,7 @@ class MultiRepoManager {
           id: installationId,
           account: installation.account,
           repositories: [repoKey],
-          permissions: installation.permissions
+          permissions: installation.permissions,
         });
       } else {
         const inst = this.installations.get(installationId);
@@ -82,7 +82,7 @@ class MultiRepoManager {
 
       logger.info(`Repositório ${repoKey} registrado com sucesso`, {
         installationId,
-        features: Object.keys(repoConfig.features).filter(f => repoConfig.features[f])
+        features: Object.keys(repoConfig.features).filter(f => repoConfig.features[f]),
       });
 
       return true;
@@ -99,7 +99,7 @@ class MultiRepoManager {
    */
   unregisterRepository(owner, repo) {
     const repoKey = `${owner}/${repo}`;
-    
+
     if (this.repositories.has(repoKey)) {
       const repoData = this.repositories.get(repoKey);
       this.repositories.delete(repoKey);
@@ -176,7 +176,7 @@ class MultiRepoManager {
   async getRepositoryOctokit(owner, repo) {
     const repoKey = `${owner}/${repo}`;
     const repoData = this.repositories.get(repoKey);
-    
+
     if (!repoData) {
       throw new Error(`Repositório ${repoKey} não está registrado`);
     }
@@ -191,7 +191,7 @@ class MultiRepoManager {
   listRepositories() {
     return Array.from(this.repositories.entries()).map(([key, data]) => ({
       repository: key,
-      ...data
+      ...data,
     }));
   }
 
@@ -213,7 +213,7 @@ class MultiRepoManager {
   updateLastActivity(owner, repo) {
     const repoKey = `${owner}/${repo}`;
     const repoData = this.repositories.get(repoKey);
-    
+
     if (repoData) {
       repoData.lastActivity = new Date();
     }
@@ -227,7 +227,7 @@ class MultiRepoManager {
     return {
       repositories: Object.fromEntries(this.repositories),
       installations: Object.fromEntries(this.installations),
-      exportedAt: new Date()
+      exportedAt: new Date(),
     };
   }
 
@@ -239,7 +239,7 @@ class MultiRepoManager {
     if (config.repositories) {
       this.repositories = new Map(Object.entries(config.repositories));
     }
-    
+
     if (config.installations) {
       this.installations = new Map(Object.entries(config.installations));
     }
@@ -253,5 +253,5 @@ const multiRepoManager = new MultiRepoManager();
 
 module.exports = {
   MultiRepoManager,
-  multiRepoManager
+  multiRepoManager,
 };
