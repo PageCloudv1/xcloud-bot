@@ -32,6 +32,7 @@ npm run bot:start
 ```
 
 Você deve ver:
+
 ```
 🤖 xcloud-bot iniciado na porta 3000
 📡 Webhooks disponíveis em: /webhooks/github
@@ -62,19 +63,22 @@ Copie a URL HTTPS (ex: `https://abc123.ngrok.io`) e:
 Criamos documentação completa para ajudar você:
 
 ### Guias de Setup
+
 - **[GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md)** - Guia completo passo a passo
 - **[QUICK_START.md](./QUICK_START.md)** - Início rápido
 
 ### Troubleshooting
+
 - **[QUICK_TROUBLESHOOTING.md](./QUICK_TROUBLESHOOTING.md)** - Checklist de 5 minutos
 - **[BOT_NOT_RESPONDING.md](./BOT_NOT_RESPONDING.md)** - Diagnóstico completo com todos os cenários possíveis
 
 ### Verificação
+
 - **[REGISTRATION_CHECKLIST.md](./REGISTRATION_CHECKLIST.md)** - Checklist completo de registro
 
 ## 🔍 Por que o bot não estava respondendo?
 
-O código do bot está correto e funcional. O webhook handler para comentários está implementado e procura por menções ao `@xcloud-bot`. 
+O código do bot está correto e funcional. O webhook handler para comentários está implementado e procura por menções ao `@xcloud-bot`.
 
 **O problema é que:**
 

@@ -25,12 +25,10 @@ npm run bot:start
 
 ### "Missing environment variables"
 
-
 ```bash
 npm run register:github-app
 # Siga o assistente
 ```
-
 
 ### "Bot não responde"
 
@@ -38,7 +36,6 @@ npm run register:github-app
 2. Configure ngrok: `ngrok http 3000`
 3. Atualize Webhook URL nas configurações da app
 4. Teste com `@xcloud-bot help`
-
 
 ### "Webhook não chega"
 
