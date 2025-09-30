@@ -59,7 +59,7 @@ describe('Workflow Analyzer', () => {
 
     // analyzeWorkflowPerformance should succeed, so analyzeRepository should succeed
     const result = await analyzeRepository('test-repo');
-    
+
     expect(result).toBeDefined();
     expect(result.repository).toBe('test-repo');
     expect(result.overall_score).toBeDefined();
