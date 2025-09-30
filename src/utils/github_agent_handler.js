@@ -1,6 +1,6 @@
 const { AutonomousAgent } = require('../agents/AutonomousAgent');
-const { Octokit } = require('@octokit/rest');
-
+import { AutonomousAgent } from '../agents/AutonomousAgent.js';
+import { Octokit } from '@octokit/rest';
 class GithubAgentHandler {
   constructor(githubToken, geminiApiKey, xbotUsername) {
     this.agent = new AutonomousAgent();
