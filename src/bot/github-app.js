@@ -334,7 +334,25 @@ async function createAnalysisIssue(targetRepo, issueTitle) {
   }
 }
 
+async function getBotInfo() {
+  try {
+    const octokit = new RestOctokit({
+      auth: process.env.GITHUB_TOKEN,
+    });
+    
+    const { data: user } = await octokit.rest.users.getAuthenticated();
+    console.log(`🤖 Bot Info - Username: ${user.login}, Type: ${user.type}`);
+    return user;
+  } catch (error) {
+    console.log('⚠️ Could not get bot info:', error.message);
+    return null;
+  }
+}
+
 async function main() {
+  // Log bot information for debugging
+  await getBotInfo();
+
   if (args.includes('--create-issue')) {
     const index = args.indexOf('--create-issue');
     const targetRepo =
