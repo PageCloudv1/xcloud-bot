@@ -1,5 +1,5 @@
-const logger = require('../utils/logger');
-const { getInstallationOctokit, getInstallationInfo } = require('./github-app');
+import logger from '../utils/logger.js';
+import { getInstallationOctokit, getInstallationInfo } from './github-app.js';
 
 /**
  * Configuração para múltiplos repositórios
@@ -251,7 +251,4 @@ class MultiRepoManager {
 // Instância singleton
 const multiRepoManager = new MultiRepoManager();
 
-module.exports = {
-  MultiRepoManager,
-  multiRepoManager,
-};
+export { MultiRepoManager, multiRepoManager };

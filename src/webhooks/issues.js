@@ -1,6 +1,6 @@
-const { getInstallationOctokit } = require('../config/github-app');
-const aiService = require('../services/ai-service');
-const logger = require('../utils/logger');
+import { getInstallationOctokit } from '../config/github-app.js';
+import aiService from '../services/ai-service.js';
+import logger from '../utils/logger.js';
 
 /**
  * Handler para quando uma issue é aberta
@@ -185,9 +185,4 @@ function calculateTimeOpen(createdAt, closedAt) {
   }
 }
 
-module.exports = {
-  handleIssueOpened,
-  handleIssueEdited,
-  handleIssueClosed,
-  handleIssueComment,
-};
+export { handleIssueOpened, handleIssueEdited, handleIssueClosed, handleIssueComment };

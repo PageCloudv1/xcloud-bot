@@ -1,9 +1,9 @@
-const { spawn, exec } = require('child_process');
-const fs = require('fs').promises;
-const path = require('path');
-const { Octokit } = require('@octokit/rest');
-const logger = require('../utils/logger');
-const { multiRepoManager } = require('../config/multi-repo');
+import { spawn, exec } from 'child_process';
+import fs from 'fs/promises';
+import path from 'path';
+import { Octokit } from '@octokit/rest';
+import logger from '../utils/logger.js';
+import { multiRepoManager } from '../config/multi-repo.js';
 
 /**
  * Agente Autônomo xCloud Bot
@@ -82,7 +82,7 @@ class AutonomousAgent {
     }
 
     const assigneeLogin = assignee.login.toLowerCase();
-    
+
     const xbotUsernames = [
       'xcloud-bot',
       'xbot',
@@ -248,7 +248,7 @@ class AutonomousAgent {
         this.containerRegistry.set(containerId, container);
         logger.info(`✅ Container ${containerId} criado: ${container.podmanId}`);
         resolve(container);
-      `'apk add --no-cache git && echo "https://${process.env.GITHUB_TOKEN}:x-oauth-basic@github.com" > /root/.git-credentials && git config --global credential.helper store && git clone https://github.com/${task.repository}.git /workspace/repo'`
+      });
     });
   }
 
@@ -449,30 +449,20 @@ class AutonomousAgent {
         actionResult.output = await this.runContainerCommand(
           container,
           `echo "Ação ${action} executada"`
-    // Implementação de correção de bug baseada na análise fornecida
-    const files = [];
-    
-    // Espera-se que analysis contenha { filePath, lineNumber, buggyLine, fixedLine }
-    if (
-      analysis &&
-      analysis.filePath &&
-      typeof analysis.lineNumber === 'number' &&
-      analysis.fixedLine
-    ) {
-      const filePath = analysis.filePath;
-      const lineNumber = analysis.lineNumber;
-      const fixedLine = analysis.fixedLine.replace(/'/g, "'\\''"); // escape single quotes for shell
-
-      // Usa sed para substituir a linha problemática pela linha corrigida
-      // sed -i "${lineNumber}s/.*/<fixedLine>/" <filePath>
-      const sedCmd = `sed -i "${lineNumber}s/.*/${fixedLine}/" /workspace/repo/${filePath}`;
-      await this.runContainerCommand(container, sedCmd);
-      files.push(filePath);
-    } else {
-      // Se não houver análise suficiente, loga erro
-      logger.error('Análise insuficiente para aplicar correção de bug', { analysis });
+        );
+        break;
     }
-    
+
+    return actionResult;
+  }
+
+  /**
+   * Executa comando em container
+   * @param {Object} container - Container info
+   * @param {string} command - Comando a executar
+   * @returns {Promise<string>} Output do comando
+   */
+  async runContainerCommand(container, command) {
     return new Promise((resolve, reject) => {
       const cmd = `podman exec ${container.id} sh -c "${command}"`;
 
@@ -618,11 +608,17 @@ ${task.issue.body || 'Documentação atualizada automaticamente pelo xBot.'}
    * @returns {Object} Pull request criado
    */
   async createPullRequest(task, result) {
-      // Write commit message to a file to avoid shell injection
-      await this.runContainerCommand(container, `echo ${JSON.stringify(commitMessage)} > /workspace/repo/.git_commit_msg`);
-      await this.runContainerCommand(container, `cd /workspace/repo && git commit -F .git_commit_msg`);
-      // Optionally, remove the commit message file after commit
-      await this.runContainerCommand(container, `rm /workspace/repo/.git_commit_msg`);
+    // Write commit message to a file to avoid shell injection
+    await this.runContainerCommand(
+      container,
+      `echo ${JSON.stringify(commitMessage)} > /workspace/repo/.git_commit_msg`
+    );
+    await this.runContainerCommand(
+      container,
+      `cd /workspace/repo && git commit -F .git_commit_msg`
+    );
+    // Optionally, remove the commit message file after commit
+    await this.runContainerCommand(container, `rm /workspace/repo/.git_commit_msg`);
 
     const [owner, repo] = task.repository.split('/');
     const branchName = `xbot/issue-${task.issue.number}`;
@@ -761,31 +757,33 @@ Closes #${task.issue.number}
   generateTaskSummary(task, analysis, result) {
     const successful = result.actions.filter(a => a.status === 'completed').length;
     const total = result.actions.length;
+    const successRate = total > 0 ? Math.round((successful / total) * 100) : 0;
 
-    return (
-      `Tarefa do tipo "${analysis.type}" executada com ${successful}/${total} ações bem-sucedidas. ` +
-        exec(`podman stop ${containerId}`, (error, stdout, stderr) => {
-          if (error) {
-            logger.warn(`Erro ao parar container ${containerId}: ${error.message}`);
-            if (stderr) logger.warn(`stderr: ${stderr}`);
-          }
-          resolve();
-        });
-      });
-      
-      // Remover container
-      await new Promise((resolve) => {
-        exec(`podman rm ${containerId}`, (error, stdout, stderr) => {
-          if (error) {
-            logger.warn(`Erro ao remover container ${containerId}: ${error.message}`);
-            if (stderr) logger.warn(`stderr: ${stderr}`);
-          }
-          resolve();
-        });
-   * Comenta no issue
-   * @param {Object} task - Tarefa
-   * @param {string} message - Mensagem
-   */
+    const filesChanged = result.files_changed?.length || 0;
+    const testsAdded = result.tests_added?.length || 0;
+
+    let summary = `Tarefa do tipo "${analysis.type}" executada com ${successful}/${total} ações bem-sucedidas (${successRate}%).`;
+
+    if (filesChanged > 0) {
+      summary += ` ${filesChanged} arquivo(s) modificado(s).`;
+    }
+
+    if (testsAdded > 0) {
+      summary += ` ${testsAdded} teste(s) adicionado(s).`;
+    }
+
+    // Adicionar detalhes das ações executadas
+    if (result.actions && result.actions.length > 0) {
+      const actionSummary = result.actions
+        .map(action => `${action.action}: ${action.status}`)
+        .join(', ');
+      summary += ` Ações: ${actionSummary}.`;
+    }
+
+    return summary;
+  }
+
+  /**
   async commentOnIssue(task, message) {
     const [owner, repo] = task.repository.split('/');
 
@@ -892,4 +890,4 @@ ${task.result.summary}
   }
 }
 
-module.exports = { AutonomousAgent };
+export { AutonomousAgent };

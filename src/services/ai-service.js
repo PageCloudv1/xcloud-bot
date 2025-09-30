@@ -1,5 +1,5 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const logger = require('../utils/logger');
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import logger from '../utils/logger.js';
 
 class AIService {
   constructor() {
@@ -218,4 +218,4 @@ Resposta:
   }
 }
 
-module.exports = new AIService();
+export default new AIService();

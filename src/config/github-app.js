@@ -1,6 +1,6 @@
-const { App } = require('@octokit/app');
-const { Octokit } = require('@octokit/rest');
-const logger = require('../utils/logger');
+import { App } from '@octokit/app';
+import { Octokit } from '@octokit/rest';
+import logger from '../utils/logger.js';
 
 // Configuração da GitHub App
 const app = new App({
@@ -67,9 +67,4 @@ async function hasPermission(installationId, permission) {
   }
 }
 
-module.exports = {
-  app,
-  getInstallationOctokit,
-  getInstallationInfo,
-  hasPermission,
-};
+export { app, getInstallationOctokit, getInstallationInfo, hasPermission };
