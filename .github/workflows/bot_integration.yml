@@ -1,5 +1,19 @@
 name: 🤖 xCloud Bot Integration
 
+# This workflow performs automated repository analysis, CI monitoring, and issue creation.
+# 
+# Required Permissions:
+#   - contents: read (to read repository code and workflows)
+#   - issues: write (to create issues with analysis results)
+#
+# Required Secrets:
+#   - GITHUB_TOKEN (automatically provided by GitHub Actions)
+#
+# Environment Variables:
+#   - CI=true (set automatically)
+#   - GITHUB_ACTIONS=true (set automatically)
+#   - GITHUB_TOKEN=${secrets.GITHUB_TOKEN}
+
 on:
   workflow_dispatch:
   schedule:
