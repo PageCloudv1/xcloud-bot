@@ -139,6 +139,8 @@ async function handleIssueComment({ payload }) {
   const { installation, repository, issue, comment } = payload;
 
   try {
+    logger.debug(`Comentário recebido na issue #${issue.number} de ${comment.user.login}`);
+
     // Verifica se o bot foi mencionado
     if (comment.body.includes('@xcloud-bot') || comment.body.includes('xcloud-bot')) {
       logger.info(`Bot mencionado na issue #${issue.number} em ${repository.full_name}`);
@@ -161,6 +163,10 @@ async function handleIssueComment({ payload }) {
 ---
 *Resposta gerada pelo xcloud-bot. Mencione-me novamente se precisar de mais ajuda!* 🤖`,
       });
+
+      logger.info(`✅ Resposta enviada para issue #${issue.number}`);
+    } else {
+      logger.debug(`Comentário não menciona o bot, ignorando.`);
     }
   } catch (error) {
     logger.error('Erro ao processar comentário da issue:', error);

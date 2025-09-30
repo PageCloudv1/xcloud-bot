@@ -236,28 +236,44 @@ async function provideSummary(results) {
   } else {
     log('  ⚠️  Some validations failed', 'yellow');
     log('═══════════════════════════════════════════════════════', 'cyan');
-    log('\n📋 Action items:', 'yellow');
+    log('\n❌ Configuration is incomplete', 'red');
+    log('\n📋 Common issues and solutions:\n', 'bright');
 
     if (!results.envFile) {
-      log('  • Create .env file from .env.example', 'red');
+      log('  ❌ .env file missing', 'red');
+      log('     → Solution: Copy .env.example to .env', 'yellow');
+      log('       cp .env.example .env\n', 'cyan');
     }
 
     if (!results.envVars) {
-      log('  • Configure required environment variables in .env', 'red');
-      log('    Run: npm run register:github-app for guidance', 'yellow');
+      log('  ❌ Required environment variables missing or empty', 'red');
+      log('     → Solution: Register your GitHub App first', 'yellow');
+      log('       npm run register:github-app', 'cyan');
+      log('     → Or manually fill in these values in .env:', 'yellow');
+      log('       - GITHUB_APP_ID', 'cyan');
+      log('       - GITHUB_PRIVATE_KEY', 'cyan');
+      log('       - GITHUB_OWNER\n', 'cyan');
     }
 
     if (!results.manifests) {
-      log('  • Ensure manifest files are present and valid', 'red');
+      log('  ❌ Manifest files missing', 'red');
+      log('     → Solution: Ensure you are in the repository root directory\n', 'yellow');
     }
 
     if (!results.docs) {
-      log('  • Check that documentation files exist', 'red');
+      log('  ❌ Documentation files missing', 'red');
+      log('     → Solution: Check that all documentation is present\n', 'yellow');
     }
 
     if (!results.botFiles) {
-      log('  • Verify bot source files are present', 'red');
+      log('  ❌ Bot source files missing', 'red');
+      log('     → Solution: Ensure source code is intact\n', 'yellow');
     }
+
+    log('\n🔗 Helpful resources:', 'bright');
+    log('  • Complete setup guide: GITHUB_APP_SETUP.md', 'cyan');
+    log('  • Quick start guide: QUICK_START.md', 'cyan');
+    log('  • Registration checklist: REGISTRATION_CHECKLIST.md\n', 'cyan');
   }
 
   log('');

@@ -167,6 +167,49 @@ Este PR contém mudanças em workflows GitHub Actions.
   }
 });
 
+// Quando um comentário é criado em uma issue ou PR
+app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
+  const { repository, issue, comment } = payload;
+
+  console.log(`💬 Comentário recebido na issue/PR #${issue.number} de ${comment.user.login}`);
+
+  try {
+    // Verifica se o bot foi mencionado
+    if (comment.body.includes('@xcloud-bot') || comment.body.includes('xcloud-bot')) {
+      console.log(`🤖 Bot mencionado na issue/PR #${issue.number} em ${repository.full_name}`);
+
+      // Responde à menção com uma mensagem útil
+      await octokit.rest.issues.createComment({
+        owner: repository.owner.login,
+        repo: repository.name,
+        issue_number: issue.number,
+        body: `Olá @${comment.user.login}! 👋
+
+Sou o **xCloud Bot** e estou aqui para ajudar!
+
+**Comandos disponíveis:**
+- \`@xcloud-bot help\` - Mostra esta mensagem de ajuda
+- \`@xcloud-bot analyze\` - Re-analisa a issue/PR atual
+
+**Sobre mim:**
+- 🔍 Analiso automaticamente issues e PRs quando são criados
+- 🏷️ Adiciono labels relevantes baseado no conteúdo
+- 📊 Forneço estatísticas e métricas sobre mudanças
+- 🤝 Respondo a menções e ajudo no desenvolvimento
+
+**Status do webhook:** ✅ Funcionando!
+
+---
+*Resposta gerada pelo xCloud Bot* 🤖`,
+      });
+
+      console.log(`✅ Resposta enviada para issue/PR #${issue.number}`);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao processar comentário:', error);
+  }
+});
+
 // Quando um workflow falha
 app.webhooks.on('workflow_run.completed', async ({ octokit, payload }) => {
   const { repository, workflow_run } = payload;
