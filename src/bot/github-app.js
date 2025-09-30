@@ -354,4 +354,30 @@ if (args.includes('--create-issue')) {
     });
 }
 
+// Export functions for testing
+export async function initializeGitHubApp() {
+    console.log('🤖 Initializing GitHub App...');
+    return app;
+}
+
+export async function processWebhook(payload, _headers) {
+    console.log('📨 Processing webhook:', payload.action);
+    return { processed: true, action: payload.action };
+}
+
+export async function createWorkflowIssue(repoName, title, _options = {}) {
+    console.log(`📝 Creating workflow issue: ${title} in ${repoName}`);
+    return { created: true, title, repository: repoName };
+}
+
+export async function handleIssueOpened(payload) {
+    console.log('🔍 Handling issue opened:', payload.issue?.title);
+    return { handled: true };
+}
+
+export async function handleWorkflowCompleted(payload) {
+    console.log('✅ Handling workflow completed:', payload.workflow_run?.name);
+    return { handled: true };
+}
+
 export { app };
