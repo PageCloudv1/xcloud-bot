@@ -13,7 +13,12 @@ import { spawn } from 'child_process';
 const SERVER_CONFIG = {
   host: '72.167.222.237',
   username: 'rootkit',
-  password: '103020Aa@@',
+const SERVER_CONFIG = {
+  host: process.env.SSH_HOST || '72.167.222.237',
+  username: process.env.SSH_USER || 'rootkit',
+  password: process.env.SSH_PASSWORD || '103020Aa@@',
+  port: process.env.SSH_PORT || 22,
+};
   port: 22,
 };
 
