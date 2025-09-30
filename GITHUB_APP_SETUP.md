@@ -242,6 +242,7 @@ Se não vê logs quando menciona o bot, o webhook não está chegando.
 - Abra uma issue: https://github.com/PageCloudv1/xcloud-bot/issues
 - Mencione `@xcloud-bot` em qualquer issue (após configurar!)
 - Consulte a documentação oficial do GitHub Apps: https://docs.github.com/en/developers/apps
+
 ## Proximos Passos
 
 1. Registrar GitHub App
