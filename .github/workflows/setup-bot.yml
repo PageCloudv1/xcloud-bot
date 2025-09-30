@@ -65,6 +65,6 @@ jobs:
 
       - name: Create issue
         run: |
-          gh issue create --title "xCloud Bot Registration Required" --body "Registre o GitHub App seguindo as instrucoes em GITHUB_APP_SETUP.md" --label "setup"
+          gh issue create --title "xCloud Bot Registration Required" --body "Registre o GitHub App seguindo as instrucoes em GITHUB_APP_SETUP.md"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
