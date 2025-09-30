@@ -175,15 +175,21 @@ app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
 
   try {
     // Verifica se o bot foi mencionado
-    if (comment.body.includes('@xcloud-bot') || comment.body.includes('xcloud-bot')) {
-      console.log(`🤖 Bot mencionado na issue/PR #${issue.number} em ${repository.full_name}`);
+    const mentionPattern = /@xcloud-bot|xcloud-bot/i;
+    if (!mentionPattern.test(comment.body)) {
+      return;
+    }
 
-      // Responde à menção com uma mensagem útil
-      await octokit.rest.issues.createComment({
-        owner: repository.owner.login,
-        repo: repository.name,
-        issue_number: issue.number,
-        body: `Olá @${comment.user.login}! 👋
+    console.log(`🤖 Bot mencionado na issue/PR #${issue.number} em ${repository.full_name}`);
+
+    const commentLower = comment.body.toLowerCase();
+    
+    // Detecta o comando solicitado
+    let responseBody;
+    
+    if (commentLower.includes('help') || commentLower.includes('ajuda')) {
+      // Comando de ajuda
+      responseBody = `Olá @${comment.user.login}! 👋
 
 Sou o **xCloud Bot** e estou aqui para ajudar!
 
@@ -200,11 +206,65 @@ Sou o **xCloud Bot** e estou aqui para ajudar!
 **Status do webhook:** ✅ Funcionando!
 
 ---
-*Resposta gerada pelo xCloud Bot* 🤖`,
-      });
+*Resposta gerada pelo xCloud Bot* 🤖`;
+    } else if (commentLower.includes('analyze') || commentLower.includes('analisa')) {
+      // Comando de análise
+      console.log(`🔍 Comando 'analyze' detectado para issue/PR #${issue.number}`);
+      
+      try {
+        const analysis = await analyzeIssue(issue);
+        
+        const labels = Array.isArray(analysis.labels)
+          ? analysis.labels
+          : typeof analysis.labels === 'string'
+            ? analysis.labels.split(/[,;\n]/).map(l => l.trim()).filter(Boolean)
+            : [];
 
-      console.log(`✅ Resposta enviada para issue/PR #${issue.number}`);
+        responseBody = `🔍 **Análise Re-executada** - @${comment.user.login}
+
+📊 **Resultado da análise:**
+- **Tipo:** ${analysis.type || 'N/A'}
+- **Prioridade:** ${analysis.priority || 'N/A'}
+- **Complexidade:** ${analysis.complexity || 'N/A'}
+- **Labels sugeridas:** ${labels.length > 0 ? labels.join(', ') : 'Nenhuma'}
+
+${analysis.summary ? `\n📝 **Resumo:**\n${analysis.summary}\n` : ''}
+---
+*Análise gerada pelo xCloud Bot* 🤖`;
+      } catch (error) {
+        console.error('❌ Erro ao executar análise:', error);
+        responseBody = `❌ **Erro ao analisar** - @${comment.user.login}
+
+Desculpe, ocorreu um erro ao tentar re-analisar esta issue/PR. Por favor, tente novamente mais tarde.
+
+---
+*xCloud Bot* 🤖`;
+      }
+    } else {
+      // Menção genérica sem comando específico
+      responseBody = `Olá @${comment.user.login}! 👋
+
+Você me mencionou, mas não reconheci um comando específico.
+
+**Comandos disponíveis:**
+- \`@xcloud-bot help\` - Mostra ajuda completa
+- \`@xcloud-bot analyze\` - Re-analisa a issue/PR atual
+
+Use um destes comandos para interagir comigo! 😊
+
+---
+*xCloud Bot* 🤖`;
     }
+
+    // Envia a resposta
+    await octokit.rest.issues.createComment({
+      owner: repository.owner.login,
+      repo: repository.name,
+      issue_number: issue.number,
+      body: responseBody,
+    });
+
+    console.log(`✅ Resposta enviada para issue/PR #${issue.number}`);
   } catch (error) {
     console.error('❌ Erro ao processar comentário:', error);
   }
