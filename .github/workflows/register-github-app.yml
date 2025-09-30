@@ -23,7 +23,7 @@ jobs:
       - name: '📥 Checkout repository'
         uses: 'actions/checkout@v4'
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: '⚙️ Setup Node.js'
         uses: 'actions/setup-node@v4'
@@ -34,7 +34,7 @@ jobs:
         id: validate
         run: |
           echo "Running validation script..."
-          node scripts/validate-github-app.cjs || echo "validation_failed=true" >> $GITHUB_OUTPUT
+          node scripts/validate-github-app.cjs || echo "validation_failed=true" >> $GH_OUTPUT
         continue-on-error: true
 
       - name: '📊 Display Validation Results'
@@ -47,18 +47,18 @@ jobs:
           
           echo ""
           echo "📋 Configuration files:"
-          ls -la github-app-manifest.json app.yml GITHUB_APP_SETUP.md 2>/dev/null || echo "Some files missing"
+          ls -la github-app-manifest.json app.yml GH_APP_SETUP.md 2>/dev/null || echo "Some files missing"
 
       - name: '📝 Generate Registration Instructions'
         if: steps.validate.outputs.validation_failed == 'true' && inputs.validate_only != true
         uses: 'actions/github-script@v7'
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           script: |
             const fs = require('fs');
             
             // Read the setup guide
-            const setupGuide = fs.readFileSync('GITHUB_APP_SETUP.md', 'utf8');
+            const setupGuide = fs.readFileSync('GH_APP_SETUP.md', 'utf8');
             
             const body = `# 🤖 xCloud Bot Registration Required
 
@@ -76,7 +76,7 @@ Este script irá guiá-lo através de todo o processo.
 
 ## 📝 Método Manual
 
-Siga as instruções completas em [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md)
+Siga as instruções completas em [GH_APP_SETUP.md](./GH_APP_SETUP.md)
 
 ### Passos Rápidos:
 
@@ -100,8 +100,8 @@ Siga as instruções completas em [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md)
    
 5. **Configurar Secrets** em Settings > Secrets > Actions:
    \`\`\`
-   GITHUB_APP_ID=<seu-app-id>
-   GITHUB_PRIVATE_KEY=<conteúdo-do-pem>
+   GH_APP_ID=<seu-app-id>
+   GH_PRIVATE_KEY=<conteúdo-do-pem>
    \`\`\`
 
 6. **Instalar a App** nos repositórios
@@ -116,8 +116,8 @@ npm run validate:github-app
 
 ## 📚 Recursos
 
-- [Documentação Completa](./GITHUB_APP_SETUP.md)
-- [Guia Detalhado](./GITHUB_BOT_SETUP_GUIDE.md)
+- [Documentação Completa](./GH_APP_SETUP.md)
+- [Guia Detalhado](./GH_BOT_SETUP_GUIDE.md)
 - [README](./README.md)
 
 ---
@@ -168,7 +168,7 @@ npm run validate:github-app
           echo "   https://github.com/settings/apps/new"
           echo ""
           echo "2. 📚 Seguir instruções detalhadas:"
-          echo "   - GITHUB_APP_SETUP.md (guia completo)"
+          echo "   - GH_APP_SETUP.md (guia completo)"
           echo "   - Ou executar: npm run register:github-app"
           echo ""
           echo "3. 🔐 Configurar secrets no repositório:"
