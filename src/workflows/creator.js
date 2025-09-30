@@ -1,6 +1,5 @@
 /**
  * 🏗️ Workflow Creator
-<<<<<<< HEAD
  * 
  * Cria workflows GitHub Actions automaticamente
  */
