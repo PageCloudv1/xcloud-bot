@@ -15,14 +15,17 @@ Este guia ajuda a resolver problemas comuns durante a configuração do xCloud B
 ## Erro: "Bad credentials"
 
 ### Sintomas
+
 - Bot inicia mas mostra erro: `⚠️ Could not get bot info: Bad credentials`
 - Webhooks não funcionam
 - Bot não responde a eventos
 
 ### Causa Principal
+
 **Você provavelmente usou o Client ID em vez do App ID.**
 
 Na página da GitHub App existem **DOIS** identificadores diferentes:
+
 - **App ID**: Número (ex: `123456`) ✅ **CORRETO**
 - **Client ID**: Começa com "Iv" (ex: `Iv1.abc123def456`) ❌ **ERRADO**
 
@@ -31,11 +34,13 @@ Na página da GitHub App existem **DOIS** identificadores diferentes:
 #### Passo 1: Verificar qual ID você está usando
 
 Execute o validador:
+
 ```bash
 npm run validate:github-app
 ```
 
 Se você ver este erro:
+
 ```
 ❌ GITHUB_APP_ID - This appears to be a Client ID (starts with 'Iv'), not an App ID
 ```
@@ -57,6 +62,7 @@ Então você precisa corrigir!
 #### Passo 3: Atualizar o valor
 
 **Para uso local (.env file):**
+
 ```bash
 # Abra o arquivo .env
 nano .env  # ou seu editor preferido
@@ -66,6 +72,7 @@ GITHUB_APP_ID=123456  # Use o número, sem aspas
 ```
 
 **Para GitHub Actions (Secrets):**
+
 1. Vá para: **Settings > Secrets and variables > Actions**
 2. Encontre o secret `GITHUB_APP_ID`
 3. Clique em **Update**
@@ -92,6 +99,7 @@ npm run bot:start
 ## Bot não responde
 
 ### Sintomas
+
 - Bot está rodando mas não responde a issues
 - Bot não comenta em PRs
 - Sem mensagens de erro aparentes
@@ -101,11 +109,13 @@ npm run bot:start
 #### 1. App não está instalada no repositório
 
 **Verificar:**
+
 1. Vá para: https://github.com/settings/installations
 2. Clique na sua GitHub App
 3. Verifique se o repositório está na lista
 
 **Solução:**
+
 1. Na mesma página, clique em **Configure**
 2. Em "Repository access":
    - Selecione "All repositories" ou
@@ -115,11 +125,13 @@ npm run bot:start
 #### 2. Permissões insuficientes
 
 **Verificar:**
+
 1. Acesse: https://github.com/settings/apps
 2. Clique na sua app
 3. Clique em **"Permissions & events"**
 
 **Permissões necessárias (Repository permissions):**
+
 - ✅ Actions: Read and write
 - ✅ Checks: Read and write
 - ✅ Contents: Read and write
@@ -127,6 +139,7 @@ npm run bot:start
 - ✅ Pull requests: Read and write
 
 **Eventos necessários (Subscribe to events):**
+
 - ✅ Issues
 - ✅ Issue comments
 - ✅ Pull requests
@@ -134,6 +147,7 @@ npm run bot:start
 - ✅ Push
 
 **Solução:**
+
 1. Marque as permissões faltantes
 2. Clique em **Save changes**
 3. Reinstale a app nos repositórios se solicitado
@@ -143,12 +157,14 @@ npm run bot:start
 Se estiver usando em produção (servidor web):
 
 **Verificar:**
+
 1. Acesse a página da GitHub App
 2. Clique em **"General"**
 3. Verifique se "Webhook URL" está preenchida
 
 **Solução:**
 Configure a URL do webhook apontando para seu servidor:
+
 ```
 https://seu-servidor.com/webhook
 ```
@@ -156,15 +172,18 @@ https://seu-servidor.com/webhook
 #### 4. GITHUB_OWNER incorreto
 
 **Verificar .env:**
+
 ```bash
 cat .env | grep GITHUB_OWNER
 ```
 
 **Deve ser:**
+
 - Seu username se for conta pessoal
 - O nome da organização se for org
 
 **Exemplo:**
+
 ```bash
 GITHUB_OWNER=rootkit-original  # para usuário
 # ou
@@ -176,10 +195,12 @@ GITHUB_OWNER=PageCloudv1       # para organização
 ## Private Key inválida
 
 ### Sintomas
+
 - Erro ao iniciar: "Invalid private key"
 - Erro: "PEM routines::no start line"
 
 ### Causa
+
 - Private key não foi copiada corretamente
 - Faltam as linhas BEGIN/END
 - Quebras de linha foram removidas
@@ -208,6 +229,7 @@ MIIEowIBAAKCAQEAs+EKLBylAXs7RLKbTdVjc2MfZ37KfJXb...
 ```
 
 **IMPORTANTE:**
+
 - ✅ Use aspas duplas `"`
 - ✅ Mantenha todas as quebras de linha
 - ✅ Inclua as linhas BEGIN e END
@@ -232,6 +254,7 @@ npm run validate:github-app
 **Causa:** A GitHub App não tem permissão para a ação solicitada.
 
 **Solução:**
+
 1. Acesse: https://github.com/settings/apps
 2. Clique na sua app > **"Permissions & events"**
 3. Encontre a permissão necessária e aumente para "Read and write"
@@ -243,6 +266,7 @@ npm run validate:github-app
 **Causa:** A app não está instalada no repositório.
 
 **Solução:**
+
 1. Vá para a página da app
 2. Clique em **"Install App"**
 3. Selecione o repositório
@@ -261,22 +285,29 @@ npm run validate:github-app
 ### Problemas comuns identificados pelo validador
 
 #### ❌ GITHUB_APP_ID - Client ID detectado
+
 ```
 ❌ GITHUB_APP_ID - This appears to be a Client ID (starts with 'Iv')
 ```
+
 **Solução:** Veja [Erro: "Bad credentials"](#erro-bad-credentials)
 
 #### ❌ GITHUB_PRIVATE_KEY - Formato inválido
+
 ```
 ⚠️ GITHUB_PRIVATE_KEY - Invalid format (should contain BEGIN PRIVATE KEY)
 ```
+
 **Solução:** Veja [Private Key inválida](#private-key-inválida)
 
 #### ⚠️ .env file not found
+
 ```
 ❌ .env file not found
 ```
+
 **Solução:**
+
 ```bash
 cp .env.example .env
 # Depois edite o .env com suas credenciais
@@ -298,6 +329,7 @@ cp .env.example .env
 ### Como obter ajuda
 
 1. **Execute diagnóstico completo:**
+
    ```bash
    npm run validate:github-app > diagnostico.txt
    npm run bot:start > logs.txt 2>&1
