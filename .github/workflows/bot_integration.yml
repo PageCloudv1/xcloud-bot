@@ -1,0 +1,32 @@
+name: 🤖 xCloud Bot Integration
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'  # A cada 6 horas
+
+jobs:
+  bot-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+          
+      - name: 📊 Analyze Repository
+        run: npm run analyze:repo ${{ github.repository }}
+          
+      - name: 🔍 Monitor CI Status
+        run: npm run scheduler:run
+          
+      - name: 🤖 Create Issues if Needed
+        run: npm run create:issue ${{ github.repository }} "Automated Analysis Report"

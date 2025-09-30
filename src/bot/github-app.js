@@ -8,6 +8,7 @@
  */
 
 import { App } from '@octokit/app';
+import { Octokit as RestOctokit } from '@octokit/rest';
 import { createNodeMiddleware } from '@octokit/webhooks';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -15,6 +16,10 @@ import { analyzeIssue } from '../integrations/gemini-cli.js';
 import { analyzeRepository } from '../workflows/analyzer.js';
 
 dotenv.config();
+
+const args = process.argv.slice(2);
+const isActEnvironment = process.env.ACT === 'true';
+const defaultOwner = process.env.GITHUB_OWNER || 'PageCloudv1';
 
 const app = new App({
     appId: process.env.GITHUB_APP_ID,
@@ -200,45 +205,153 @@ _Issue criada automaticamente pelo xCloud Bot_`,
     }
 });
 
-// 🌐 Express Server para webhooks
-const server = express();
-server.use(express.json());
+function parseRepositoryIdentifier(repoInput) {
+    if (!repoInput) {
+        return [defaultOwner, 'xcloud-bot'];
+    }
 
-// Health check
-server.get('/health', (req, res) => {
-    res.json({
-        status: 'healthy',
-        bot: 'xcloud-bot',
-        timestamp: new Date().toISOString()
-    });
-});
+    const sanitized = repoInput.trim();
 
-// Webhook endpoint
-server.use('/webhook', createNodeMiddleware(app.webhooks));
+    if (sanitized.includes('/')) {
+        const [owner, repo] = sanitized.split('/');
+        return [owner || defaultOwner, repo];
+    }
 
-// API endpoint para análise manual
-server.post('/api/analyze', async (req, res) => {
+    return [defaultOwner, sanitized];
+}
+
+async function buildIssueBody(repoFullName) {
+    const lines = [
+        '## 🤖 xCloud Bot Automated Analysis',
+        '',
+        `- **Repositório:** ${repoFullName}`,
+        `- **Gerado em:** ${new Date().toISOString()}`
+    ];
+
     try {
-        const { repository, type = 'general' } = req.body;
+        const analysis = await analyzeRepository(repoFullName, 'general');
 
-        const analysis = await analyzeRepository(repository, type);
+        if (analysis?.summary) {
+            lines.push('', '### 📄 Resumo', analysis.summary);
+        }
 
+        if (Array.isArray(analysis?.improvements) && analysis.improvements.length > 0) {
+            lines.push('', '### ✅ Sugestões de melhoria');
+            lines.push(...analysis.improvements.map(item => `- ${item}`));
+        }
+
+        if (analysis?.quality_score) {
+            lines.push('', `- **Quality score:** ${analysis.quality_score}`);
+        }
+
+    } catch (error) {
+        lines.push('', `⚠️ Não foi possível gerar análise detalhada: ${error.message}`);
+    }
+
+    return lines.join('\n');
+}
+
+async function createAnalysisIssue(targetRepo, issueTitle) {
+    const [owner, repo] = parseRepositoryIdentifier(targetRepo);
+    const fullName = `${owner}/${repo}`;
+    const body = await buildIssueBody(fullName);
+
+    const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+
+    if (!token || isActEnvironment) {
+        console.log('⚠️ Token GitHub indisponível ou execução em modo ACT. Simulando criação de issue.');
+        console.log(`📝 Issue: ${issueTitle}`);
+        console.log(body);
+        return;
+    }
+
+    const restClient = new RestOctokit({ auth: token });
+
+    try {
+        await restClient.rest.issues.create({
+            owner,
+            repo,
+            title: issueTitle,
+            body,
+            labels: ['bot-created', 'analysis']
+        });
+
+        console.log(`✅ Issue criada em https://github.com/${fullName}`);
+    } catch (error) {
+        if (error.status === 401 || error.status === 403) {
+            console.warn(`⚠️ Falha de autenticação ao criar issue em ${fullName}: ${error.message}`);
+            return;
+        }
+
+        throw error;
+    }
+}
+
+async function main() {
+    if (args.includes('--create-issue')) {
+        const index = args.indexOf('--create-issue');
+        const targetRepo = args[index + 1] || process.env.GITHUB_REPOSITORY || `${defaultOwner}/xcloud-bot`;
+        const issueTitle = args[index + 2] || 'Automated Analysis Report';
+
+        await createAnalysisIssue(targetRepo, issueTitle);
+        return;
+    }
+
+    // 🌐 Express Server para webhooks
+    const server = express();
+    server.use(express.json());
+
+    // Health check
+    server.get('/health', (req, res) => {
         res.json({
-            repository,
-            analysis,
+            status: 'healthy',
+            bot: 'xcloud-bot',
             timestamp: new Date().toISOString()
         });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    });
+
+    // Webhook endpoint
+    server.use('/webhook', createNodeMiddleware(app.webhooks));
+
+    // API endpoint para análise manual
+    server.post('/api/analyze', async (req, res) => {
+        try {
+            const { repository, type = 'general' } = req.body;
+
+            const analysis = await analyzeRepository(repository, type);
+
+            res.json({
+                repository,
+                analysis,
+                timestamp: new Date().toISOString()
+            });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    const PORT = process.env.PORT || 3000;
+
+    server.listen(PORT, () => {
+        console.log(`🤖 xCloud Bot rodando na porta ${PORT}`);
+        console.log(`🌐 Webhook URL: http://localhost:${PORT}/webhook`);
+        console.log(`🏥 Health check: http://localhost:${PORT}/health`);
+    });
+}
+
+main().catch(error => {
+    console.error('❌ Erro ao iniciar o xCloud Bot:', error);
+    if (args.includes('--create-issue')) {
+        process.exit(1);
     }
 });
 
-const PORT = process.env.PORT || 3000;
-
-server.listen(PORT, () => {
-    console.log(`🤖 xCloud Bot rodando na porta ${PORT}`);
-    console.log(`🌐 Webhook URL: http://localhost:${PORT}/webhook`);
-    console.log(`🏥 Health check: http://localhost:${PORT}/health`);
-});
+if (args.includes('--create-issue')) {
+    process.on('beforeExit', code => {
+        if (code === 0) {
+            console.log('✅ Processo de criação de issue concluído');
+        }
+    });
+}
 
 export { app };
