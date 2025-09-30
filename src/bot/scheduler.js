@@ -76,7 +76,7 @@ _Alerta gerado automaticamente pelo xCloud Bot_`,
 
       // Analisa performance
       const performance = await analyzeWorkflowPerformance(repo.name);
-      if (performance.slowWorkflows.length > 0) {
+      if (performance.issues?.slowWorkflows?.length > 0) {
         console.log(`⚠️ Workflows lentos detectados em ${repo.name}`);
       }
     }
