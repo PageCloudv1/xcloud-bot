@@ -12,7 +12,9 @@
 ## 🟢 **BRANCHES JÁ MERGED (29) - SEGUROS PARA DELETAR**
 
 ### Copilot Fixes (12/16)
+
 ✅ **Podem ser deletados** - Todas as correções já estão no `main`:
+
 - `origin/copilot/fix-24141a6a-8f19-44ea-86d1-b3d5221c8a2f`
 - `origin/copilot/fix-2af16305-3ef2-49df-ab3e-05df567a7ef0`
 - `origin/copilot/fix-5262b223-4ea5-4f69-99ee-14dc88113581`
@@ -29,9 +31,11 @@
 - `origin/copilot/fix-e8afdb78-ba98-405e-94d2-ca9864644354`
 
 ### DeepSource Branches (9/13)
+
 ✅ **Podem ser deletados** - Formatação já aplicada:
+
 - `origin/deepsource-autofix-3487c763`
-- `origin/deepsource-autofix-55677545`  
+- `origin/deepsource-autofix-55677545`
 - `origin/deepsource-autofix-b04dcc96`
 - `origin/deepsource-autofix-cd47ab5a`
 - `origin/deepsource-transform-128800bb`
@@ -41,13 +45,17 @@
 - `origin/deepsource-transform-da4f11be`
 
 ### Feature Branches (3/3)
+
 ✅ **Podem ser deletados** - Features já implementadas:
+
 - `origin/feature/autonomous-agent-podman` - Autonomous agent já no main
 - `origin/feature/implement-xcloud-bot-github-app` - GitHub App já configurado
 - `origin/feature/workflow-organization-automation` - Workflows organizados
 
 ### Outros Branches (2)
+
 ✅ **Podem ser deletados**:
+
 - `origin/30-js-0111-unnecessary-return-await-function-found` - Correção async/await aplicada
 - `origin/refactor-github-workflows` - Refactor já realizado
 
@@ -58,8 +66,9 @@
 ### 🔥 **CRÍTICO - MERGE RECOMENDADO**
 
 #### 1. `origin/copilot/fix-e2cfd3ee-96ce-4f38-b440-8f709035eedf`
+
 - **Status**: ⚠️ **IMPORTANTE** - Contém webhook handlers essenciais
-- **Conteúdo**: 
+- **Conteúdo**:
   - Issue comment webhook handler
   - Troubleshooting guides completos
   - Documentação de setup avançada
@@ -69,20 +78,24 @@
 ### 📝 **BAIXA PRIORIDADE - MERGE OPCIONAL**
 
 #### 2. `origin/copilot/fix-1464d3a5-b4c2-4caf-865a-be05d2dd4c7f`
+
 - **Conteúdo**: Apenas "Initial plan"
 - **Ação**: Pode deletar
 
 #### 3. `origin/copilot/fix-e2f08ac6-a373-4293-8b99-29241d746e0d`
+
 - **Conteúdo**: Correção específica não crítica
 - **Ação**: Avaliar necessidade
 
 #### 4. `origin/copilot/fix-ed5089b7-87f6-4732-9584-e50706a6c93a`
+
 - **Conteúdo**: Correção específica não crítica
 - **Ação**: Avaliar necessidade
 
 ### 🎨 **FORMATAÇÃO - MERGE RECOMENDADO**
 
 #### 5-8. DeepSource Transforms (4)
+
 - `origin/deepsource-transform-5f5e2696`
 - `origin/deepsource-transform-8a1b13e5`
 - `origin/deepsource-transform-bf38159b`
@@ -96,19 +109,22 @@
 ## 🚀 **PLANO DE AÇÃO RECOMENDADO**
 
 ### Etapa 1: Merge Crítico
+
 ```bash
 git merge origin/copilot/fix-e2cfd3ee-96ce-4f38-b440-8f709035eedf
 ```
 
 ### Etapa 2: Merge de Formatação (Opcional)
+
 ```bash
 git merge origin/deepsource-transform-5f5e2696
-git merge origin/deepsource-transform-8a1b13e5  
+git merge origin/deepsource-transform-8a1b13e5
 git merge origin/deepsource-transform-bf38159b
 git merge origin/deepsource-transform-d3834819
 ```
 
 ### Etapa 3: Limpeza Massiva (29 branches)
+
 ```bash
 # Deletar todos os branches merged
 $branches = @(
@@ -166,5 +182,6 @@ foreach ($branch in $branches) {
 4. **AVALIAR**: Decidir sobre os 3 branches copilot restantes
 
 ---
-*Relatório gerado em: ${new Date().toLocaleDateString('pt-BR')}*
-*Status do workspace: Pronto para limpeza massiva*
+
+_Relatório gerado em: ${new Date().toLocaleDateString('pt-BR')}_
+_Status do workspace: Pronto para limpeza massiva_
