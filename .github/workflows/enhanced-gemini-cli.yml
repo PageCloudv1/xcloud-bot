@@ -99,30 +99,42 @@ jobs:
               find src -name "*.js" -o -name "*.ts" -o -name "*.py" | head -10 | while read file; do
                 echo "Analisando: $file"
                 gemini generate <<EOF >> .gemini-results/code-analysis.md
-    EOF
+Analise o seguinte arquivo de código e forneça um relatório detalhado de qualidade, possíveis bugs, e sugestões de melhoria. 
+Arquivo: $file
+$(cat "$file")
+EOF
               ;;
             "review-pr")
               echo "🔍 Revisando PR..."
               if [ -n "${{ github.event.pull_request.number }}" ]; then
                 gh pr view ${{ github.event.pull_request.number }} --json files,diff > .gemini-results/pr-data.json
                 gemini generate <<EOF > .gemini-results/pr-review.md
-    EOF
+Analise a seguinte Pull Request. Forneça um parecer técnico, aponte possíveis problemas e sugira melhorias.
+Dados da PR:
+$(cat .gemini-results/pr-data.json)
+EOF
               fi
               ;;
             "generate-docs")
               echo "📚 Gerando documentação..."
               gemini generate <<EOF > .gemini-results/documentation.md
-    EOF
+Gere documentação detalhada para o projeto com base no código-fonte localizado no diretório src. Inclua exemplos de uso e explicações das principais funções.
+$(find src -name "*.js" -o -name "*.ts" -o -name "*.py" | head -10 | xargs cat)
+EOF
               ;;
             "suggest-improvements")
               echo "💡 Sugerindo melhorias..."
               gemini generate <<EOF > .gemini-results/improvements.md
-    EOF
+Analise o seguinte projeto e sugira melhorias de arquitetura, legibilidade e performance. Considere também práticas recomendadas de segurança.
+$(find src -name "*.js" -o -name "*.ts" -o -name "*.py" | head -10 | xargs cat)
+EOF
               ;;
             "security-scan")
               echo "🔒 Executando scan de segurança..."
               gemini generate <<EOF > .gemini-results/security-scan.md
-    EOF
+Realize uma análise de segurança no seguinte código. Aponte vulnerabilidades, riscos e sugira correções.
+$(find src -name "*.js" -o -name "*.ts" -o -name "*.py" | head -10 | xargs cat)
+EOF
               ;;
             "performance-analysis")
               echo "⚡ Analisando performance..."
