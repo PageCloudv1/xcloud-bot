@@ -17,6 +17,8 @@ const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN
 });
 
+const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+
 // 📊 Monitor de workflows
 async function monitorWorkflows() {
     console.log('🔍 Iniciando monitoramento de workflows...');
@@ -176,48 +178,75 @@ async function cleanupArtifacts() {
     }
 }
 
-// 📅 Agendamento das tarefas
-
-// A cada 30 minutos - Monitor workflows
-cron.schedule('*/30 * * * *', () => {
-    console.log('⏰ Executando monitoramento agendado...');
-    monitorWorkflows();
-});
-
-// A cada 2 horas - Health check
-cron.schedule('0 */2 * * *', () => {
-    console.log('⏰ Executando health check agendado...');
-    healthCheck();
-});
-
-// Diariamente às 02:00 - Limpeza
-cron.schedule('0 2 * * *', () => {
-    console.log('⏰ Executando limpeza agendada...');
-    cleanupArtifacts();
-});
-
-// 🚀 Execução manual
-if (process.argv.includes('--monitor')) {
-    monitorWorkflows();
+async function runAllTasksOnce() {
+    await monitorWorkflows();
+    await healthCheck();
+    await cleanupArtifacts();
 }
 
-if (process.argv.includes('--health')) {
-    healthCheck();
-}
+if (isCI) {
+    console.log('🏁 Executando scheduler em modo CI (execução única)...');
+    runAllTasksOnce()
+        .then(() => {
+            console.log('✅ Scheduler concluído (modo CI)');
+            process.exit(0);
+        })
+        .catch(error => {
+            console.error('❌ Scheduler falhou no modo CI:', error);
+            process.exit(1);
+        });
+} else {
+    // 📅 Agendamento das tarefas
 
-if (process.argv.includes('--cleanup')) {
-    cleanupArtifacts();
-}
+    // A cada 30 minutos - Monitor workflows
+    cron.schedule('*/30 * * * *', () => {
+        console.log('⏰ Executando monitoramento agendado...');
+        void monitorWorkflows();
+    });
 
-console.log('🕐 xCloud Bot Scheduler iniciado');
-console.log('📅 Tarefas agendadas:');
-console.log('  • Monitoramento: a cada 30 minutos');
-console.log('  • Health check: a cada 2 horas');
-console.log('  • Limpeza: diariamente às 02:00');
-console.log('');
-console.log('💡 Uso manual:');
-console.log('  • npm run scheduler:monitor');
-console.log('  • npm run scheduler:health');
-console.log('  • npm run scheduler:cleanup');
+    // A cada 2 horas - Health check
+    cron.schedule('0 */2 * * *', () => {
+        console.log('⏰ Executando health check agendado...');
+        void healthCheck();
+    });
+
+    // Diariamente às 02:00 - Limpeza
+    cron.schedule('0 2 * * *', () => {
+        console.log('⏰ Executando limpeza agendada...');
+        void cleanupArtifacts();
+    });
+
+    // 🚀 Execução manual
+    const manualRuns = [];
+
+    if (process.argv.includes('--monitor')) {
+        manualRuns.push(monitorWorkflows());
+    }
+
+    if (process.argv.includes('--health')) {
+        manualRuns.push(healthCheck());
+    }
+
+    if (process.argv.includes('--cleanup')) {
+        manualRuns.push(cleanupArtifacts());
+    }
+
+    if (manualRuns.length > 0) {
+        Promise.all(manualRuns)
+            .then(() => console.log('✅ Execução manual concluída'))
+            .catch(error => console.error('❌ Erro na execução manual:', error));
+    }
+
+    console.log('🕐 xCloud Bot Scheduler iniciado');
+    console.log('📅 Tarefas agendadas:');
+    console.log('  • Monitoramento: a cada 30 minutos');
+    console.log('  • Health check: a cada 2 horas');
+    console.log('  • Limpeza: diariamente às 02:00');
+    console.log('');
+    console.log('💡 Uso manual:');
+    console.log('  • npm run scheduler:monitor');
+    console.log('  • npm run scheduler:health');
+    console.log('  • npm run scheduler:cleanup');
+}
 
 export { cleanupArtifacts, healthCheck, monitorWorkflows };
