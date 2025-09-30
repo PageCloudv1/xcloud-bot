@@ -45,7 +45,7 @@ Bot inteligente para automação e assistência em repositórios GitHub, desenvo
 
 ### 🤝 Interação Inteligente
 
-- **Resposta a menções** (@xcloud-bot)
+- **Resposta a menções** (@xcloudapp-bot ou @xcloud-bot)
 - **Assistência contextual** baseada no tipo de issue/PR
 - **Sugestões de reviewers** baseadas nos arquivos modificados
 - **Celebração de merges** e fechamento de issues
@@ -64,7 +64,7 @@ Bot inteligente para automação e assistência em repositórios GitHub, desenvo
 1. **Crie uma issue** - O bot analisará automaticamente
 2. **Receba análise** - Comentário com análise e sugestões
 3. **Labels automáticas** - Aplicadas baseadas no conteúdo
-4. **Mencione o bot** - Use `@xcloud-bot` para interagir
+4. **Mencione o bot** - Use `@xcloudapp-bot` ou `@xcloud-bot` para interagir
 
 ### Para Pull Requests
 
@@ -75,9 +75,9 @@ Bot inteligente para automação e assistência em repositórios GitHub, desenvo
 
 ### Comandos de Interação
 
-- `@xcloud-bot` - Mencione para interagir
-- `@xcloud-bot help` - Ajuda sobre comandos
-- `@xcloud-bot analyze` - Re-análise do item atual
+- `@xcloudapp-bot` ou `@xcloud-bot` - Mencione para interagir
+- `@xcloudapp-bot help` ou `@xcloud-bot help` - Ajuda sobre comandos
+- `@xcloudapp-bot analyze` ou `@xcloud-bot analyze` - Re-análise do item atual
 
 📖 **[Guia Completo de Comandos →](./BOT_COMMANDS_GUIDE.md)**
 
@@ -397,7 +397,7 @@ E deve estar subscrita a estes eventos:
 - **Issues**: [GitHub Issues](https://github.com/PageCloudv1/xcloud-bot/issues)
 - **Documentação**: Este README
 - **Guia de configuração**: [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md)
-- **Contato**: Mencione `@xcloud-bot` em qualquer issue (após configurar!)
+- **Contato**: Mencione `@xcloudapp-bot` ou `@xcloud-bot` em qualquer issue (após configurar!)
 
 ## 📄 Licença
 
