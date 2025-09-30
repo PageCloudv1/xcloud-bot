@@ -369,11 +369,11 @@ if (process.argv[1]?.endsWith('bot-validation.js')) {
     .runAllValidations()
     .then(report => {
       console.log('\n✅ Validation completed!');
-      process.exit(report.successRate >= 0.8 ? 0 : 1);
+      process.exitCode = report.successRate >= 0.8 ? 0 : 1;
     })
     .catch(error => {
       console.error('\n❌ Validation failed:', error);
-      process.exit(1);
+      process.exitCode = 1;
     });
 }
 

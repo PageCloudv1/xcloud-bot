@@ -25,8 +25,8 @@ export interface DeploymentInfo {
 
 export class DevOpsService {
   private readonly logger: Logger;
-  private initialized: boolean = false;
-  private running: boolean = false;
+  private initialized = false;
+  private running = false;
 
   constructor() {
     this.logger = new Logger('DevOpsService');

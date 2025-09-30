@@ -28,19 +28,20 @@ async function main() {
     });
   } catch (error) {
     console.error('❌ Failed to start xCloud Bot:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
+const shutdown = () => {
   console.log('\n🛑 Shutting down xCloud Bot...');
-  process.exit(0);
-});
+  // Allow pending operations to complete naturally
+};
 
-process.on('SIGTERM', () => {
-  console.log('\n🛑 Shutting down xCloud Bot...');
-  process.exit(0);
-});
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
 
-main();
+main().catch(error => {
+  console.error('Fatal error:', error);
+  process.exitCode = 1;
+});

@@ -27,7 +27,8 @@ class MCPServer:
             "xcloud-docs",
         ]
 
-    async def analyze_repository(self, repo_name: str) -> Dict:
+    @staticmethod
+    async def analyze_repository(repo_name: str) -> Dict:
         """Analyze repository for CI/CD issues"""
         print(f"🔍 Analyzing repository: {repo_name}")
 
@@ -92,7 +93,8 @@ class MCPServer:
         print(f"✅ Repository analysis complete: {json.dumps(analysis, indent=2)}")
         return analysis
 
-    async def create_workflow_issue(self, repo_name: str, workflow_type: str) -> Dict:
+    @staticmethod
+    async def create_workflow_issue(repo_name: str, workflow_type: str) -> Dict:
         """Create workflow improvement issue"""
         print(f"📝 Creating {workflow_type} workflow issue for {repo_name}")
 
@@ -164,7 +166,8 @@ class MCPServer:
         print(f"✅ Issue created: {issue['title']}")
         return issue
 
-    async def monitor_ci_status(self, repo_name: str) -> Dict:
+    @staticmethod
+    async def monitor_ci_status(repo_name: str) -> Dict:
         """Monitor CI status for repository"""
         print(f"📊 Monitoring CI status for {repo_name}")
 
@@ -244,8 +247,9 @@ class MCPServer:
         print(f"✅ Retrieved {len(repositories)} xCloud repositories")
         return result
 
+    @staticmethod
     async def run_gemini_analysis(
-        self, repo_name: str, analysis_type: str = "comprehensive"
+        repo_name: str, analysis_type: str = "comprehensive"
     ) -> Dict:
         """Run Gemini AI analysis on repository"""
         print(f"🧠 Running Gemini analysis on {repo_name} (type: {analysis_type})")
@@ -312,16 +316,16 @@ class MCPServer:
         args = args or []
 
         if command == "analyze" and args:
-            return await self.analyze_repository(args[0])
+            return await MCPServer.analyze_repository(args[0])
         elif command == "monitor" and args:
-            return await self.monitor_ci_status(args[0])
+            return await MCPServer.monitor_ci_status(args[0])
         elif command == "create-issue" and len(args) >= 2:
-            return await self.create_workflow_issue(args[0], args[1])
+            return await MCPServer.create_workflow_issue(args[0], args[1])
         elif command == "list-repos":
             return await self.get_xcloud_repositories()
         elif command == "gemini" and args:
             analysis_type = args[1] if len(args) > 1 else "comprehensive"
-            return await self.run_gemini_analysis(args[0], analysis_type)
+            return await MCPServer.run_gemini_analysis(args[0], analysis_type)
         else:
             return {"error": f"Unknown command: {command}"}
 

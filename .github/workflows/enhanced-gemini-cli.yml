@@ -1,0 +1,212 @@
+name: '🧠 Enhanced Gemini CLI Integration'
+
+on:
+  workflow_call:
+    inputs:
+      command:
+        type: 'string'
+        description: 'Gemini CLI command to execute'
+        required: true
+      context:
+        type: 'string'
+        description: 'Additional context for the command'
+        required: false
+      target_repo:
+        type: 'string'
+        description: 'Target repository (owner/repo)'
+        required: false
+        default: ${{ github.repository }}
+  
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Gemini CLI command'
+        required: true
+        type: choice
+        options:
+          - 'analyze-code'
+          - 'review-pr'
+          - 'generate-docs'
+          - 'suggest-improvements'
+          - 'security-scan'
+          - 'performance-analysis'
+      context:
+        description: 'Additional context'
+        required: false
+        type: string
+      target_repo:
+        description: 'Target repository'
+        required: false
+        type: string
+
+concurrency:
+  group: '${{ github.workflow }}-${{ inputs.command }}-${{ inputs.target_repo || github.repository }}'
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: 'bash'
+
+jobs:
+  gemini-cli-execution:
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 10
+    permissions:
+      contents: 'read'
+      issues: 'write'
+      pull-requests: 'write'
+      actions: 'write'
+    
+    steps:
+      - name: 'Checkout repository'
+        uses: 'actions/checkout@v4'
+        with:
+          repository: ${{ inputs.target_repo || github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Setup Node.js'
+        uses: 'actions/setup-node@v4'
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 'Install dependencies'
+        run: |
+          npm ci
+          # Instalar gemini-cli se não estiver presente
+          if ! command -v gemini &> /dev/null; then
+            npm install -g @google/gemini-cli@0.3.0
+          fi
+
+      - name: 'Execute Gemini CLI Command'
+        id: 'gemini_execution'
+        env:
+          GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}'
+          GOOGLE_API_KEY: '${{ secrets.GOOGLE_API_KEY }}'
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          COMMAND: '${{ inputs.command }}'
+          CONTEXT: '${{ inputs.context }}'
+          REPOSITORY: '${{ inputs.target_repo || github.repository }}'
+        run: |
+          echo "🧠 Executando comando Gemini CLI: $COMMAND"
+          
+          # Criar diretório para resultados
+          mkdir -p .gemini-results
+          
+          case "$COMMAND" in
+            "analyze-code")
+              echo "📊 Analisando código..."
+              find src -name "*.js" -o -name "*.ts" -o -name "*.py" | head -10 | while read file; do
+                echo "Analisando: $file"
+                gemini generate <<EOF >> .gemini-results/code-analysis.md
+              ;;
+            "review-pr")
+              echo "🔍 Revisando PR..."
+              if [ -n "${{ github.event.pull_request.number }}" ]; then
+                gh pr view ${{ github.event.pull_request.number }} --json files,diff > .gemini-results/pr-data.json
+                gemini generate <<EOF > .gemini-results/pr-review.md
+              fi
+              ;;
+            "generate-docs")
+              echo "📚 Gerando documentação..."
+              gemini generate <<EOF > .gemini-results/documentation.md
+              ;;
+            "suggest-improvements")
+              echo "💡 Sugerindo melhorias..."
+              gemini generate <<EOF > .gemini-results/improvements.md
+              ;;
+            "security-scan")
+              echo "🔒 Executando scan de segurança..."
+              gemini generate <<EOF > .gemini-results/security-scan.md
+              ;;
+            "performance-analysis")
+              echo "⚡ Analisando performance..."
+              gemini generate "Analise a performance deste código e sugira otimizações: $(find src -name "*.js" -o -name "*.ts" | head -5 | xargs cat)" > .gemini-results/performance-analysis.md
+              ;;
+            *)
+              echo "❌ Comando não reconhecido: $COMMAND"
+              exit 1
+              ;;
+          esac
+          
+          echo "✅ Comando executado com sucesso"
+
+      - name: 'Process Results'
+        id: 'process_results'
+        run: |
+          echo "📋 Processando resultados..."
+          
+          # Combinar todos os resultados
+          if [ -d ".gemini-results" ]; then
+            echo "## 🧠 Resultados do Gemini CLI" > gemini-summary.md
+            echo "" >> gemini-summary.md
+            echo "**Comando executado:** \`${{ inputs.command }}\`" >> gemini-summary.md
+            echo "**Repositório:** ${{ inputs.target_repo || github.repository }}" >> gemini-summary.md
+            echo "**Data:** $(date)" >> gemini-summary.md
+            echo "" >> gemini-summary.md
+            
+            for file in .gemini-results/*.md; do
+              if [ -f "$file" ]; then
+                echo "### $(basename "$file" .md)" >> gemini-summary.md
+                echo "" >> gemini-summary.md
+                cat "$file" >> gemini-summary.md
+                echo "" >> gemini-summary.md
+                echo "---" >> gemini-summary.md
+                echo "" >> gemini-summary.md
+              fi
+            done
+            
+            # Salvar como artifact
+            echo "RESULTS_AVAILABLE=true" >> $GITHUB_OUTPUT
+          else
+            echo "RESULTS_AVAILABLE=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 'Upload Results'
+        if: steps.process_results.outputs.RESULTS_AVAILABLE == 'true'
+        uses: 'actions/upload-artifact@v4'
+        with:
+          name: 'gemini-cli-results-${{ inputs.command }}-${{ github.run_number }}'
+          path: |
+            gemini-summary.md
+            .gemini-results/
+          retention-days: 30
+
+      - name: 'Comment Results (if PR)'
+        if: github.event_name == 'pull_request' && steps.process_results.outputs.RESULTS_AVAILABLE == 'true'
+        uses: 'actions/github-script@v7'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            
+            if (fs.existsSync('gemini-summary.md')) {
+              const summary = fs.readFileSync('gemini-summary.md', 'utf8');
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: summary
+              });
+            }
+
+      - name: 'Create Issue (if workflow_dispatch)'
+        if: github.event_name == 'workflow_dispatch' && steps.process_results.outputs.RESULTS_AVAILABLE == 'true'
+        uses: 'actions/github-script@v7'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            
+            if (fs.existsSync('gemini-summary.md')) {
+              const summary = fs.readFileSync('gemini-summary.md', 'utf8');
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🧠 Gemini CLI Results: ${{ inputs.command }}`,
+                body: summary,
+                labels: ['gemini-cli', 'automated', '${{ inputs.command }}']
+              });
+            }

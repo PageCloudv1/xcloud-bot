@@ -346,7 +346,7 @@ async function main() {
 main().catch(error => {
   console.error('❌ Erro ao iniciar o xCloud Bot:', error);
   if (args.includes('--create-issue')) {
-    process.exit(1);
+    process.exitCode = 1;
   }
 });
 

@@ -1,0 +1,17 @@
+{
+  "name": "xCloud Bot Setup",
+  "description": "Configure xCloud Bot for automated code review, AI assistance, and repository management",
+  "iconName": "robot",
+  "categories": [
+    "automation",
+    "ci",
+    "code-quality"
+  ],
+  "filePatterns": [
+    "package.json",
+    "*.js",
+    "*.ts",
+    "*.py",
+    "*.md"
+  ]
+}

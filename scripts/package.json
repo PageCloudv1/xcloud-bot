@@ -1,0 +1,20 @@
+{
+  "name": "xcloud-bot-setup",
+  "version": "1.0.0",
+  "description": "Automated setup script for xCloud Bot deployment",
+  "main": "setup-remote.js",
+  "scripts": {
+    "test": "node test-connection.js",
+    "setup": "node setup-remote.js",
+    "setup:ssl": "node setup-ssl.js",
+    "deploy": "node deploy-remote.js"
+  },
+  "dependencies": {
+    "ssh2": "^1.15.0",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "inquirer": "^9.2.12"
+  },
+  "devDependencies": {},
+  "type": "module"
+}

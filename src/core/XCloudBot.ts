@@ -18,7 +18,7 @@ export class XCloudBot {
   private readonly logger: Logger;
   private readonly config: ConfigManager;
   private readonly devOpsService: DevOpsService;
-  private isRunning: boolean = false;
+  private isRunning = false;
 
   constructor(config: XCloudBotConfig) {
     this.logger = new Logger('XCloudBot');

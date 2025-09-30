@@ -1,0 +1,288 @@
+name: '🤖 xCloud Bot Setup'
+
+on:
+  workflow_dispatch:
+    inputs:
+      features:
+        description: 'Features to enable (comma-separated)'
+        required: false
+        default: 'autoReview,geminiIntegration,issueManagement'
+        type: string
+      bot_repo:
+        description: 'xCloud Bot repository'
+        required: false
+        default: 'PageCloudv1/xcloud-bot'
+        type: string
+
+concurrency:
+  group: '${{ github.workflow }}-setup'
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: 'bash'
+
+jobs:
+  setup-xcloud-bot:
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 10
+    permissions:
+      contents: 'write'
+      issues: 'write'
+      pull-requests: 'write'
+      actions: 'write'
+    
+    steps:
+      - name: 'Checkout repository'
+        uses: 'actions/checkout@v4'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Setup xCloud Bot Workflows'
+        id: 'setup_workflows'
+        env:
+          FEATURES: '${{ inputs.features }}'
+          BOT_REPO: '${{ inputs.bot_repo }}'
+        run: |
+          echo "🚀 Configurando xCloud Bot para este repositório..."
+          
+          # Criar diretório de workflows se não existir
+          mkdir -p .github/workflows
+          
+          # Features solicitadas
+          IFS=',' read -ra FEATURE_ARRAY <<< "$FEATURES"
+          
+          echo "📋 Features solicitadas:"
+          for feature in "${FEATURE_ARRAY[@]}"; do
+            echo "  - $feature"
+          done
+          
+          # Baixar workflows do repositório do bot
+          echo "📥 Baixando workflows do xCloud Bot..."
+          
+          # Auto Copilot Review
+          if [[ " ${FEATURE_ARRAY[@]} " =~ " autoReview " ]]; then
+            echo "⚙️ Configurando Auto Copilot Review..."
+            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/$BOT_REPO/contents/.github/workflows/auto-copilot-review.yml" \
+              | jq -r '.content' | base64 -d > .github/workflows/auto-copilot-review.yml
+          fi
+          
+          # Enhanced Gemini CLI
+          if [[ " ${FEATURE_ARRAY[@]} " =~ " geminiIntegration " ]]; then
+            echo "🧠 Configurando Enhanced Gemini CLI..."
+            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/$BOT_REPO/contents/.github/workflows/enhanced-gemini-cli.yml" \
+              | jq -r '.content' | base64 -d > .github/workflows/enhanced-gemini-cli.yml
+          fi
+          
+          # Gemini Review
+          if [[ " ${FEATURE_ARRAY[@]} " =~ " geminiIntegration " ]]; then
+            echo "🔍 Configurando Gemini Review..."
+            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/$BOT_REPO/contents/.github/workflows/gemini-review.yml" \
+              | jq -r '.content' | base64 -d > .github/workflows/gemini-review.yml
+          fi
+          
+          # Issue Management
+          if [[ " ${FEATURE_ARRAY[@]} " =~ " issueManagement " ]]; then
+            echo "📝 Configurando Issue Management..."
+            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/$BOT_REPO/contents/.github/workflows/gemini-triage.yml" \
+              | jq -r '.content' | base64 -d > .github/workflows/gemini-triage.yml
+          fi
+          
+          echo "✅ Workflows configurados com sucesso!"
+
+      - name: 'Create Bot Configuration'
+        run: |
+          echo "📄 Criando configuração do bot..."
+          
+          # Criar arquivo de configuração
+          mkdir -p .xcloud-bot
+          
+          cat > .xcloud-bot/config.json << EOF
+          {
+            "repository": "${{ github.repository }}",
+            "features": {
+              "autoReview": ${{ contains(inputs.features, 'autoReview') }},
+              "geminiIntegration": ${{ contains(inputs.features, 'geminiIntegration') }},
+              "issueManagement": ${{ contains(inputs.features, 'issueManagement') }},
+              "prAutomation": true,
+              "securityScanning": false,
+              "performanceMonitoring": false
+            },
+            "workflows": {
+              "auto-copilot-review": ${{ contains(inputs.features, 'autoReview') }},
+              "enhanced-gemini-cli": ${{ contains(inputs.features, 'geminiIntegration') }},
+              "gemini-review": ${{ contains(inputs.features, 'geminiIntegration') }},
+              "gemini-triage": ${{ contains(inputs.features, 'issueManagement') }}
+            },
+            "setupDate": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "version": "1.0.0"
+          }
+          EOF
+          
+          echo "✅ Configuração criada!"
+
+      - name: 'Create README Section'
+        run: |
+          echo "📚 Adicionando seção do xCloud Bot ao README..."
+          
+          # Verificar se README existe
+          if [ -f "README.md" ]; then
+            # Verificar se já existe seção do bot
+            if ! grep -q "## 🤖 xCloud Bot" README.md; then
+              cat >> README.md << 'EOF'
+
+## 🤖 xCloud Bot
+
+Este repositório está integrado com o xCloud Bot para automação e assistência em desenvolvimento.
+
+### Features Ativas
+
+- ✅ **Auto Review**: Reviews automáticos com @Copilot
+- 🧠 **Gemini Integration**: Análise de código com IA
+- 📝 **Issue Management**: Gerenciamento inteligente de issues
+- 🔄 **PR Automation**: Automação de pull requests
+
+### Como Usar
+
+O bot responde automaticamente a:
+- Novos issues e pull requests
+- Comentários mencionando @Copilot
+- Comandos específicos nos comentários
+
+### Comandos Disponíveis
+
+- `@Copilot review this` - Solicita review detalhado
+- `@Copilot analyze code` - Análise de código
+- `@Copilot suggest improvements` - Sugestões de melhorias
+- `@Copilot security scan` - Verificação de segurança
+
+---
+*Powered by [xCloud Bot](https://github.com/PageCloudv1/xcloud-bot)*
+EOF
+              echo "✅ Seção adicionada ao README!"
+            else
+              echo "ℹ️ Seção do xCloud Bot já existe no README"
+            fi
+          else
+            echo "⚠️ README.md não encontrado, criando..."
+            cat > README.md << 'EOF'
+# ${{ github.event.repository.name }}
+
+## 🤖 xCloud Bot
+
+Este repositório está integrado com o xCloud Bot para automação e assistência em desenvolvimento.
+
+### Features Ativas
+
+- ✅ **Auto Review**: Reviews automáticos com @Copilot
+- 🧠 **Gemini Integration**: Análise de código com IA
+- 📝 **Issue Management**: Gerenciamento inteligente de issues
+- 🔄 **PR Automation**: Automação de pull requests
+
+---
+*Powered by [xCloud Bot](https://github.com/PageCloudv1/xcloud-bot)*
+EOF
+          fi
+
+      - name: 'Commit Changes'
+        run: |
+          # Configurar git
+          git config --local user.email "xcloud-bot@pagecloud.dev"
+          git config --local user.name "xCloud Bot"
+          
+          # Adicionar arquivos
+          git add .github/workflows/ .xcloud-bot/ README.md
+          
+          # Verificar se há mudanças
+          if git diff --staged --quiet; then
+            echo "ℹ️ Nenhuma mudança para commit"
+          else
+            # Commit
+            git commit -m "🤖 Setup xCloud Bot integration
+
+Features configuradas:
+${{ inputs.features }}
+
+- Workflows adicionados
+- Configuração criada
+- README atualizado
+
+Co-authored-by: xCloud Bot <xcloud-bot@pagecloud.dev>"
+            
+            # Push
+            git push
+            
+            echo "✅ Mudanças commitadas e enviadas!"
+          fi
+
+      - name: 'Create Welcome Issue'
+        uses: 'actions/github-script@v7'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const welcomeMessage = `# 🎉 xCloud Bot Configurado com Sucesso!
+
+Olá! O xCloud Bot foi configurado neste repositório e está pronto para ajudar.
+
+## 🚀 Features Ativas
+
+${{ inputs.features }}
+
+## 🤖 Como Usar
+
+O bot agora responderá automaticamente a:
+
+- **Novos Issues**: Análise automática e triagem
+- **Pull Requests**: Reviews automáticos e sugestões
+- **Comentários**: Responde a menções e comandos
+
+## 📋 Comandos Disponíveis
+
+Você pode usar os seguintes comandos nos comentários:
+
+- \`@Copilot review this\` - Solicita review detalhado
+- \`@Copilot analyze code\` - Análise de código
+- \`@Copilot suggest improvements\` - Sugestões de melhorias
+- \`@Copilot security scan\` - Verificação de segurança
+
+## 🔧 Configuração
+
+A configuração do bot está em \`.xcloud-bot/config.json\`. Você pode modificar as features ativas editando este arquivo.
+
+## 📚 Documentação
+
+Para mais informações, consulte a [documentação completa](https://github.com/PageCloudv1/xcloud-bot).
+
+---
+
+**Próximos Passos:**
+1. ✅ Bot configurado
+2. 🔄 Teste criando um novo issue ou PR
+3. 🎯 Personalize as configurações conforme necessário
+
+*Este issue foi criado automaticamente pelo setup do xCloud Bot.*`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🤖 xCloud Bot - Configuração Concluída',
+              body: welcomeMessage,
+              labels: ['xcloud-bot', 'setup', 'documentation']
+            });
+
+      - name: 'Summary'
+        run: |
+          echo "🎉 xCloud Bot configurado com sucesso!"
+          echo ""
+          echo "📋 Resumo:"
+          echo "  - Features: ${{ inputs.features }}"
+          echo "  - Workflows adicionados: ✅"
+          echo "  - Configuração criada: ✅"
+          echo "  - README atualizado: ✅"
+          echo "  - Issue de boas-vindas criado: ✅"
+          echo ""
+          echo "🚀 O bot está pronto para uso!"

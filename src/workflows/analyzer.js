@@ -259,7 +259,7 @@ function generateActionItems(performance, aiAnalysis = {}) {
         type: 'implementation',
         priority: 'high',
         title: `Implementar workflow ${workflow}`,
-        description: `Workflow essencial não encontrado`,
+        description: 'Workflow essencial não encontrado',
         estimated_effort: 'medium',
       });
     });
