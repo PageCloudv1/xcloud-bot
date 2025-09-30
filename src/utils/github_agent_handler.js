@@ -1,12 +1,11 @@
-const { AutonomousAgent } = require('../agents/AutonomousAgent');
 import { AutonomousAgent } from '../agents/AutonomousAgent.js';
 import { Octokit } from '@octokit/rest';
 class GithubAgentHandler {
   constructor(githubToken, geminiApiKey, xbotUsername) {
-    this.agent = new AutonomousAgent();
     this.agent = new AutonomousAgent(geminiApiKey);
     this.octokit = new Octokit({ auth: githubToken });
     this.xbotUsername = xbotUsername;
+  }
 
   async handleAssignmentEvent(eventPayload) {
     console.log('🤖 Processando evento de assignment...');

@@ -85,12 +85,12 @@ jobs:
         if: github.event_name == 'issues'
         id: 'process_assignment'
         env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          GH_TOKEN: '${{ secrets.GH_TOKEN }}'
           GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}'
         run: |
           node ./src/utils/github_agent_handler.js \
             handleAssignmentEvent \
-            "$GITHUB_TOKEN" \
+            "$GH_TOKEN" \
             "$GEMINI_API_KEY" \
             "$XBOT_USERNAME" \
             '${{ toJSON(github.event) }}' \
@@ -99,12 +99,12 @@ jobs:
       - name: 'Manual Action'
         if: github.event_name == 'workflow_dispatch'
         env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          GH_TOKEN: '${{ secrets.GH_TOKEN }}'
           GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}'
         run: |
           node ./src/utils/github_agent_handler.js \
             handleManualAction \
-            "$GITHUB_TOKEN" \
+            "$GH_TOKEN" \
             "$GEMINI_API_KEY" \
             "$XBOT_USERNAME" \
             '${{ inputs.action }}' \
