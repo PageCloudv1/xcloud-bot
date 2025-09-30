@@ -1,6 +1,6 @@
 /**
  * 🏗️ Workflow Creator
- * 
+ *
  * Cria workflows GitHub Actions automaticamente
  */
 
@@ -11,7 +11,7 @@ import { createIssue } from '../integrations/github-api.js';
 
 // Templates de workflows
 const WORKFLOW_TEMPLATES = {
-    ci: `name: 🔄 CI - Continuous Integration
+  ci: `name: 🔄 CI - Continuous Integration
 
 on:
   push:
@@ -107,7 +107,7 @@ jobs:
         flags: unittests
         name: coverage-report`,
 
-    build: `name: 🏗️ Build
+  build: `name: 🏗️ Build
 
 on:
   workflow_call:
@@ -186,7 +186,7 @@ jobs:
           build/
         retention-days: 7`,
 
-    test: `name: 🧪 Test
+  test: `name: 🧪 Test
 
 on:
   workflow_call:
@@ -295,7 +295,7 @@ jobs:
           echo "status=failed" >> $GITHUB_OUTPUT
         fi`,
 
-    deploy: `name: 🚀 Deploy - Advanced Environment Management
+  deploy: `name: 🚀 Deploy - Advanced Environment Management
 
 on:
   workflow_dispatch:
@@ -424,7 +424,7 @@ jobs:
       run: |
         HEALTH_URL="\${{ needs.validate-environment.outputs.health-endpoint }}"
         echo "🏥 Running health check against: \${HEALTH_URL}"
-        echo "✅ All health checks passed"`
+        echo "✅ All health checks passed"`,
 };
 
 /**
@@ -435,31 +435,31 @@ jobs:
  * @returns {Promise<string>} Caminho do arquivo criado
  */
 export async function createWorkflowFile(workflowType, outputPath, options = {}) {
-    if (!WORKFLOW_TEMPLATES[workflowType]) {
-        throw new Error(`Template não encontrado para workflow: ${workflowType}`);
-    }
+  if (!WORKFLOW_TEMPLATES[workflowType]) {
+    throw new Error(`Template não encontrado para workflow: ${workflowType}`);
+  }
 
-    let content = WORKFLOW_TEMPLATES[workflowType];
+  let content = WORKFLOW_TEMPLATES[workflowType];
 
-    // Aplicar customizações
-    if (options.nodeVersion) {
-        content = content.replace(/NODE_VERSION: '20'/g, `NODE_VERSION: '${options.nodeVersion}'`);
-    }
+  // Aplicar customizações
+  if (options.nodeVersion) {
+    content = content.replace(/NODE_VERSION: '20'/g, `NODE_VERSION: '${options.nodeVersion}'`);
+  }
 
-    if (options.projectName) {
-        content = content.replace(/coverage-report/g, `${options.projectName}-coverage`);
-        content = content.replace(/build-artifacts/g, `${options.projectName}-build`);
-    }
+  if (options.projectName) {
+    content = content.replace(/coverage-report/g, `${options.projectName}-coverage`);
+    content = content.replace(/build-artifacts/g, `${options.projectName}-build`);
+  }
 
-    // Garantir que o diretório existe
-    const dir = path.dirname(outputPath);
-    await fs.mkdir(dir, { recursive: true });
+  // Garantir que o diretório existe
+  const dir = path.dirname(outputPath);
+  await fs.mkdir(dir, { recursive: true });
 
-    // Escrever arquivo
-    await fs.writeFile(outputPath, content, 'utf-8');
+  // Escrever arquivo
+  await fs.writeFile(outputPath, content, 'utf-8');
 
-    console.log(`✅ Workflow ${workflowType} criado em: ${outputPath}`);
-    return outputPath;
+  console.log(`✅ Workflow ${workflowType} criado em: ${outputPath}`);
+  return outputPath;
 }
 
 /**
@@ -469,23 +469,23 @@ export async function createWorkflowFile(workflowType, outputPath, options = {})
  * @returns {Promise<Array>} Lista de arquivos criados
  */
 export async function createStandardWorkflows(projectPath, options = {}) {
-    const workflowsDir = path.join(projectPath, '.github', 'workflows');
-    const createdFiles = [];
+  const workflowsDir = path.join(projectPath, '.github', 'workflows');
+  const createdFiles = [];
 
-    const standardWorkflows = ['ci', 'build', 'test', 'deploy'];
+  const standardWorkflows = ['ci', 'build', 'test', 'deploy'];
 
-    for (const workflowType of standardWorkflows) {
-        const filePath = path.join(workflowsDir, `${workflowType}.yml`);
+  for (const workflowType of standardWorkflows) {
+    const filePath = path.join(workflowsDir, `${workflowType}.yml`);
 
-        try {
-            await createWorkflowFile(workflowType, filePath, options);
-            createdFiles.push(filePath);
-        } catch (error) {
-            console.error(`❌ Erro ao criar workflow ${workflowType}:`, error);
-        }
+    try {
+      await createWorkflowFile(workflowType, filePath, options);
+      createdFiles.push(filePath);
+    } catch (error) {
+      console.error(`❌ Erro ao criar workflow ${workflowType}:`, error);
     }
+  }
 
-    return createdFiles;
+  return createdFiles;
 }
 
 /**
@@ -496,11 +496,11 @@ export async function createStandardWorkflows(projectPath, options = {}) {
  * @returns {Promise<object>} Issue criado
  */
 export async function createWorkflowImplementationIssue(repoName, workflowType, options = {}) {
-    const issueTemplates = {
-        ci: {
-            title: '🔄 Implementar Workflow CI (Integração Contínua)',
-            labels: ['enhancement', 'ci-cd', 'workflow', 'priority-high'],
-            body: `## 🔄 Implementar Workflow CI
+  const issueTemplates = {
+    ci: {
+      title: '🔄 Implementar Workflow CI (Integração Contínua)',
+      labels: ['enhancement', 'ci-cd', 'workflow', 'priority-high'],
+      body: `## 🔄 Implementar Workflow CI
 
 ### 📋 Objetivo
 Implementar workflow de Integração Contínua seguindo o padrão xCloud.
@@ -533,13 +533,13 @@ Implementar workflow de Integração Contínua seguindo o padrão xCloud.
 - [ ] Testes executados
 - [ ] Cobertura reportada
 
-_Issue criada automaticamente pelo xCloud Bot_`
-        },
+_Issue criada automaticamente pelo xCloud Bot_`,
+    },
 
-        build: {
-            title: '🏗️ Implementar Workflow Build Especializado',
-            labels: ['enhancement', 'build', 'workflow'],
-            body: `## 🏗️ Implementar Workflow Build
+    build: {
+      title: '🏗️ Implementar Workflow Build Especializado',
+      labels: ['enhancement', 'build', 'workflow'],
+      body: `## 🏗️ Implementar Workflow Build
 
 ### 📋 Objetivo
 Implementar workflow especializado para builds reutilizáveis.
@@ -561,13 +561,13 @@ Implementar workflow especializado para builds reutilizáveis.
 - [ ] Build otimizado e rápido
 - [ ] Artefatos bem organizados
 
-_Issue criada automaticamente pelo xCloud Bot_`
-        },
+_Issue criada automaticamente pelo xCloud Bot_`,
+    },
 
-        test: {
-            title: '🧪 Implementar Workflow de Testes',
-            labels: ['enhancement', 'testing', 'workflow'],
-            body: `## 🧪 Implementar Workflow de Testes
+    test: {
+      title: '🧪 Implementar Workflow de Testes',
+      labels: ['enhancement', 'testing', 'workflow'],
+      body: `## 🧪 Implementar Workflow de Testes
 
 ### 📋 Objetivo
 Implementar workflow completo de testes.
@@ -596,13 +596,13 @@ Implementar workflow completo de testes.
 - [ ] Cobertura adequada (>80%)
 - [ ] Relatórios detalhados
 
-_Issue criada automaticamente pelo xCloud Bot_`
-        },
+_Issue criada automaticamente pelo xCloud Bot_`,
+    },
 
-        deploy: {
-            title: '🚀 Implementar Workflow de Deploy',
-            labels: ['enhancement', 'deployment', 'workflow'],
-            body: `## 🚀 Implementar Workflow de Deploy
+    deploy: {
+      title: '🚀 Implementar Workflow de Deploy',
+      labels: ['enhancement', 'deployment', 'workflow'],
+      body: `## 🚀 Implementar Workflow de Deploy
 
 ### 📋 Objetivo
 Implementar workflow de deploy para staging e production.
@@ -623,22 +623,22 @@ Implementar workflow de deploy para staging e production.
 - [ ] Deploy production com aprovação
 - [ ] Rollback em caso de falha
 
-_Issue criada automaticamente pelo xCloud Bot_`
-        }
-    };
+_Issue criada automaticamente pelo xCloud Bot_`,
+    },
+  };
 
-    const template = issueTemplates[workflowType];
-    if (!template) {
-        throw new Error(`Template de issue não encontrado para: ${workflowType}`);
-    }
+  const template = issueTemplates[workflowType];
+  if (!template) {
+    throw new Error(`Template de issue não encontrado para: ${workflowType}`);
+  }
 
-    const issueData = {
-        title: options.title || template.title,
-        body: options.body || template.body,
-        labels: options.labels || template.labels
-    };
+  const issueData = {
+    title: options.title || template.title,
+    body: options.body || template.body,
+    labels: options.labels || template.labels,
+  };
 
-    return await createIssue(repoName, issueData);
+  return await createIssue(repoName, issueData);
 }
 
 /**
@@ -651,7 +651,7 @@ function analyzeWorkflowStructure(workflowContent) {
     valid: true,
     errors: [],
     warnings: [],
-    suggestions: []
+    suggestions: [],
   };
 
   try {
@@ -686,7 +686,6 @@ function analyzeWorkflowStructure(workflowContent) {
     }
 
     validation.valid = validation.errors.length === 0;
-
   } catch (error) {
     validation.valid = false;
     validation.errors.push(`Erro de parsing: ${error.message}`);
@@ -706,7 +705,7 @@ export function validateWorkflow(workflowInput) {
         passed: 0,
         failed: 0,
         score: 0,
-        recommendations: [`Workflow não encontrado: ${workflowInput}`]
+        recommendations: [`Workflow não encontrado: ${workflowInput}`],
       };
     }
 
@@ -719,7 +718,7 @@ export function validateWorkflow(workflowInput) {
         passed: 0,
         failed: 0,
         score: 0,
-        recommendations: [`Falha ao ler workflow: ${error.message}`]
+        recommendations: [`Falha ao ler workflow: ${error.message}`],
       };
     }
   }
@@ -731,7 +730,7 @@ export function validateWorkflow(workflowInput) {
       passed: 0,
       failed: 0,
       score: 0,
-      recommendations: ['Conteúdo de workflow inválido']
+      recommendations: ['Conteúdo de workflow inválido'],
     };
   }
 
@@ -740,16 +739,16 @@ export function validateWorkflow(workflowInput) {
   const validationChecks = [
     {
       name: 'Estrutura básica',
-      passed: structure.errors.length === 0
+      passed: structure.errors.length === 0,
     },
     {
       name: 'Boas práticas (checkout)',
-      passed: !structure.warnings.some(warning => warning.includes('checkout'))
+      passed: !structure.warnings.some(warning => warning.includes('checkout')),
     },
     {
       name: 'Cache configurado',
-      passed: !structure.suggestions.some(suggestion => suggestion.includes('cache'))
-    }
+      passed: !structure.suggestions.some(suggestion => suggestion.includes('cache')),
+    },
   ];
 
   const passedChecks = validationChecks.filter(check => check.passed);
@@ -757,12 +756,13 @@ export function validateWorkflow(workflowInput) {
   const recommendations = [
     ...structure.errors.map(error => `Corrigir: ${error}`),
     ...structure.warnings.map(warning => `Melhorar: ${warning}`),
-    ...structure.suggestions.map(suggestion => `Considerar: ${suggestion}`)
+    ...structure.suggestions.map(suggestion => `Considerar: ${suggestion}`),
   ];
 
-  const score = validationChecks.length > 0
-    ? Math.floor((passedChecks.length / validationChecks.length) * 100)
-    : 0;
+  const score =
+    validationChecks.length > 0
+      ? Math.floor((passedChecks.length / validationChecks.length) * 100)
+      : 0;
 
   return {
     valid: structure.valid && failedChecks.length === 0,
@@ -770,7 +770,7 @@ export function validateWorkflow(workflowInput) {
     passed: passedChecks.length,
     failed: failedChecks.length,
     score,
-    recommendations
+    recommendations,
   };
 }
 
@@ -800,7 +800,7 @@ export function createWorkflow(type, options = {}) {
     content: workflowContent,
     created: true,
     timestamp: new Date().toISOString(),
-    options: options
+    options: options,
   };
 
   if (options.save) {
@@ -817,57 +817,59 @@ export function createWorkflow(type, options = {}) {
 
 export function listWorkflowTemplates() {
   console.log('📋 Available workflow templates:');
-  
+
   Object.entries(WORKFLOW_TEMPLATES).forEach(([key, template]) => {
     console.log(`  🔧 ${key.padEnd(12)} - ${template.name}`);
     console.log(`     ${template.description}`);
   });
-  
+
   return Object.keys(WORKFLOW_TEMPLATES);
 }
 
 export function generateWorkflowSuggestions(repoName, issues = []) {
   console.log(`💡 Generating workflow suggestions for ${repoName}...`);
-  
+
   const suggestions = [];
-  
+
   // Analyze issues and suggest workflows
   if (issues.some(issue => issue.includes('security'))) {
     suggestions.push({
       type: 'security',
       priority: 'high',
-      reason: 'Security issues detected'
+      reason: 'Security issues detected',
     });
   }
-  
+
   if (issues.some(issue => issue.includes('performance') || issue.includes('slow'))) {
     suggestions.push({
       type: 'performance',
       priority: 'medium',
-      reason: 'Performance issues detected'
+      reason: 'Performance issues detected',
     });
   }
-  
+
   // Default suggestions for any repository
   if (!suggestions.find(s => s.type === 'ci')) {
     suggestions.push({
       type: 'ci',
       priority: 'high',
-      reason: 'Essential for code quality'
+      reason: 'Essential for code quality',
     });
   }
-  
+
   suggestions.push({
     type: 'test',
     priority: 'medium',
-    reason: 'Comprehensive testing recommended'
+    reason: 'Comprehensive testing recommended',
   });
-  
+
   console.log(`💡 Generated ${suggestions.length} workflow suggestions`);
   suggestions.forEach(suggestion => {
-    console.log(`  ${suggestion.priority === 'high' ? '🔴' : '🟡'} ${suggestion.type} - ${suggestion.reason}`);
+    console.log(
+      `  ${suggestion.priority === 'high' ? '🔴' : '🟡'} ${suggestion.type} - ${suggestion.reason}`
+    );
   });
-  
+
   return suggestions;
 }
 
@@ -876,7 +878,7 @@ if (process.argv[1]?.endsWith('creator.js')) {
   const command = process.argv[2];
   const workflowType = process.argv[3];
   const options = {
-    save: process.argv.includes('--save')
+    save: process.argv.includes('--save'),
   };
 
   try {
@@ -889,7 +891,7 @@ if (process.argv[1]?.endsWith('creator.js')) {
           createWorkflow(workflowType, options);
         }
         break;
-        
+
       case 'validate':
         if (!workflowType) {
           console.log('❌ Please specify a workflow path to validate');
@@ -897,16 +899,16 @@ if (process.argv[1]?.endsWith('creator.js')) {
           validateWorkflow(workflowType);
         }
         break;
-        
+
       case 'list':
         listWorkflowTemplates();
         break;
-        
+
       case 'suggest':
         const repo = workflowType || 'xcloud-bot';
         generateWorkflowSuggestions(repo, ['security vulnerability', 'slow build times']);
         break;
-        
+
       default:
         // Default behavior - create CI workflow
         const type = command || 'ci';
@@ -914,6 +916,6 @@ if (process.argv[1]?.endsWith('creator.js')) {
     }
   } catch (error) {
     console.error('❌ Error:', error.message);
-    process.exit(1);
+    process.exitCode = 1;
   }
 }

@@ -23,22 +23,34 @@ async function main(): Promise<void> {
     await bot.start();
 
     // Graceful shutdown handling
-    process.on('SIGINT', async () => {
-      logger.info('🛑 Received SIGINT, shutting down gracefully...');
-      await bot.stop();
-      process.exit(0);
-    });
+    const shutdown = async (signal: string) => {
+      logger.info(`🛑 Received ${signal}, shutting down gracefully...`);
+      try {
+        await bot.stop();
+        logger.info('✅ Shutdown completed');
+      } catch (error) {
+        logger.error('❌ Error during shutdown:', error);
+        throw error;
+      }
+    };
 
-    process.on('SIGTERM', async () => {
-      logger.info('🛑 Received SIGTERM, shutting down gracefully...');
-      await bot.stop();
-      process.exit(0);
+    process.on('SIGINT', () => {
+      shutdown('SIGINT').catch(error => {
+        logger.error('❌ Error during SIGINT shutdown:', error);
+        process.exitCode = 1;
+      });
+    });
+    process.on('SIGTERM', () => {
+      shutdown('SIGTERM').catch(error => {
+        logger.error('❌ Error during SIGTERM shutdown:', error);
+        process.exitCode = 1;
+      });
     });
 
     logger.info('✅ xCloud Bot started successfully');
   } catch (error) {
     logger.error('❌ Failed to start xCloud Bot:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -47,7 +59,8 @@ if (require.main === module) {
   main().catch(error => {
     // eslint-disable-next-line no-console
     console.error('Fatal error:', error);
-    process.exit(1);
+    // Let the process exit naturally with a non-zero code
+    process.exitCode = 1;
   });
 }
 
