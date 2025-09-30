@@ -1,4 +1,3 @@
-
 /**
  * Script para debugar problemas de assignment do xCloud Bot
  */

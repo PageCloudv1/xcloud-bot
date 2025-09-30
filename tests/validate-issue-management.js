@@ -1,4 +1,3 @@
-
 /**
  * 🧪 Issue Management Workflow - Validation Script
  *
