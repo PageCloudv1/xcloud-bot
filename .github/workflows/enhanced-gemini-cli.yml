@@ -67,7 +67,7 @@ jobs:
       - name: 'Setup Node.js'
         uses: 'actions/setup-node@v4'
         with:
-          node-version: '18'
+          node-version: '20' # Padronizado para Node.js v20
           cache: 'npm'
 
       - name: 'Install dependencies'
@@ -99,25 +99,30 @@ jobs:
               find src -name "*.js" -o -name "*.ts" -o -name "*.py" | head -10 | while read file; do
                 echo "Analisando: $file"
                 gemini generate <<EOF >> .gemini-results/code-analysis.md
+    EOF
               ;;
             "review-pr")
               echo "🔍 Revisando PR..."
               if [ -n "${{ github.event.pull_request.number }}" ]; then
                 gh pr view ${{ github.event.pull_request.number }} --json files,diff > .gemini-results/pr-data.json
                 gemini generate <<EOF > .gemini-results/pr-review.md
+    EOF
               fi
               ;;
             "generate-docs")
               echo "📚 Gerando documentação..."
               gemini generate <<EOF > .gemini-results/documentation.md
+    EOF
               ;;
             "suggest-improvements")
               echo "💡 Sugerindo melhorias..."
               gemini generate <<EOF > .gemini-results/improvements.md
+    EOF
               ;;
             "security-scan")
               echo "🔒 Executando scan de segurança..."
               gemini generate <<EOF > .gemini-results/security-scan.md
+    EOF
               ;;
             "performance-analysis")
               echo "⚡ Analisando performance..."

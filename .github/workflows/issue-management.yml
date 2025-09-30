@@ -20,7 +20,7 @@ on:
 
 concurrency:
   group: '${{ github.workflow }}-${{ github.event_name }}-${{ github.event.issue.number || inputs.issue_number || "all" }}'
-  cancel-in-progress: false
+  cancel-in-progress: true # Padronizado para cancelar execuções em progresso
 
 defaults:
   run:
