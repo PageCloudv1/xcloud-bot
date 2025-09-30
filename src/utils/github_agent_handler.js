@@ -4,10 +4,9 @@ const { Octokit } = require('@octokit/rest');
 class GithubAgentHandler {
   constructor(githubToken, geminiApiKey, xbotUsername) {
     this.agent = new AutonomousAgent();
+    this.agent = new AutonomousAgent(geminiApiKey);
     this.octokit = new Octokit({ auth: githubToken });
     this.xbotUsername = xbotUsername;
-    process.env.GEMINI_API_KEY = geminiApiKey; // Ensure GEMINI_API_KEY is available for the agent
-  }
 
   async handleAssignmentEvent(eventPayload) {
     console.log('🤖 Processando evento de assignment...');
