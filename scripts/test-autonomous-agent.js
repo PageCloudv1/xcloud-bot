@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const { AutonomousAgent } = require('../src/agents/AutonomousAgent');
 const logger = require('../src/utils/logger');
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * 🧪 Issue Management Workflow - Validation Script
  *
