@@ -5,7 +5,6 @@
  * workflows, and integrations as specified in the test issue.
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { 
   initializeGitHubApp, 
   processWebhook, 

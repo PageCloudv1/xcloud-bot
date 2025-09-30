@@ -2,7 +2,6 @@
  * 🧪 GitHub App Tests
  */
 
-import { describe, it, expect } from 'vitest';
 import { initializeGitHubApp, processWebhook } from '../../src/bot/github-app.js';
 
 describe('GitHub App', () => {

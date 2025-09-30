@@ -2,7 +2,6 @@
  * 🧪 Workflow Tests
  */
 
-import { describe, it, expect } from 'vitest';
 import { analyzeRepository } from '../../src/workflows/analyzer.js';
 import { createWorkflow } from '../../src/workflows/creator.js';
 

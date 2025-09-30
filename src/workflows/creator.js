@@ -816,45 +816,6 @@ export function createWorkflow(type, options = {}) {
   return result;
 }
 
-export function validateWorkflow(workflowPath) {
-  console.log(`🔍 Validating workflow: ${workflowPath}`);
-
-  // Simulate workflow validation
-  const validationChecks = [
-    { name: 'YAML syntax', passed: true },
-    { name: 'Required fields', passed: true },
-    { name: 'Action versions', passed: Math.random() > 0.2 },
-    { name: 'Security best practices', passed: Math.random() > 0.3 },
-    { name: 'Performance optimizations', passed: Math.random() > 0.4 }
-  ];
-
-  const passedChecks = validationChecks.filter(check => check.passed);
-  const failedChecks = validationChecks.filter(check => !check.passed);
-  const isValid = failedChecks.length === 0;
-
-  console.log(`📊 Validation Results:`);
-  console.log(`  ✅ Passed: ${passedChecks.length}/${validationChecks.length} checks`);
-  
-  if (failedChecks.length > 0) {
-    console.log(`  ❌ Failed checks:`);
-    failedChecks.forEach(check => {
-      console.log(`    - ${check.name}`);
-    });
-  }
-
-  const result = {
-    valid: isValid,
-    checks: validationChecks,
-    passed: passedChecks.length,
-    failed: failedChecks.length,
-    score: Math.floor((passedChecks.length / validationChecks.length) * 100),
-    recommendations: failedChecks.map(check => `Fix ${check.name}`)
-  };
-
-  console.log(`${isValid ? '✅' : '❌'} Workflow validation complete (${result.score}% score)`);
-  return result;
-}
-
 export function listWorkflowTemplates() {
   console.log('📋 Available workflow templates:');
   
@@ -957,5 +918,3 @@ if (process.argv[1]?.endsWith('creator.js')) {
     process.exit(1);
   }
 }
-
-export { WORKFLOW_TEMPLATES, createWorkflow, validateWorkflow, listWorkflowTemplates, generateWorkflowSuggestions };
