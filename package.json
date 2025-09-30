@@ -48,7 +48,8 @@
     "multi-repo:list": "node -e \"const {multiRepoManager} = require('./src/config/multi-repo'); console.log(JSON.stringify(multiRepoManager.listRepositories(), null, 2))\"",
     "multi-repo:export": "node -e \"const {multiRepoManager} = require('./src/config/multi-repo'); console.log(JSON.stringify(multiRepoManager.exportConfig(), null, 2))\"",
     "workflow:validate": "find .github/workflows -name '*.yml' -exec yamllint {} \\;",
-    "workflow:test": "act --list"
+    "workflow:test": "act --list",
+    "workflow:test-issue-mgmt": "node tests/validate-issue-management.js"
   },
   "keywords": [
     "xcloud",
