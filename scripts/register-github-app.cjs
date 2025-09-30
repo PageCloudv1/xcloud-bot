@@ -282,10 +282,7 @@ async function validateSetup() {
             const appIdValue = match[1].trim().replace(/['"]/g, '');
             if (appIdValue.startsWith('Iv')) {
               log('  ❌ GITHUB_APP_ID appears to be a Client ID, not an App ID!', 'red');
-              log(
-                '     App ID should be numeric (e.g., 123456), not start with "Iv"',
-                'yellow'
-              );
+              log('     App ID should be numeric (e.g., 123456), not start with "Iv"', 'yellow');
               log('     Please use the App ID from the GitHub App settings page', 'yellow');
               hasErrors = true;
             } else if (!/^\d+$/.test(appIdValue)) {

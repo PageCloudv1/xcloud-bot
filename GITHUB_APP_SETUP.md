@@ -30,6 +30,7 @@ Voce deve usar o **App ID** (numerico) na variavel `GITHUB_APP_ID`.
 ## Permissoes Necessarias
 
 Repository permissions:
+
 - Actions: write
 - Checks: write
 - Contents: write
@@ -66,6 +67,7 @@ GITHUB_OWNER=seu-usuario-ou-org   # Seu usuario ou organizacao
 Se voce receber este erro, provavelmente usou o **Client ID** em vez do **App ID**.
 
 **Solucao**:
+
 1. Acesse a pagina da sua GitHub App
 2. Encontre o **App ID** (numero) na secao "About"
 3. Atualize o valor de `GITHUB_APP_ID` no .env ou nos secrets
@@ -74,6 +76,7 @@ Se voce receber este erro, provavelmente usou o **Client ID** em vez do **App ID
 ### Como validar a configuracao
 
 Execute o validador:
+
 ```bash
 npm run validate:github-app
 ```

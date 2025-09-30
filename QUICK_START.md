@@ -143,6 +143,7 @@ Este erro geralmente ocorre quando o **App ID** esta incorreto.
 **Causa comum**: Usar o **Client ID** (que comeca com "Iv") em vez do **App ID** (numero).
 
 **Solucao**:
+
 1. Acesse: https://github.com/settings/apps
 2. Clique na sua GitHub App
 3. Na secao "About", encontre:
