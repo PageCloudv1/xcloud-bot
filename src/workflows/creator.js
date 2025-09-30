@@ -784,18 +784,17 @@ export function createWorkflow(type, options = {}) {
     throw new Error(`Unknown workflow type: ${type}. Available types: ${availableTypes}`);
   }
 
-  const workflowContent = template.template;
+  const workflowContent = template;
   const fileName = `${type.toLowerCase()}.yml`;
   const filePath = `.github/workflows/${fileName}`;
 
-  console.log(`📄 Generated workflow: ${template.name}`);
-  console.log(`📝 Description: ${template.description}`);
+  console.log(`📄 Generated workflow for ${type}`);
   console.log(`📍 Path: ${filePath}`);
 
   const result = {
     type: type.toLowerCase(),
-    name: template.name,
-    description: template.description,
+    name: `${type.toUpperCase()} Workflow`,
+    description: `Workflow for ${type}`,
     fileName,
     filePath,
     content: workflowContent,
@@ -813,45 +812,6 @@ export function createWorkflow(type, options = {}) {
   }
 
   console.log(`✅ ${type} workflow created successfully`);
-  return result;
-}
-
-export function validateWorkflow(workflowPath) {
-  console.log(`🔍 Validating workflow: ${workflowPath}`);
-
-  // Simulate workflow validation
-  const validationChecks = [
-    { name: 'YAML syntax', passed: true },
-    { name: 'Required fields', passed: true },
-    { name: 'Action versions', passed: Math.random() > 0.2 },
-    { name: 'Security best practices', passed: Math.random() > 0.3 },
-    { name: 'Performance optimizations', passed: Math.random() > 0.4 }
-  ];
-
-  const passedChecks = validationChecks.filter(check => check.passed);
-  const failedChecks = validationChecks.filter(check => !check.passed);
-  const isValid = failedChecks.length === 0;
-
-  console.log(`📊 Validation Results:`);
-  console.log(`  ✅ Passed: ${passedChecks.length}/${validationChecks.length} checks`);
-  
-  if (failedChecks.length > 0) {
-    console.log(`  ❌ Failed checks:`);
-    failedChecks.forEach(check => {
-      console.log(`    - ${check.name}`);
-    });
-  }
-
-  const result = {
-    valid: isValid,
-    checks: validationChecks,
-    passed: passedChecks.length,
-    failed: failedChecks.length,
-    score: Math.floor((passedChecks.length / validationChecks.length) * 100),
-    recommendations: failedChecks.map(check => `Fix ${check.name}`)
-  };
-
-  console.log(`${isValid ? '✅' : '❌'} Workflow validation complete (${result.score}% score)`);
   return result;
 }
 
@@ -957,5 +917,3 @@ if (process.argv[1]?.endsWith('creator.js')) {
     process.exit(1);
   }
 }
-
-export { WORKFLOW_TEMPLATES, createWorkflow, validateWorkflow, listWorkflowTemplates, generateWorkflowSuggestions };

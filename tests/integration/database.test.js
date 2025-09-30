@@ -2,7 +2,6 @@
  * 🧪 Database Integration Tests
  */
 
-import { describe, it, expect } from 'vitest';
 
 describe('Database Integration', () => {
   it('should connect to test database', async () => {
