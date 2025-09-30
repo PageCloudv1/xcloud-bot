@@ -1,0 +1,40 @@
+[
+  {
+    "repository": "PageCloudv1/example-repo-1",
+    "options": {
+      "features": {
+        "autoReview": true,
+        "geminiIntegration": true,
+        "issueManagement": true,
+        "securityScanning": true
+      },
+      "installationId": 12345
+    }
+  },
+  {
+    "repository": "PageCloudv1/example-repo-2",
+    "options": {
+      "features": {
+        "autoReview": true,
+        "geminiIntegration": false,
+        "issueManagement": true,
+        "performanceMonitoring": true
+      },
+      "installationId": 12345
+    }
+  },
+  {
+    "repository": "PageCloudv1/example-repo-3",
+    "options": {
+      "features": {
+        "autoReview": true,
+        "geminiIntegration": true,
+        "issueManagement": true,
+        "prAutomation": true,
+        "securityScanning": true,
+        "performanceMonitoring": true
+      },
+      "installationId": 12345
+    }
+  }
+]
