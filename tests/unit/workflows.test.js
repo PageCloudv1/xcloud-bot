@@ -123,7 +123,7 @@ describe('Workflow Analyzer', () => {
         updated_at: new Date(Date.now() + 120000).toISOString(),
       },
     ]);
-    
+
     // Mock analyzeWithGemini to succeed
     analyzeWithGemini.mockResolvedValue({
       data: {},
