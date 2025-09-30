@@ -784,18 +784,17 @@ export function createWorkflow(type, options = {}) {
     throw new Error(`Unknown workflow type: ${type}. Available types: ${availableTypes}`);
   }
 
-  const workflowContent = template.template;
+  const workflowContent = template;
   const fileName = `${type.toLowerCase()}.yml`;
   const filePath = `.github/workflows/${fileName}`;
 
-  console.log(`📄 Generated workflow: ${template.name}`);
-  console.log(`📝 Description: ${template.description}`);
+  console.log(`📄 Generated workflow for ${type}`);
   console.log(`📍 Path: ${filePath}`);
 
   const result = {
     type: type.toLowerCase(),
-    name: template.name,
-    description: template.description,
+    name: `${type.toUpperCase()} Workflow`,
+    description: `Workflow for ${type}`,
     fileName,
     filePath,
     content: workflowContent,
