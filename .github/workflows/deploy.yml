@@ -64,13 +64,13 @@ jobs:
       deploy-url: ${{ steps.env-config.outputs.url }}
       health-endpoint: ${{ steps.env-config.outputs.health }}
       requires-approval: ${{ steps.env-config.outputs.approval }}
-    
+
     steps:
       - name: 🔐 Validate secrets
         run: |
           echo "🔐 Validating environment-specific secrets..."
           echo "✅ Secrets validation passed"
-      
+
       - name: 🔧 Configure environment settings
         id: env-config
         run: |
@@ -104,31 +104,31 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate-environment
     if: ${{ !inputs.force_deploy }}
-    
+
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: 📦 Install dependencies
         run: npm ci
-      
+
       - name: 🧪 Run tests
         run: npm test
-      
+
       - name: 🔍 Security checks
         run: |
           echo "🔍 Running security checks..."
           npm audit --audit-level=moderate || echo "⚠️ Security issues detected"
-      
+
       - name: 🏗️ Build application
         run: npm run build
-      
+
       - name: 📤 Upload deployment artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -138,7 +138,7 @@ jobs:
             package.json
             package-lock.json
           retention-days: 3
-      
+
       - name: 📊 Generate deployment report
         run: |
           echo "📊 Generating deployment report..."
@@ -151,7 +151,7 @@ jobs:
     if: ${{ inputs.environment == 'production' }}
     environment:
       name: production
-    
+
     steps:
       - name: ⏸️ Waiting for production approval
         run: |
@@ -170,18 +170,18 @@ jobs:
       url: ${{ needs.validate-environment.outputs.deploy-url }}
       version: ${{ steps.deploy-info.outputs.version }}
       strategy: ${{ env.DEPLOYMENT_STRATEGY }}
-    
+
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: 📥 Download deployment artifacts
         uses: actions/download-artifact@v4
         with:
           name: deployment-artifacts
           path: ./dist
         continue-on-error: true
-      
+
       - name: 📊 Deployment info
         id: deploy-info
         run: |
@@ -191,11 +191,11 @@ jobs:
           echo "🌍 Environment: ${{ env.DEPLOY_ENV }}"
           echo "📍 URL: ${{ needs.validate-environment.outputs.deploy-url }}"
           echo "🎯 Strategy: ${{ env.DEPLOYMENT_STRATEGY }}"
-      
+
       - name: 🚀 Execute deployment strategy
         run: |
           echo "🚀 Executing ${{ env.DEPLOYMENT_STRATEGY }} deployment strategy..."
-          
+
           case "${{ env.DEPLOYMENT_STRATEGY }}" in
             rolling)
               echo "📊 Executing rolling deployment..."
@@ -213,7 +213,7 @@ jobs:
               echo "⚠️ Unknown deployment strategy, using default"
               ;;
           esac
-      
+
       - name: 📋 Deployment summary
         run: |
           echo "### 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
@@ -228,33 +228,33 @@ jobs:
     name: 🏥 Health Checks
     runs-on: ubuntu-latest
     needs: [validate-environment, deploy]
-    
+
     steps:
       - name: 🔍 Application startup check
         run: |
           echo "🔍 Checking application startup..."
           echo "✅ Application started successfully"
-      
+
       - name: 🗄️ Database connection check
         run: |
           echo "🗄️ Checking database connections..."
           echo "✅ Database connections verified"
-      
+
       - name: 🌐 External API checks
         run: |
           echo "🌐 Checking external API connectivity..."
           echo "✅ External APIs accessible"
-      
+
       - name: 📊 Performance metrics check
         run: |
           echo "📊 Checking performance metrics..."
           echo "✅ Performance within acceptable range"
-      
+
       - name: 🚨 Error rate monitoring
         run: |
           echo "🚨 Monitoring error rates..."
           echo "✅ Error rates normal"
-      
+
       - name: 🏥 Comprehensive health check
         run: |
           HEALTH_URL="${{ needs.validate-environment.outputs.health-endpoint }}"
@@ -267,13 +267,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: [deploy, health-checks]
     if: ${{ always() && needs.deploy.result == 'success' && needs.health-checks.result == 'success' }}
-    
+
     steps:
       - name: 📈 Collect deployment metrics
         run: |
           echo "📈 Collecting deployment metrics..."
           echo "Metrics collected successfully"
-      
+
       - name: 🔔 Send notifications
         run: |
           echo "🔔 Sending deployment notifications..."
@@ -286,20 +286,20 @@ jobs:
     runs-on: ubuntu-latest
     needs: [deploy, health-checks]
     if: ${{ always() && (needs.deploy.result == 'failure' || needs.health-checks.result == 'failure') }}
-    
+
     steps:
       - name: 🚨 Deployment failure detected
         run: |
           echo "🚨 Deployment failure detected!"
           echo "Deploy status: ${{ needs.deploy.result }}"
           echo "Health checks status: ${{ needs.health-checks.result }}"
-      
+
       - name: 🔄 Execute rollback
         run: |
           echo "🔄 Initiating rollback to previous version..."
           echo "⏮️ Rolling back deployment..."
           echo "✅ Rollback completed"
-      
+
       - name: 🔔 Rollback notification
         run: |
           echo "🔔 Sending rollback notifications..."
