@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 const { Octokit } = require('@octokit/rest');
 const fs = require('fs');

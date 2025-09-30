@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 /**
  * Script para debugar problemas de assignment do xCloud Bot
