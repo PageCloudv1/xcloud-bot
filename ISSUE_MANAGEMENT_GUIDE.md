@@ -15,11 +15,13 @@ O workflow **Issue Management** automatiza completamente o gerenciamento de issu
 ### 1. Processamento Individual Automático
 
 **Quando acontece:**
+
 - Issue é aberta (`opened`)
 - Issue é editada (`edited`)
 - Issue é reaberta (`reopened`)
 
 **O que faz:**
+
 1. 🔍 Analisa o título e descrição da issue
 2. 🤖 Usa IA (Gemini) para análise inteligente (se disponível)
 3. 🏷️ Aplica labels relevantes automaticamente
@@ -28,6 +30,7 @@ O workflow **Issue Management** automatiza completamente o gerenciamento de issu
 6. 💬 Adiciona comentário de boas-vindas explicando próximos passos
 
 **Análise com IA:**
+
 ```
 Título: Implementar sistema de cache
 Descrição: Precisamos adicionar cache para melhorar performance...
@@ -41,6 +44,7 @@ Resultado:
 
 **Fallback sem IA:**
 Se a API do Gemini não estiver disponível, o workflow usa análise baseada em palavras-chave:
+
 - Detecta "bug", "erro", "error" → Label: `bug`, Prioridade: `high`
 - Detecta "feature", "enhancement" → Label: `enhancement`
 - Detecta "doc", "documentação" → Label: `documentation`
@@ -49,10 +53,12 @@ Se a API do Gemini não estiver disponível, o workflow usa análise baseada em 
 ### 2. Triagem em Lote (Scheduled)
 
 **Quando acontece:**
+
 - Automaticamente a cada 6 horas (cron: `0 */6 * * *`)
 - Manualmente via workflow_dispatch
 
 **O que faz:**
+
 1. 🔍 Busca issues sem labels ou marcadas como `needs-triage`
 2. 📝 Processa até 10 issues por execução
 3. 🏷️ Aplica labels baseado em análise rápida
@@ -60,6 +66,7 @@ Se a API do Gemini não estiver disponível, o workflow usa análise baseada em 
 5. ⏱️ Rate limiting (1s entre cada issue)
 
 **Exemplo de busca:**
+
 ```
 Issues encontradas: 15
 Processando: 10 (limite)
@@ -79,6 +86,7 @@ Processando: 10 (limite)
    - **force_reanalysis**: `true` para forçar reanálise
 
 **Casos de uso:**
+
 - Processar uma issue específica que foi ignorada
 - Reanalisar issue após edição significativa
 - Triagem manual de lote sem esperar o cron
@@ -90,11 +98,12 @@ Processando: 10 (limite)
 ```yaml
 # .github/workflows/issue-management.yml
 env:
-  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}  # Opcional (usa fallback se não disponível)
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Opcional (usa fallback se não disponível)
   GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.0-flash-exp' }}
 ```
 
 **Obter GEMINI_API_KEY:**
+
 1. Acesse [Google AI Studio](https://makersuite.google.com/app/apikey)
 2. Crie uma API Key
 3. Adicione como secret no GitHub: Settings → Secrets → Actions → New secret
@@ -102,21 +111,22 @@ env:
 ### Variáveis de Repositório
 
 ```yaml
-GEMINI_MODEL: 'gemini-2.0-flash-exp'  # Opcional, padrão já definido
+GEMINI_MODEL: 'gemini-2.0-flash-exp' # Opcional, padrão já definido
 ```
 
 ### Permissions Necessárias
 
 ```yaml
 permissions:
-  contents: read      # Ler código do repositório
-  issues: write       # Criar comentários e adicionar labels
+  contents: read # Ler código do repositório
+  issues: write # Criar comentários e adicionar labels
   pull-requests: read # Distinguir issues de PRs
 ```
 
 ## 📊 Labels Sugeridas pelo Workflow
 
 ### Tipos
+
 - `bug` - Erro ou comportamento inesperado
 - `enhancement` - Nova funcionalidade ou melhoria
 - `documentation` - Relacionado a documentação
@@ -126,12 +136,14 @@ permissions:
 - `good first issue` - Boa para iniciantes
 
 ### Prioridade
+
 - `priority-low` - Baixa prioridade
 - `priority-medium` - Prioridade média
 - `priority-high` - Alta prioridade
 - `priority-critical` - Crítica/urgente
 
 ### Categorias Técnicas
+
 - `workflow` - GitHub Actions, CI/CD
 - `bot` - Automação, bot
 - `ci-cd` - Integração/Deploy contínuo
@@ -142,6 +154,7 @@ permissions:
 - `infrastructure` - Infraestrutura
 
 ### Status
+
 - `needs-triage` - Precisa ser triada
 
 ## 📈 Monitoramento
@@ -176,6 +189,7 @@ O job `report-statistics` gera relatório automático:
 
 **Causa**: Workflow pode estar desabilitado ou issue já processada
 **Solução**:
+
 1. Verifique se workflow está ativo em Actions
 2. Execute manualmente com `force_reanalysis: true`
 
@@ -183,6 +197,7 @@ O job `report-statistics` gera relatório automático:
 
 **Causa**: Labels podem não existir no repositório
 **Solução**:
+
 1. Crie as labels manualmente: Settings → Labels
 2. O workflow logará avisos sobre labels inexistentes
 
@@ -190,6 +205,7 @@ O job `report-statistics` gera relatório automático:
 
 **Causa**: GEMINI_API_KEY não configurado ou inválido
 **Solução**:
+
 1. Verifique se secret existe
 2. Workflow usará fallback automaticamente
 3. Logs mostrarão: "⚠️ Erro na análise AI: ..."
@@ -198,6 +214,7 @@ O job `report-statistics` gera relatório automático:
 
 **Causa**: Muitas requisições em pouco tempo
 **Solução**:
+
 1. Workflow já tem delay de 1s entre issues
 2. Limite de 10 issues por execução do batch
 3. Aguarde alguns minutos antes de executar novamente
@@ -244,36 +261,42 @@ graph TD
 ### Exemplo 1: Bug Report
 
 **Issue:**
+
 ```
 Título: Erro ao fazer login
 Descrição: Quando tento fazer login, recebo erro 500...
 ```
 
 **Resultado:**
+
 - Labels: `bug`, `priority-high`
 - Comentário: "Identificamos um bug... equipe foi notificada..."
 
 ### Exemplo 2: Feature Request
 
 **Issue:**
+
 ```
 Título: Adicionar suporte a dark mode
 Descrição: Seria legal ter um tema escuro...
 ```
 
 **Resultado:**
+
 - Labels: `enhancement`, `priority-medium`, `good first issue`
 - Comentário: "Sugestão registrada! Categoria: frontend..."
 
 ### Exemplo 3: Pergunta
 
 **Issue:**
+
 ```
 Título: Como configuro o bot?
 Descrição: Não entendi como configurar...
 ```
 
 **Resultado:**
+
 - Labels: `question`, `documentation`, `priority-low`
 - Comentário: "Olá! Sua dúvida foi categorizada como pergunta..."
 
