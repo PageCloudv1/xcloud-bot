@@ -432,12 +432,12 @@ Para mais informações, consulte a [documentação completa](https://github.com
     const successful = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
 
-    console.log(`\n📊 Resumo da expansão:`);
+    console.log("\n📊 Resumo da expansão:");
     console.log(`  ✅ Sucessos: ${successful}`);
     console.log(`  ❌ Falhas: ${failed}`);
 
     if (failed > 0) {
-      console.log(`\n❌ Repositórios com falha:`);
+      console.log("\n❌ Repositórios com falha:");
       results
         .filter(r => !r.success)
         .forEach(r => {
