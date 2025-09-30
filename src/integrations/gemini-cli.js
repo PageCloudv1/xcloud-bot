@@ -74,7 +74,7 @@ function normalizeGeminiResponse(output) {
  * Alternativa usando API direta do Gemini
  * Para evitar problemas com extensões IDE
  */
-export async function analyzeWithGeminiAPI(prompt, context = {}, options = {}) {
+export async function analyzeWithGeminiAPI(prompt, _context = {}, _options = {}) {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {

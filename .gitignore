@@ -2,3 +2,15 @@ node_modules
 
 .gemini/
 gha-creds-*.json
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Test artifacts
+test-results/
+playwright-report/
+
+# Environment files
+.env
+.env.local

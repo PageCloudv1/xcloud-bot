@@ -189,13 +189,13 @@ export async function analyzeRepository(repoName, analysisType = 'comprehensive'
  * @param {Array} runs - Runs recentes
  * @returns {number} Score de 0-100
  */
-function calculateOverallScore(performance, runs) {
+function calculateOverallScore(performance, _runs) {
     if (!performance.hasWorkflows) return 20; // Repositório sem workflows
 
     let score = 50; // Base score
 
     // Workflow coverage (+20 points)
-    const expectedWorkflows = ['CI', 'Build', 'Test'];
+    const _expectedWorkflows = ['CI', 'Build', 'Test']; // Keep for reference
     const hasCI = performance.workflowStats.some(w => w.name.toLowerCase().includes('ci'));
     const hasBuild = performance.workflowStats.some(w => w.name.toLowerCase().includes('build'));
     const hasTest = performance.workflowStats.some(w => w.name.toLowerCase().includes('test'));
