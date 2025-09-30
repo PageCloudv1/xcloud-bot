@@ -1,4 +1,3 @@
-
 const { AutonomousAgent } = require('../agents/AutonomousAgent');
 const { Octokit } = require('@octokit/rest');
 
@@ -11,7 +10,7 @@ class GithubAgentHandler {
   }
 
   async handleAssignmentEvent(eventPayload) {
-    console.log("🤖 Processando evento de assignment...");
+    console.log('🤖 Processando evento de assignment...');
     const payload = JSON.parse(eventPayload); // Assume eventPayload is a JSON string of the github.event
 
     const { action, issue, assignee, repository } = payload;
@@ -22,8 +21,12 @@ class GithubAgentHandler {
     console.log(`Repository: ${repository.full_name}`);
 
     const assignedLogin = assignee.login;
-    if (assignedLogin === "xcloud-bot" || assignedLogin === "xbot" || assignedLogin === this.xbotUsername) {
-      console.log("✅ xBot foi assignado, iniciando processamento...");
+    if (
+      assignedLogin === 'xcloud-bot' ||
+      assignedLogin === 'xbot' ||
+      assignedLogin === this.xbotUsername
+    ) {
+      console.log('✅ xBot foi assignado, iniciando processamento...');
       const task = await this.agent.handleAssignment(payload);
       if (task) {
         console.log('✅ Tarefa criada:', task.id);
@@ -43,13 +46,13 @@ class GithubAgentHandler {
     console.log(`🔧 Executando ação manual: ${action}`);
 
     switch (action) {
-      case "simulate_assignment":
+      case 'simulate_assignment':
         console.log(`🎭 Simulando assignment para issue #${issueNumber}`);
         const [owner, repo] = repositoryName.split('/');
         const { data: issue } = await this.octokit.rest.issues.get({
           owner,
           repo,
-          issue_number: issueNumber
+          issue_number: issueNumber,
         });
 
         const simulatedPayload = {
@@ -58,14 +61,14 @@ class GithubAgentHandler {
             number: issue.number,
             title: issue.title,
             body: issue.body,
-            html_url: issue.html_url
+            html_url: issue.html_url,
           },
           assignee: {
-            login: 'xcloud-bot' // Simulate assignment to xcloud-bot
+            login: 'xcloud-bot', // Simulate assignment to xcloud-bot
           },
           repository: {
-            full_name: repositoryName
-          }
+            full_name: repositoryName,
+          },
         };
 
         const task = await this.agent.handleAssignment(simulatedPayload);
@@ -76,14 +79,14 @@ class GithubAgentHandler {
         }
         break;
 
-      case "check_status":
-        console.log("📊 Verificando status das tarefas ativas...");
+      case 'check_status':
+        console.log('📊 Verificando status das tarefas ativas...');
         const tasks = this.agent.getActiveTasks();
         console.log('Tarefas ativas:', JSON.stringify(tasks, null, 2));
         break;
 
-      case "stop_tasks":
-        console.log("🛑 Parando todas as tarefas ativas...");
+      case 'stop_tasks':
+        console.log('🛑 Parando todas as tarefas ativas...');
         await this.agent.stopAllTasks();
         console.log('✅ Todas as tarefas foram paradas');
         break;
