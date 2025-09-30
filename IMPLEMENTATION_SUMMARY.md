@@ -11,6 +11,7 @@ This document summarizes the implementation of the **Issue Management Workflow**
 **Title**: Automatizar gerenciamento e resposta de issues via workflow GitHub Actions
 
 **Objective**: Develop a GitHub Actions workflow to automate issue management in the repository, including:
+
 - Automatic application of relevant labels
 - Automated responses when new issues are opened
 - Other tasks that optimize issue tracking and triage flow
@@ -22,9 +23,11 @@ This document summarizes the implementation of the **Issue Management Workflow**
 ## 📦 What Was Implemented
 
 ### 1. Main Workflow File
+
 **File**: `.github/workflows/issue-management.yml` (471 lines)
 
 **Structure**:
+
 - **Name**: 🏷️ Issue Management - Automação de Issues
 - **Jobs**: 3 independent jobs
   1. `process-issue` - Individual issue processing
@@ -32,11 +35,13 @@ This document summarizes the implementation of the **Issue Management Workflow**
   3. `report-statistics` - Statistical reporting
 
 **Triggers**:
+
 - `issues: [opened, edited, reopened, labeled, unlabeled]` - Automatic on issue events
 - `schedule: cron '0 */6 * * *'` - Every 6 hours for batch processing
 - `workflow_dispatch` - Manual execution with options
 
 **Features**:
+
 - ✅ AI-powered analysis using Gemini API
 - ✅ Robust fallback when AI is unavailable
 - ✅ Automatic label application
@@ -47,10 +52,13 @@ This document summarizes the implementation of the **Issue Management Workflow**
 - ✅ Statistical reports
 
 ### 2. Documentation
+
 **Files Created**:
 
 #### `ISSUE_MANAGEMENT_GUIDE.md` (309 lines)
+
 Comprehensive guide including:
+
 - 📖 Overview and features
 - 🔧 Configuration instructions
 - 📊 Label system explanation
@@ -60,16 +68,20 @@ Comprehensive guide including:
 - 🎓 Best practices
 
 #### `WORKFLOW_ORGANIZATION_GUIDE.md` (Updated)
+
 Added new section documenting the Issue Management workflow with:
+
 - Features overview
 - Usage instructions
 - Trigger configuration
 - Available resources
 
 ### 3. Validation & Testing
+
 **File**: `tests/validate-issue-management.js` (149 lines)
 
 **Test Coverage**:
+
 - 5 different test scenarios
 - Bug reports
 - Feature requests
@@ -88,11 +100,13 @@ Added new section documenting the Issue Management workflow with:
 ### Job 1: Individual Issue Processing
 
 **When it runs**:
+
 - Issue opened
 - Issue edited
 - Issue reopened
 
 **What it does**:
+
 1. Checks if issue was already processed (avoids duplicates)
 2. Analyzes title and description with AI (Gemini)
 3. Falls back to keyword-based analysis if AI unavailable
@@ -102,6 +116,7 @@ Added new section documenting the Issue Management workflow with:
 7. Adds welcome comment explaining next steps
 
 **Example Flow**:
+
 ```
 New Issue: "Bug no login"
 ↓
@@ -116,10 +131,12 @@ Welcome Comment Added
 ### Job 2: Batch Triage
 
 **When it runs**:
+
 - Every 6 hours (cron)
 - Manual dispatch without issue_number
 
 **What it does**:
+
 1. Searches for issues without labels or marked "needs-triage"
 2. Processes up to 10 issues per run
 3. Applies labels based on quick analysis
@@ -127,6 +144,7 @@ Welcome Comment Added
 5. Rate limits (1 second between issues)
 
 **Example**:
+
 ```
 Found 15 unlabeled issues
 Processing 10 (limit)
@@ -139,16 +157,19 @@ Complete with delay to respect API limits
 ### Job 3: Statistical Reports
 
 **When it runs**:
+
 - After batch triage completes
 - Only on scheduled runs
 
 **What it does**:
+
 1. Counts open issues
 2. Calculates label coverage
 3. Breaks down by type (bugs, enhancements, questions)
 4. Generates formatted report in workflow summary
 
 **Example Output**:
+
 ```
 📊 Issue Statistics:
    Total open: 25
@@ -164,13 +185,16 @@ Complete with delay to respect API limits
 ## 🔧 Technical Implementation
 
 ### AI Integration (Optional)
+
 - Uses Google Gemini API for intelligent analysis
 - Configured via `GEMINI_API_KEY` secret
 - Model: `gemini-2.0-flash-exp` (configurable)
 - Graceful fallback if API unavailable
 
 ### Fallback System
+
 When AI is not available, uses keyword detection:
+
 - "bug", "erro", "error" → `bug` label, `high` priority
 - "feature", "enhancement" → `enhancement` label
 - "doc", "documentação" → `documentation` label
@@ -179,12 +203,14 @@ When AI is not available, uses keyword detection:
 - "crítico", "urgente" → `critical` priority
 
 ### Label System
+
 **Types**: bug, enhancement, documentation, question, duplicate, help wanted, good first issue
 **Priorities**: priority-low, priority-medium, priority-high, priority-critical
 **Categories**: workflow, bot, ci-cd, frontend, backend, database, security
 **Status**: needs-triage
 
 ### Permissions
+
 ```yaml
 permissions:
   contents: read
@@ -197,6 +223,7 @@ permissions:
 ## 📊 Validation Results
 
 ### Test Execution
+
 ```bash
 $ npm run workflow:test-issue-mgmt
 
@@ -213,6 +240,7 @@ $ npm run workflow:test-issue-mgmt
 ```
 
 ### YAML Validation
+
 ```bash
 $ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/issue-management.yml'))"
 ✅ YAML syntax is valid
@@ -223,12 +251,14 @@ $ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/issue-manageme
 ## 📈 Statistics
 
 ### Lines of Code
+
 - Workflow: 471 lines
 - Documentation: 309 + 52 = 361 lines
 - Tests: 149 lines
 - **Total**: 981 lines added/modified
 
 ### Files
+
 - **Created**: 3 files
   - `.github/workflows/issue-management.yml`
   - `ISSUE_MANAGEMENT_GUIDE.md`
@@ -242,6 +272,7 @@ $ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/issue-manageme
 ## 🚀 Usage Examples
 
 ### Automatic Processing
+
 ```
 User opens issue → Workflow triggers automatically
 ↓
@@ -253,6 +284,7 @@ Welcome comment added
 ```
 
 ### Manual Execution (Specific Issue)
+
 ```bash
 1. Go to Actions → Issue Management
 2. Click "Run workflow"
@@ -262,6 +294,7 @@ Welcome comment added
 ```
 
 ### Manual Execution (Batch)
+
 ```bash
 1. Go to Actions → Issue Management
 2. Click "Run workflow"
@@ -270,6 +303,7 @@ Welcome comment added
 ```
 
 ### Local Testing
+
 ```bash
 npm run workflow:test-issue-mgmt
 ```
@@ -311,16 +345,19 @@ From original issue:
 ## 🎯 Objectives Achieved
 
 ### ✅ Reduzir trabalho repetitivo manual
+
 - Automatic label application eliminates manual tagging
 - Batch processing handles backlog automatically
 - AI analysis provides consistent categorization
 
 ### ✅ Garantir padronização e agilidade
+
 - Consistent label system
 - Standardized welcome messages
 - Fast processing (individual: ~1 min, batch: ~15 min)
 
 ### ✅ Melhorar experiência da comunidade e mantenedores
+
 - Users receive immediate feedback
 - Clear next steps communicated
 - Maintainers get organized, pre-triaged issues
@@ -331,6 +368,7 @@ From original issue:
 ## 📝 Next Steps (Future Enhancements)
 
 Potential improvements for future iterations:
+
 - [ ] Auto-assign issues to team members based on category
 - [ ] Integration with GitHub Projects
 - [ ] Slack/Discord notifications
