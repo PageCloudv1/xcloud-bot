@@ -22,7 +22,6 @@
 ✅ **7/7 Componentes implementados com sucesso:**
 
 1. ✅ **GitHub App Handler** (`src/bot/github-app.js`) - Webhooks e automações
-2. ✅ **MCP Server** (`src/mcp/server.py`) - Servidor de integração AI  
 3. ✅ **Integrações** (`src/integrations/`) - Gemini CLI + GitHub API
 4. ✅ **Workflow Tools** (`src/workflows/`) - Analisador e criador
 5. ✅ **Scheduler** (`src/bot/scheduler.js`) - Tarefas automatizadas
@@ -46,16 +45,10 @@
 ### 🤖 **GitHub App** (`src/bot/github-app.js`)
 - 🔔 Recebimento e processamento de webhooks
 - 🏷️ Auto-labeling automático de issues e PRs
-- 🔍 Análise automática de falhas de workflow
+- � Comentários automáticos com resumo e recomendações do Gemini em issues novas
+- �🔍 Análise automática de falhas de workflow
 - 📝 Criação automática de issues para investigação
-- � Monitoramento de mudanças em workflows
-
-### 🧠 **MCP Server** (`src/mcp/server.py`)
-- `analyze_repository`: Análise completa de repositórios
-- `create_workflow_issue`: Criação automatizada de issues
-- `monitor_ci_status`: Monitoramento de status de CI
-- `get_xcloud_repositories`: Listagem de repositórios xCloud
-- `run_gemini_analysis`: Análise inteligente com Gemini
+- 👀 Monitoramento de mudanças em workflows
 
 ### 🔧 **Integrações** (`src/integrations/`)
 - **Gemini CLI**: Análise inteligente de código e workflows
@@ -68,7 +61,6 @@
 # Bot Operations
 npm run bot:start          # Iniciar GitHub App
 npm run bot:dev            # Modo desenvolvimento
-npm run mcp:start          # Iniciar MCP Server
 npm run scheduler:run      # Executar scheduler
 
 # Analysis & Creation
@@ -87,12 +79,55 @@ npm run test:e2e          # Testes end-to-end
 
 ## 🚀 Quick Start
 
+<<<<<<< HEAD
+```
+xcloud-bot/
+├── .github/workflows/     # 6 workflows padronizados
+│   ├── ci.yml            # ✅ Integração contínua
+│   ├── cd.yml            # ✅ Deploy contínuo  
+│   ├── main.yml          # ✅ Orquestração
+│   ├── build.yml         # ✅ Build de artefatos
+│   ├── test.yml          # ✅ Execução de testes
+│   └── deploy.yml        # ✅ Gerenciamento de ambientes
+├── src/
+│   ├── api/              # ✅ Endpoints REST
+│   ├── bot/              # ✅ GitHub App + Scheduler
+│   │   ├── github-app.js # ✅ Webhook handler
+│   │   └── scheduler.js  # ✅ Tarefas automáticas
+│   ├── integrations/     # ✅ Integrações externas
+│   │   ├── gemini-cli.js # ✅ Integração Gemini
+│   │   └── github-api.js # ✅ API GitHub
+│   └── workflows/        # ✅ Gestão de workflows
+│       ├── analyzer.js   # ✅ Análise de performance
+│       └── creator.js    # ✅ Criação automatizada
+└── package.json          # ✅ Scripts configurados
+```
+=======
 ### Pré-requisitos
+>>>>>>> 8387d10549a8f95f42469803be4ad415ca20a9b4
 
 - **Node.js** >= 18.0.0
 - **npm** >= 9.0.0
 
+<<<<<<< HEAD
+1. **Ativar GitHub App** no repositório
+2. **Executar testes** das issues criadas
+3. **Monitorar automações** em ação
+4. **Expandir** para outros repositórios xCloud
+
+## 📊 Tecnologias
+
+- **Node.js 20+**: Runtime principal com ES modules
+- **Express.js**: Servidor web para webhooks  
+- **Octokit**: Integração completa GitHub API
+- **Gemini CLI**: Análise inteligente integrada
+- **Vitest + Playwright**: Framework de testes completo
+- **MongoDB**: Banco para testes de integração
+
+## 🚀 Instalação e Execução
+=======
 ### Instalação
+>>>>>>> 8387d10549a8f95f42469803be4ad415ca20a9b4
 
 ```bash
 # Clone o repositório
@@ -102,7 +137,21 @@ cd xcloud-bot
 # Instale as dependências
 npm install
 
+<<<<<<< HEAD
+# Configurar ambiente
+cp .env.example .env
+# Editar .env com suas credenciais
+
+> 📌 Preencha os campos `GITHUB_APP_ID`, `GITHUB_PRIVATE_KEY`, `GITHUB_APP_INSTALLATION_ID`, `WEBHOOK_SECRET` e `GEMINI_API_KEY`. Certifique-se de que o GitHub App está inscrito nos eventos **Issues** e com a URL `/webhook` apontando para o bot em execução.
+
+# Executar bot completo
+npm run bot:start    # GitHub App
+npm run scheduler:run # Scheduler (nova aba)
+
+# Validar funcionamento
+=======
 # Execute os testes
+>>>>>>> 8387d10549a8f95f42469803be4ad415ca20a9b4
 npm test
 
 # Execute o build
