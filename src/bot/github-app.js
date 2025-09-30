@@ -174,11 +174,19 @@ app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
   console.log(`💬 Comentário recebido na issue/PR #${issue.number} de ${comment.user.login}`);
 
   try {
-    // Verifica se o bot foi mencionado
-    if (comment.body.includes('@xcloud-bot') || comment.body.includes('xcloud-bot')) {
-      console.log(`🤖 Bot mencionado na issue/PR #${issue.number} em ${repository.full_name}`);
+    // Robust pattern matching for bot mentions
+    const mentionPattern = /@xcloud-bot|xcloud-bot/i;
+    if (!mentionPattern.test(comment.body)) {
+      return;
+    }
 
-      // Responde à menção com uma mensagem útil
+    console.log(`🤖 Bot mencionado na issue/PR #${issue.number} em ${repository.full_name}`);
+
+    const commentLower = comment.body.toLowerCase();
+
+    // Command routing
+    if (commentLower.includes('help') || commentLower.includes('ajuda')) {
+      // Show help message
       await octokit.rest.issues.createComment({
         owner: repository.owner.login,
         repo: repository.name,
@@ -188,8 +196,8 @@ app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
 Sou o **xCloud Bot** e estou aqui para ajudar!
 
 **Comandos disponíveis:**
-- \`@xcloud-bot help\` - Mostra esta mensagem de ajuda
-- \`@xcloud-bot analyze\` - Re-analisa a issue/PR atual
+- \`@xcloud-bot help\` ou \`@xcloud-bot ajuda\` - Mostra esta mensagem de ajuda
+- \`@xcloud-bot analyze\` ou \`@xcloud-bot analisa\` - Re-analisa a issue/PR atual
 
 **Sobre mim:**
 - 🔍 Analiso automaticamente issues e PRs quando são criados
@@ -203,7 +211,135 @@ Sou o **xCloud Bot** e estou aqui para ajudar!
 *Resposta gerada pelo xCloud Bot* 🤖`,
       });
 
-      console.log(`✅ Resposta enviada para issue/PR #${issue.number}`);
+      console.log(`✅ Mensagem de ajuda enviada para issue/PR #${issue.number}`);
+    } else if (commentLower.includes('analyze') || commentLower.includes('analisa')) {
+      // Send immediate "analyzing" message
+      await octokit.rest.issues.createComment({
+        owner: repository.owner.login,
+        repo: repository.name,
+        issue_number: issue.number,
+        body: `🔍 Analisando... @${comment.user.login}
+
+Estou processando sua solicitação de análise. Aguarde um momento enquanto examino esta ${issue.pull_request ? 'PR' : 'issue'}.
+
+---
+*xCloud Bot está trabalhando* ⚙️`,
+      });
+
+      console.log(`🔄 Iniciando análise da issue/PR #${issue.number}`);
+
+      // Perform the analysis
+      try {
+        const analysis = await analyzeIssue(issue);
+
+        const candidateLabels = Array.isArray(analysis.labels)
+          ? analysis.labels
+          : typeof analysis.labels === 'string'
+            ? analysis.labels
+                .split(/[,;\n]/)
+                .map(label => label.trim())
+                .filter(Boolean)
+            : [];
+
+        const normalizedLabels = candidateLabels
+          .map(label => label.replace(/^['"]|['"]$/g, '').trim())
+          .filter(Boolean);
+
+        const labelSet = new Set();
+        const labels = [];
+        for (const label of normalizedLabels) {
+          const key = label.toLowerCase();
+          if (!labelSet.has(key)) {
+            labelSet.add(key);
+            labels.push(label);
+          }
+        }
+
+        const suggestedAssignees = Array.isArray(analysis.assignee_suggestions)
+          ? analysis.assignee_suggestions
+          : typeof analysis.assignee_suggestions === 'string'
+            ? analysis.assignee_suggestions
+                .split(/[,;\n]/)
+                .map(name => name.trim())
+                .filter(Boolean)
+            : [];
+
+        const assigneeSet = new Set();
+        const assignees = [];
+        for (const name of suggestedAssignees) {
+          const key = name.toLowerCase();
+          if (!assigneeSet.has(key)) {
+            assigneeSet.add(key);
+            assignees.push(name);
+          }
+        }
+
+        const commentLines = [
+          '✅ **Análise Concluída** 🤖',
+          '',
+          '📊 **Resultado da análise:**',
+          `- **Tipo:** ${analysis.type || '—'}`,
+          `- **Prioridade:** ${analysis.priority || '—'}`,
+          `- **Complexidade:** ${analysis.complexity ?? '—'}`,
+          `- **Labels sugeridas:** ${labels.length > 0 ? labels.join(', ') : 'Nenhuma'}`,
+          `- **Sugestões de responsável:** ${assignees.length > 0 ? assignees.join(', ') : 'N/A'}`,
+        ];
+
+        if (analysis.summary) {
+          commentLines.push('', '📝 **Resumo:**', analysis.summary);
+        }
+
+        commentLines.push(
+          '',
+          `_Análise gerada automaticamente pelo xCloud Bot (${analysis.provider ?? 'gemini'})_`
+        );
+
+        await octokit.rest.issues.createComment({
+          owner: repository.owner.login,
+          repo: repository.name,
+          issue_number: issue.number,
+          body: commentLines.join('\n'),
+        });
+
+        console.log(`✅ Análise completa enviada para issue/PR #${issue.number}`);
+      } catch (analysisError) {
+        console.error('❌ Erro ao analisar:', analysisError);
+
+        await octokit.rest.issues.createComment({
+          owner: repository.owner.login,
+          repo: repository.name,
+          issue_number: issue.number,
+          body: `❌ Desculpe @${comment.user.login}, ocorreu um erro ao analisar esta ${issue.pull_request ? 'PR' : 'issue'}.
+
+**Erro:** ${analysisError.message}
+
+Por favor, tente novamente mais tarde ou entre em contato com a equipe de suporte.
+
+---
+*xCloud Bot* 🤖`,
+        });
+      }
+    } else {
+      // Generic mention with guidance
+      await octokit.rest.issues.createComment({
+        owner: repository.owner.login,
+        repo: repository.name,
+        issue_number: issue.number,
+        body: `Olá @${comment.user.login}! 👋
+
+Recebi sua menção, mas não reconheci um comando específico.
+
+**Comandos disponíveis:**
+- \`@xcloud-bot help\` ou \`@xcloud-bot ajuda\` - Mostra ajuda
+- \`@xcloud-bot analyze\` ou \`@xcloud-bot analisa\` - Analisa a issue/PR
+
+Digite \`@xcloud-bot help\` para mais informações!
+
+---
+*xCloud Bot* 🤖`,
+      });
+
+      console.log(`ℹ️ Resposta de orientação enviada para issue/PR #${issue.number}`);
     }
   } catch (error) {
     console.error('❌ Erro ao processar comentário:', error);
