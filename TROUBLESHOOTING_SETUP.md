@@ -43,7 +43,7 @@ npm run validate:github-app
 Se você ver este erro:
 
 ```
-❌ GITHUB_APP_ID - This appears to be a Client ID (starts with 'Iv'), not an App ID
+❌ GH_APP_ID - This appears to be a Client ID (starts with 'Iv'), not an App ID
 ```
 
 Então você precisa corrigir!
@@ -71,14 +71,14 @@ Então você precisa corrigir!
 nano .env  # ou seu editor preferido
 
 
-# Atualize a linha GITHUB_APP_ID
-GITHUB_APP_ID=123456  # Use o número, sem aspas
+# Atualize a linha GH_APP_ID
+GH_APP_ID=123456  # Use o número, sem aspas
 ```
 
 **Para GitHub Actions (Secrets):**
 
 1. Vá para: **Settings > Secrets and variables > Actions**
-2. Encontre o secret `GITHUB_APP_ID`
+2. Encontre o secret `GH_APP_ID`
 3. Clique em **Update**
 4. Cole o App ID (número)
 5. Clique em **Update secret**
@@ -90,7 +90,7 @@ GITHUB_APP_ID=123456  # Use o número, sem aspas
 npm run validate:github-app
 
 # Deve mostrar:
-# ✅ GITHUB_APP_ID - GitHub App ID
+# ✅ GH_APP_ID - GitHub App ID
 
 # Testar bot
 npm run bot:start
@@ -180,12 +180,12 @@ Configure a URL do webhook apontando para seu servidor:
 https://seu-servidor.com/webhook
 ```
 
-#### 4. GITHUB_OWNER incorreto
+#### 4. GH_OWNER incorreto
 
 **Verificar .env:**
 
 ```bash
-cat .env | grep GITHUB_OWNER
+cat .env | grep GH_OWNER
 ```
 
 **Deve ser:**
@@ -197,9 +197,9 @@ cat .env | grep GITHUB_OWNER
 **Exemplo:**
 
 ```bash
-GITHUB_OWNER=rootkit-original  # para usuário
+GH_OWNER=rootkit-original  # para usuário
 # ou
-GITHUB_OWNER=PageCloudv1       # para organização
+GH_OWNER=PageCloudv1       # para organização
 ```
 
 ---
@@ -234,7 +234,7 @@ cat caminho/para/sua-chave.pem
 #### Passo 2: Colar no .env com aspas duplas
 
 ```bash
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAs+EKLBylAXs7RLKbTdVjc2MfZ37KfJXb...
 ... (muitas linhas) ...
 -----END RSA PRIVATE KEY-----"
@@ -255,7 +255,7 @@ MIIEowIBAAKCAQEAs+EKLBylAXs7RLKbTdVjc2MfZ37KfJXb...
 npm run validate:github-app
 
 # Deve mostrar:
-# ✅ GITHUB_PRIVATE_KEY - GitHub App Private Key
+# ✅ GH_PRIVATE_KEY - GitHub App Private Key
 
 ```
 
@@ -299,18 +299,18 @@ npm run validate:github-app
 
 ### Problemas comuns identificados pelo validador
 
-#### ❌ GITHUB_APP_ID - Client ID detectado
+#### ❌ GH_APP_ID - Client ID detectado
 
 ```
-❌ GITHUB_APP_ID - This appears to be a Client ID (starts with 'Iv')
+❌ GH_APP_ID - This appears to be a Client ID (starts with 'Iv')
 ```
 
 **Solução:** Veja [Erro: "Bad credentials"](#erro-bad-credentials)
 
-#### ❌ GITHUB_PRIVATE_KEY - Formato inválido
+#### ❌ GH_PRIVATE_KEY - Formato inválido
 
 ```
-⚠️ GITHUB_PRIVATE_KEY - Invalid format (should contain BEGIN PRIVATE KEY)
+⚠️ GH_PRIVATE_KEY - Invalid format (should contain BEGIN PRIVATE KEY)
 ```
 
 **Solução:** Veja [Private Key inválida](#private-key-inválida)
@@ -373,3 +373,4 @@ cp .env.example .env
 ---
 
 **Última atualização:** 2024
+

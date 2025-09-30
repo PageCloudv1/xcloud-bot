@@ -91,7 +91,7 @@ npm run expand:batch scripts/repos.json
 #### Método 1: Script Automático (Recomendado)
 
 ```bash
-GITHUB_TOKEN=your_token npm run expand:repo owner/repo
+GH_TOKEN=your_token npm run expand:repo owner/repo
 ```
 
 #### Método 2: Template Workflow
@@ -123,7 +123,7 @@ Nos comentários de issues/PRs:
 
 ### Secrets do GitHub
 
-- `GITHUB_TOKEN` - Token com permissões adequadas
+- `GH_TOKEN` - Token com permissões adequadas
 - `GEMINI_API_KEY` - Chave da API do Gemini
 - `GOOGLE_API_KEY` - Chave da API do Google
 - `APP_PRIVATE_KEY` - Chave privada da GitHub App
@@ -183,3 +183,4 @@ Nos comentários de issues/PRs:
 ---
 
 _Organização concluída em $(date) - xCloud Bot v1.0.0_
+

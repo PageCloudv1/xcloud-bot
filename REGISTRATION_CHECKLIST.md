@@ -77,7 +77,7 @@ Use esta checklist para acompanhar o progresso do registro da GitHub App.
 - [ ] **Client ID**: **\*\*\*\***\_\_\_**\*\*\*\*** (apenas para referencia - NAO usar no .env)
 
 ⚠️ **IMPORTANTE**: O **App ID** (numero) e o **Client ID** (Iv...) sao diferentes!
-Use o **App ID** (numerico) na variavel `GITHUB_APP_ID`.
+Use o **App ID** (numerico) na variavel `GH_APP_ID`.
 
 ### Gerar e Baixar Private Key
 
@@ -99,18 +99,18 @@ Use o **App ID** (numerico) na variavel `GITHUB_APP_ID`.
 
 ### Adicionar Secrets
 
-#### GITHUB_APP_ID
+#### GH_APP_ID
 
 - [ ] Clicar em **"New repository secret"**
-- [ ] Nome: `GITHUB_APP_ID`
+- [ ] Nome: `GH_APP_ID`
 - [ ] Valor: (App ID anotado acima - deve ser NUMERICO, ex: 123456)
 - [ ] ⚠️ **NAO** usar o Client ID (que comeca com "Iv")
 - [ ] Clicar em **"Add secret"**
 
-#### GITHUB_PRIVATE_KEY
+#### GH_PRIVATE_KEY
 
 - [ ] Clicar em **"New repository secret"**
-- [ ] Nome: `GITHUB_PRIVATE_KEY`
+- [ ] Nome: `GH_PRIVATE_KEY`
 - [ ] Valor: (conteúdo completo do arquivo .pem)
 - [ ] Incluir linhas `BEGIN` e `END`
 - [ ] Manter quebras de linha
@@ -123,10 +123,10 @@ Use o **App ID** (numerico) na variavel `GITHUB_APP_ID`.
 - [ ] Valor: (webhook secret configurado)
 - [ ] Clicar em **"Add secret"**
 
-#### GITHUB_OWNER (Para uso local)
+#### GH_OWNER (Para uso local)
 
 - [ ] Clicar em **"New repository secret"**
-- [ ] Nome: `GITHUB_OWNER`
+- [ ] Nome: `GH_OWNER`
 - [ ] Valor: `PageCloudv1` (ou seu organization)
 - [ ] Clicar em **"Add secret"**
 
@@ -158,9 +158,9 @@ Use o **App ID** (numerico) na variavel `GITHUB_APP_ID`.
 
 ### Variáveis Obrigatórias
 
-- [ ] `GITHUB_APP_ID=<seu-app-id>` (NUMERICO, ex: 123456 - NAO o Client ID)
-- [ ] `GITHUB_PRIVATE_KEY="<conteúdo-do-pem>"`
-- [ ] `GITHUB_OWNER=PageCloudv1`
+- [ ] `GH_APP_ID=<seu-app-id>` (NUMERICO, ex: 123456 - NAO o Client ID)
+- [ ] `GH_PRIVATE_KEY="<conteúdo-do-pem>"`
+- [ ] `GH_OWNER=PageCloudv1`
 
 ### Variáveis Opcionais
 
@@ -254,3 +254,4 @@ Parabéns! Sua GitHub App está registrada e funcionando.
 ---
 
 ---
+

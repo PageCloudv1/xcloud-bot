@@ -12,7 +12,7 @@ import { multiRepoManager } from '../config/multi-repo.js';
 class AutonomousAgent {
   constructor() {
     this.octokit = new Octokit({
-      auth: process.env.GITHUB_TOKEN,
+      auth: process.env.GH_TOKEN,
       userAgent: 'xcloud-bot-autonomous/1.0.0',
     });
 
@@ -220,7 +220,7 @@ class AutonomousAgent {
       '--workdir',
       this.containerConfig.workDir,
       '-e',
-      `GITHUB_TOKEN=${process.env.GITHUB_TOKEN}`,
+      `GH_TOKEN=${process.env.GH_TOKEN}`,
       '-e',
       `TASK_ID=${task.id}`,
       '-e',
@@ -266,7 +266,7 @@ class AutonomousAgent {
       container.id,
       'sh',
       '-c',
-      `'apk add --no-cache git && git clone https://${process.env.GITHUB_TOKEN}@github.com/${task.repository}.git /workspace/repo'`,
+      `'apk add --no-cache git && git clone https://${process.env.GH_TOKEN}@github.com/${task.repository}.git /workspace/repo'`,
     ];
 
     return new Promise((resolve, reject) => {

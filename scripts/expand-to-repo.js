@@ -10,7 +10,7 @@ const logger = require('../src/utils/logger');
 class RepoExpansion {
   constructor() {
     this.octokit = new Octokit({
-      auth: process.env.GITHUB_TOKEN,
+      auth: process.env.GH_TOKEN,
       userAgent: 'xcloud-bot-expansion/1.0.0',
     });
   }
@@ -466,7 +466,7 @@ Exemplos:
   node expand-to-repo.js --batch repos.json
 
 Variáveis de ambiente necessárias:
-  GITHUB_TOKEN - Token do GitHub com permissões adequadas
+  GH_TOKEN - Token do GitHub com permissões adequadas
 `);
     process.exit(1);
   }

@@ -12,10 +12,10 @@ import { analyzeWorkflowPerformance, getXCloudRepositories } from '../workflows/
 dotenv.config();
 
 const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
+  auth: process.env.GH_TOKEN,
 });
 
-const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+const isCI = process.env.CI === 'true' || process.env.GH_ACTIONS === 'true';
 
 // 📊 Monitor de workflows
 async function monitorWorkflows() {

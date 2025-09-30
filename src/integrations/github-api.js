@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
+  auth: process.env.GH_TOKEN,
 });
 
 /**

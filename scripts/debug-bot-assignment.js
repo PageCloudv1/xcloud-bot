@@ -1,5 +1,8 @@
 /**
- * Script para debugar problemas de assignment do xCloud Bot
+ * Script para debugar problemas de assignment    const app2 = new App({
+      appId: process.env.GH_APP_ID,
+      privateKey: process.env.GH_PRIVATE_KEY,
+    });xCloud Bot
  */
 
 require('dotenv').config();
@@ -11,7 +14,7 @@ async function debugBotAssignment() {
 
   // 1. Verificar configuração básica
   console.log('1. 📋 Verificando configuração...');
-  const requiredEnvVars = ['GITHUB_TOKEN', 'GITHUB_APP_ID', 'GITHUB_PRIVATE_KEY'];
+  const requiredEnvVars = ['GH_TOKEN', 'GH_APP_ID', 'GH_PRIVATE_KEY'];
   const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
   if (missingVars.length > 0) {
@@ -24,7 +27,7 @@ async function debugBotAssignment() {
   console.log('\n2. 🤖 Verificando informações do bot...');
   try {
     const octokit = new Octokit({
-      auth: process.env.GITHUB_TOKEN,
+      auth: process.env.GH_TOKEN,
     });
 
     const { data: user } = await octokit.rest.users.getAuthenticated();
@@ -50,8 +53,8 @@ async function debugBotAssignment() {
   console.log('\n3. 🏢 Verificando GitHub App...');
   try {
     const app = new App({
-      appId: process.env.GITHUB_APP_ID,
-      privateKey: process.env.GITHUB_PRIVATE_KEY,
+      appId: process.env.GH_APP_ID,
+      privateKey: process.env.GH_PRIVATE_KEY,
     });
 
     const { data: appInfo } = await app.octokit.rest.apps.getAuthenticated();
@@ -74,8 +77,8 @@ async function debugBotAssignment() {
   console.log('\n4. 🔐 Verificando permissões...');
   try {
     const app = new App({
-      appId: process.env.GITHUB_APP_ID,
-      privateKey: process.env.GITHUB_PRIVATE_KEY,
+      appId: process.env.GH_APP_ID,
+      privateKey: process.env.GH_PRIVATE_KEY,
     });
 
     const { data: installations } = await app.octokit.rest.apps.listInstallations();

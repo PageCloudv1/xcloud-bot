@@ -26,8 +26,8 @@ cd xcloud-bot
 railway init
 
 # 4. Configure as variáveis de ambiente
-railway variables set GITHUB_APP_ID=Iv23ligqBuX1sUnHLfGY
-railway variables set GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+railway variables set GH_APP_ID=Iv23ligqBuX1sUnHLfGY
+railway variables set GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAs+EKLBylAXs7RLKbTdVjc2MfZ37KfJXb3o0fhOTIfEvzzbyc
 m36sdfL6M6b6vxIKtftMpeGg7JOYknAET1xMQRLQtUs1sp8D4JeCqw2kqsD70qwC
 L03E63fng1Nt5QEGrI7cgswKRbjV10nYnY4MENI2a32dOEXLhc2N6wkaxhZa12fD
@@ -56,7 +56,7 @@ d6w6uxF05Djal9XOXtTc4AIQoPeofaOqUJ1j9yPaEZuhUfEw2s8g
 -----END RSA PRIVATE KEY-----"
 
 railway variables set WEBHOOK_SECRET=your_webhook_secret_here
-railway variables set GITHUB_TOKEN=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
+railway variables set GH_TOKEN=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
 railway variables set GEMINI_API_KEY=AIzaSyAad7j529fLDYA9IiTabQIOQ5jVv-cdLuo
 railway variables set NODE_ENV=production
 railway variables set LOG_LEVEL=info
@@ -78,8 +78,8 @@ heroku login
 heroku create xcloud-bot-pagecloud
 
 # 4. Configure as variáveis
-heroku config:set GITHUB_APP_ID=Iv23ligqBuX1sUnHLfGY
-heroku config:set GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+heroku config:set GH_APP_ID=Iv23ligqBuX1sUnHLfGY
+heroku config:set GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAs+EKLBylAXs7RLKbTdVjc2MfZ37KfJXb3o0fhOTIfEvzzbyc
 m36sdfL6M6b6vxIKtftMpeGg7JOYknAET1xMQRLQtUs1sp8D4JeCqw2kqsD70qwC
 L03E63fng1Nt5QEGrI7cgswKRbjV10nYnY4MENI2a32dOEXLhc2N6wkaxhZa12fD
@@ -108,7 +108,7 @@ d6w6uxF05Djal9XOXtTc4AIQoPeofaOqUJ1j9yPaEZuhUfEw2s8g
 -----END RSA PRIVATE KEY-----"
 
 heroku config:set WEBHOOK_SECRET=your_webhook_secret_here
-heroku config:set GITHUB_TOKEN=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
+heroku config:set GH_TOKEN=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
 heroku config:set GEMINI_API_KEY=AIzaSyAad7j529fLDYA9IiTabQIOQ5jVv-cdLuo
 heroku config:set NODE_ENV=production
 
@@ -228,8 +228,8 @@ curl https://sua-url.com/health
 
 ### Erro de autenticação?
 
-- ✅ Verifique `GITHUB_APP_ID`
-- ✅ Verifique `GITHUB_PRIVATE_KEY` (com quebras de linha)
+- ✅ Verifique `GH_APP_ID`
+- ✅ Verifique `GH_PRIVATE_KEY` (com quebras de linha)
 - ✅ Verifique `WEBHOOK_SECRET`
 
 ### Bot instalado mas não funciona?
@@ -279,3 +279,4 @@ Seu **xcloud-bot** está agora funcionando como o Copilot! 🤖
 **🚀 Seu bot está live e funcionando!**
 
 _Qualquer dúvida, mencione `@xcloud-bot` em uma issue!_
+

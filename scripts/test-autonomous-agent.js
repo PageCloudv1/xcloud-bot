@@ -104,7 +104,7 @@ async function testAutonomousAgent() {
     console.log('✅ Todos os testes básicos passaram!');
     console.log('');
     console.log('🎯 Próximos passos para teste completo:');
-    console.log('1. Configure as variáveis de ambiente (GITHUB_TOKEN, etc.)');
+    console.log('1. Configure as variáveis de ambiente (GH_TOKEN, etc.)');
     console.log('2. Instale o Podman se não estiver disponível');
     console.log('3. Execute o bot e faça um assignment real');
     console.log('4. Monitore os logs para ver o agente em ação');

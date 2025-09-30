@@ -28,7 +28,7 @@ A comprehensive interactive Node.js script that:
 A validation script that checks:
 
 - Existence of `.env` file
-- Required environment variables (GITHUB_APP_ID, GITHUB_PRIVATE_KEY, GITHUB_OWNER)
+- Required environment variables (GH_APP_ID, GH_PRIVATE_KEY, GH_OWNER)
 - Optional environment variables (WEBHOOK_SECRET, GEMINI_API_KEY, PORT)
 - Manifest files (github-app-manifest.json, app.yml)
 - Documentation files (GITHUB_APP_SETUP.md, GITHUB_BOT_SETUP_GUIDE.md, README.md)
@@ -240,3 +240,4 @@ The GitHub App registration process is now fully documented and automated where 
 **Created**: September 30, 2024
 **Status**: ✅ Complete
 **Maintained by**: xCloud Bot Team
+

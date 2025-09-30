@@ -18,11 +18,11 @@ dotenv.config();
 
 const args = process.argv.slice(2);
 const isActEnvironment = process.env.ACT === 'true';
-const defaultOwner = process.env.GITHUB_OWNER || 'PageCloudv1';
+const defaultOwner = process.env.GH_OWNER || 'PageCloudv1';
 
 const app = new App({
-  appId: process.env.GITHUB_APP_ID,
-  privateKey: process.env.GITHUB_PRIVATE_KEY,
+  appId: process.env.GH_APP_ID,
+  privateKey: process.env.GH_PRIVATE_KEY,
   webhooks: {
     secret: process.env.WEBHOOK_SECRET,
   },
@@ -339,7 +339,7 @@ async function createAnalysisIssue(targetRepo, issueTitle) {
   const fullName = `${owner}/${repo}`;
   const body = await buildIssueBody(fullName);
 
-  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+  const token = process.env.GH_TOKEN;
 
   if (!token || isActEnvironment) {
     console.log(
@@ -375,7 +375,7 @@ async function createAnalysisIssue(targetRepo, issueTitle) {
 async function getBotInfo() {
   try {
     const octokit = new RestOctokit({
-      auth: process.env.GITHUB_TOKEN,
+      auth: process.env.GH_TOKEN,
     });
 
     const { data: user } = await octokit.rest.users.getAuthenticated();
@@ -394,7 +394,7 @@ async function main() {
   if (args.includes('--create-issue')) {
     const index = args.indexOf('--create-issue');
     const targetRepo =
-      args[index + 1] || process.env.GITHUB_REPOSITORY || `${defaultOwner}/xcloud-bot`;
+      args[index + 1] || process.env.GH_REPOSITORY || `${defaultOwner}/xcloud-bot`;
     const issueTitle = args[index + 2] || 'Automated Analysis Report';
 
     await createAnalysisIssue(targetRepo, issueTitle);

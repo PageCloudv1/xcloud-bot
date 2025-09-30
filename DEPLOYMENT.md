@@ -129,8 +129,8 @@ PORT=3000
 HOST=0.0.0.0
 
 # GitHub Configuration
-GITHUB_APP_ID=your_app_id
-GITHUB_PRIVATE_KEY_PATH=/opt/xcloud-bot/current/github-private-key.pem
+GH_APP_ID=your_app_id
+GH_PRIVATE_KEY_PATH=/opt/xcloud-bot/current/github-private-key.pem
 GITHUB_WEBHOOK_SECRET=your_webhook_secret
 
 # Database (if using MongoDB)
@@ -290,3 +290,4 @@ For issues or questions:
 - Monitor system: `pm2 monit`
 - View deployment status in GitHub Actions
 - Contact: xCloud Team
+

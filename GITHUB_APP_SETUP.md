@@ -85,8 +85,8 @@ Edite o `.env` e adicione as credenciais:
 
 ```env
 # GitHub App Configuration
-GITHUB_APP_ID=123456  # Cole o App ID aqui
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+GH_APP_ID=123456  # Cole o App ID aqui
+GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
 ...conteúdo da chave privada aqui...
 -----END RSA PRIVATE KEY-----"
 WEBHOOK_SECRET=seu_webhook_secret_aqui
@@ -234,3 +234,4 @@ Se não vê logs quando menciona o bot, o webhook não está chegando.
 - Abra uma issue: https://github.com/PageCloudv1/xcloud-bot/issues
 - Mencione `@xcloud-bot` em qualquer issue (após configurar!)
 - Consulte a documentação oficial do GitHub Apps: https://docs.github.com/en/developers/apps
+

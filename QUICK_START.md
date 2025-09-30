@@ -64,8 +64,8 @@ Marque estes eventos:
 No seu repositório, vá em **Settings > Secrets > Actions** e adicione:
 
 ```
-GITHUB_APP_ID=<seu-app-id>
-GITHUB_PRIVATE_KEY=<conteúdo-completo-do-arquivo-pem>
+GH_APP_ID=<seu-app-id>
+GH_PRIVATE_KEY=<conteúdo-completo-do-arquivo-pem>
 ```
 
 Para obter o conteúdo do .pem:
@@ -150,7 +150,7 @@ Este erro geralmente ocorre quando o **App ID** esta incorreto.
 3. Na secao "About", encontre:
    - **App ID**: `123456` ← Use este (numero)
    - **Client ID**: `Iv1.xxxxx` ← Não use este
-4. Atualize `GITHUB_APP_ID` com o valor correto (somente o numero)
+4. Atualize `GH_APP_ID` com o valor correto (somente o numero)
 5. Execute: `npm run validate:github-app` para verificar
 
 ### Bot não responde
@@ -187,3 +187,4 @@ Seu xCloud Bot está configurado! Próximos passos:
 ---
 
 **Need help?** Abra uma issue: https://github.com/PageCloudv1/xcloud-bot/issues
+

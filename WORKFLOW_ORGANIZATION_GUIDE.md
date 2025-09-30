@@ -134,9 +134,9 @@ node scripts/expand-to-repo.js --batch scripts/repos.json
 
 ```env
 # GitHub
-GITHUB_TOKEN=ghp_xxxxxxxxxxxx
-GITHUB_APP_ID=123456
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
+GH_TOKEN=ghp_xxxxxxxxxxxx
+GH_APP_ID=123456
+GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
 WEBHOOK_SECRET=your_webhook_secret
 
 # Gemini/Google AI
@@ -156,7 +156,7 @@ GOOGLE_GENAI_USE_GCA=false
 
 Configure os seguintes secrets no repositório:
 
-- `GITHUB_TOKEN` - Token com permissões adequadas
+- `GH_TOKEN` - Token com permissões adequadas
 - `GEMINI_API_KEY` - Chave da API do Gemini
 - `GOOGLE_API_KEY` - Chave da API do Google
 - `APP_PRIVATE_KEY` - Chave privada da GitHub App
@@ -207,10 +207,10 @@ No GitHub Actions, execute:
 npm install
 
 # Expandir para um repo
-GITHUB_TOKEN=your_token node scripts/expand-to-repo.js owner/repo
+GH_TOKEN=your_token node scripts/expand-to-repo.js owner/repo
 
 # Expansão em lote
-GITHUB_TOKEN=your_token node scripts/expand-to-repo.js --batch repos.json
+GH_TOKEN=your_token node scripts/expand-to-repo.js --batch repos.json
 ```
 
 #### Método 2: Template Workflow
@@ -323,3 +323,4 @@ Para contribuir com melhorias:
 ---
 
 _Este guia foi gerado automaticamente pelo xCloud Bot v1.0.0_
+

@@ -150,8 +150,8 @@ heroku login
 heroku create xcloud-bot-pagecloud
 
 # Configure as variáveis de ambiente
-heroku config:set GITHUB_APP_ID=Iv23ligqBuX1sUnHLfGY
-heroku config:set GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
+heroku config:set GH_APP_ID=Iv23ligqBuX1sUnHLfGY
+heroku config:set GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
 heroku config:set WEBHOOK_SECRET=your_webhook_secret
 heroku config:set GEMINI_API_KEY=your_gemini_key
 
@@ -217,10 +217,10 @@ xcloud-bot/
 
 ```env
 # GitHub App
-GITHUB_APP_ID=Iv23ligqBuX1sUnHLfGY
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
+GH_APP_ID=Iv23ligqBuX1sUnHLfGY
+GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
 WEBHOOK_SECRET=your_webhook_secret_here
-GITHUB_TOKEN=ghp_your_token_here
+GH_TOKEN=ghp_your_token_here
 
 # Servidor
 PORT=3000
@@ -409,3 +409,4 @@ _Bot inteligente que torna o desenvolvimento mais eficiente e organizado!_ 🚀
 ## Bot Registration
 
 Consulte GITHUB_APP_SETUP.md para registrar o bot.
+

@@ -54,9 +54,9 @@ async function validateRequiredVariables() {
   const envContent = fs.readFileSync(envPath, 'utf8');
 
   const requiredVars = [
-    { name: 'GITHUB_APP_ID', description: 'GitHub App ID' },
-    { name: 'GITHUB_PRIVATE_KEY', description: 'GitHub App Private Key' },
-    { name: 'GITHUB_OWNER', description: 'GitHub Repository Owner' },
+    { name: 'GH_APP_ID', description: 'GitHub App ID' },
+    { name: 'GH_PRIVATE_KEY', description: 'GitHub App Private Key' },
+    { name: 'GH_OWNER', description: 'GitHub Repository Owner' },
   ];
 
   const optionalVars = [
@@ -78,7 +78,7 @@ async function validateRequiredVariables() {
       allValid = false;
     } else {
       // Validate private key format if applicable
-      if (varInfo.name === 'GITHUB_PRIVATE_KEY') {
+      if (varInfo.name === 'GH_PRIVATE_KEY') {
         const keyValue = match[1].trim();
         if (!keyValue.includes('BEGIN') || !keyValue.includes('PRIVATE KEY')) {
           log(
@@ -89,7 +89,7 @@ async function validateRequiredVariables() {
         } else {
           log(`  ✅ ${varInfo.name} - ${varInfo.description}`, 'green');
         }
-      } else if (varInfo.name === 'GITHUB_APP_ID') {
+      } else if (varInfo.name === 'GH_APP_ID') {
         // Validate App ID format - should be numeric, not a Client ID
         const appIdValue = match[1].trim().replace(/['"]/g, '');
         if (appIdValue.startsWith('Iv')) {
@@ -250,9 +250,9 @@ async function provideSummary(results) {
       log('     → Solution: Register your GitHub App first', 'yellow');
       log('       npm run register:github-app', 'cyan');
       log('     → Or manually fill in these values in .env:', 'yellow');
-      log('       - GITHUB_APP_ID', 'cyan');
-      log('       - GITHUB_PRIVATE_KEY', 'cyan');
-      log('       - GITHUB_OWNER\n', 'cyan');
+      log('       - GH_APP_ID', 'cyan');
+      log('       - GH_PRIVATE_KEY', 'cyan');
+      log('       - GH_OWNER\n', 'cyan');
     }
 
     if (!results.manifests) {

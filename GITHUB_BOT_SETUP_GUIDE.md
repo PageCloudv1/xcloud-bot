@@ -51,8 +51,8 @@ Marque os seguintes eventos:
 3. Adicione os seguintes secrets:
 
 ```
-GITHUB_APP_ID=123456
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+GH_APP_ID=123456
+GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEA...
 -----END RSA PRIVATE KEY-----"
 WEBHOOK_SECRET=seu_webhook_secret

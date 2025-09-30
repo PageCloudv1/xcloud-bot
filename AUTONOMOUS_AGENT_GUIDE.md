@@ -66,9 +66,9 @@ curl -X POST http://localhost:3000/api/agent/stop
 
 ```env
 # GitHub
-GITHUB_TOKEN=ghp_xxxxxxxxxxxx
-GITHUB_APP_ID=123456
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
+GH_TOKEN=ghp_xxxxxxxxxxxx
+GH_APP_ID=123456
+GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
 WEBHOOK_SECRET=your_webhook_secret
 
 # xBot Configuration
@@ -243,7 +243,7 @@ npm run server:logs
 
 # Verificar variáveis
 echo $XBOT_USERNAME
-echo $GITHUB_TOKEN
+echo $GH_TOKEN
 
 # Testar webhook
 curl -X POST http://localhost:3000/webhook \
@@ -286,11 +286,11 @@ df -h
 
 ```bash
 # Testar token
-curl -H "Authorization: token $GITHUB_TOKEN" \
+curl -H "Authorization: token $GH_TOKEN" \
   https://api.github.com/user
 
 # Verificar rate limit
-curl -H "Authorization: token $GITHUB_TOKEN" \
+curl -H "Authorization: token $GH_TOKEN" \
   https://api.github.com/rate_limit
 ```
 
@@ -408,3 +408,4 @@ Planejamos implementar um dashboard web para:
 **🤖 xCloud Bot Autonomous Agent v1.0.0**
 
 _Transformando issues em soluções automaticamente!_
+

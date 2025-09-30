@@ -16,14 +16,14 @@ cp .env.example .env
 
 ```bash
 # GitHub App Configuration
-GITHUB_APP_ID=123456789
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+GH_APP_ID=123456789
+GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEA... (sua chave privada real)
 -----END RSA PRIVATE KEY-----"
 WEBHOOK_SECRET=seu_webhook_secret_real
 
 # GitHub Token (for API operations)
-GITHUB_TOKEN=ghp_seu_token_real_aqui
+GH_TOKEN=ghp_seu_token_real_aqui
 
 # Outros configs...
 ```
@@ -69,7 +69,7 @@ Se tokens foram expostos:
 
 ```bash
 # Use o arquivo .env para desenvolvimento
-GITHUB_TOKEN=ghp_desenvolvimento_token
+GH_TOKEN=ghp_desenvolvimento_token
 NODE_ENV=development
 ```
 
@@ -116,3 +116,4 @@ grep "\.env" .gitignore
 **⚡ Lembre-se: A segurança é responsabilidade de todos!**
 
 _Nunca compartilhe tokens, chaves ou senhas reais no código ou repositório._
+

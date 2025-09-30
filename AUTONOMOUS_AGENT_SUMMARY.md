@@ -66,9 +66,9 @@ curl -X POST http://localhost:3000/api/agent/simulate \
 ### 1. Variáveis de Ambiente
 
 ```env
-GITHUB_TOKEN=ghp_xxxxxxxxxxxx
-GITHUB_APP_ID=123456
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
+GH_TOKEN=ghp_xxxxxxxxxxxx
+GH_APP_ID=123456
+GH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
 WEBHOOK_SECRET=your_webhook_secret
 XBOT_USERNAME=xcloud-bot
 GEMINI_API_KEY=AIzaSyxxxxxxxxxx  # Opcional
@@ -232,3 +232,4 @@ podman logs -f xbot-TASK_ID
 ---
 
 _Implementação concluída em $(date) - xCloud Bot Autonomous Agent v1.0.0_
+

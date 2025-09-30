@@ -23,8 +23,8 @@ npm run validate:github-app
 
 **Sintomas de app não registrada:**
 
-- `GITHUB_APP_ID` está vazio ou com valor de exemplo
-- `GITHUB_PRIVATE_KEY` está vazio ou com valor de exemplo
+- `GH_APP_ID` está vazio ou com valor de exemplo
+- `GH_PRIVATE_KEY` está vazio ou com valor de exemplo
 - Validação falha com "missing environment variables"
 
 **Solução:**
@@ -257,7 +257,7 @@ npm run validate:github-app
 
 ```bash
 # Solução: Credenciais inválidas
-# Verifique GITHUB_APP_ID e GITHUB_PRIVATE_KEY no .env
+# Verifique GH_APP_ID e GH_PRIVATE_KEY no .env
 # Regenere private key se necessário
 ```
 
@@ -367,3 +367,4 @@ Se seguiu todos os passos e ainda não funciona:
 1. App não está registrada → Execute `npm run register:github-app`
 2. App não está instalada → Instale em https://github.com/apps/SEU-APP
 3. Webhook URL incorreta → Configure ngrok e atualize a URL
+
