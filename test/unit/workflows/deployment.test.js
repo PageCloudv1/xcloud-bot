@@ -2,10 +2,14 @@
  * Tests for deployment configuration and workflow functionality
  */
 
-import { deploymentConfig, getEnvironmentConfig, isValidEnvironment, getAvailableEnvironments } from '../../../src/config/deployment.js';
+import {
+  deploymentConfig,
+  getEnvironmentConfig,
+  isValidEnvironment,
+  getAvailableEnvironments,
+} from '../../../src/config/deployment.js';
 
 describe('Deployment Configuration', () => {
-  
   describe('Environment validation', () => {
     it('should validate known environments', () => {
       expect(isValidEnvironment('development')).toBe(true);
@@ -72,7 +76,7 @@ describe('Deployment Configuration', () => {
 
     it('should have monitoring configuration', () => {
       const environments = ['development', 'staging', 'production'];
-      
+
       environments.forEach(env => {
         const config = getEnvironmentConfig(env);
         expect(config.monitoring.enabled).toBe(true);
@@ -82,7 +86,7 @@ describe('Deployment Configuration', () => {
 
     it('should have health check endpoints', () => {
       const environments = ['development', 'staging', 'production'];
-      
+
       environments.forEach(env => {
         const config = getEnvironmentConfig(env);
         expect(config.healthEndpoint).toBe(`${config.url}/health`);
@@ -104,8 +108,16 @@ describe('Deployment Configuration', () => {
 
   describe('Configuration completeness', () => {
     it('should have all required fields for each environment', () => {
-      const requiredFields = ['name', 'url', 'healthEndpoint', 'requiresApproval', 'deploymentStrategy', 'monitoring', 'rollback'];
-      
+      const requiredFields = [
+        'name',
+        'url',
+        'healthEndpoint',
+        'requiresApproval',
+        'deploymentStrategy',
+        'monitoring',
+        'rollback',
+      ];
+
       Object.keys(deploymentConfig).forEach(env => {
         const config = deploymentConfig[env];
         requiredFields.forEach(field => {
