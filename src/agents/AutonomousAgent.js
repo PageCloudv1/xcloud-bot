@@ -427,19 +427,30 @@ class AutonomousAgent {
         actionResult.output = await this.runContainerCommand(
           container,
           `echo "Ação ${action} executada"`
-        );
+    // Implementação de correção de bug baseada na análise fornecida
+    const files = [];
+    
+    // Espera-se que analysis contenha { filePath, lineNumber, buggyLine, fixedLine }
+    if (
+      analysis &&
+      analysis.filePath &&
+      typeof analysis.lineNumber === 'number' &&
+      analysis.fixedLine
+    ) {
+      const filePath = analysis.filePath;
+      const lineNumber = analysis.lineNumber;
+      const fixedLine = analysis.fixedLine.replace(/'/g, "'\\''"); // escape single quotes for shell
+
+      // Usa sed para substituir a linha problemática pela linha corrigida
+      // sed -i "${lineNumber}s/.*/<fixedLine>/" <filePath>
+      const sedCmd = `sed -i "${lineNumber}s/.*/${fixedLine}/" /workspace/repo/${filePath}`;
+      await this.runContainerCommand(container, sedCmd);
+      files.push(filePath);
+    } else {
+      // Se não houver análise suficiente, loga erro
+      logger.error('Análise insuficiente para aplicar correção de bug', { analysis });
     }
-
-    return actionResult;
-  }
-
-  /**
-   * Executa comando no container
-   * @param {Object} container - Container info
-   * @param {string} command - Comando a executar
-   * @returns {Promise<string>} Output do comando
-   */
-  async runContainerCommand(container, command) {
+    
     return new Promise((resolve, reject) => {
       const cmd = `podman exec ${container.id} sh -c "${command}"`;
 
