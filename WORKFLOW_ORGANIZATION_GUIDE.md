@@ -8,8 +8,9 @@ O xCloud Bot foi configurado para:
 
 1. **Automatizar reviews com @Copilot** - Reviews automáticos para novas tarefas
 2. **Integrar Gemini CLI** - Análise avançada de código com IA
-3. **Expandir para múltiplos repositórios** - Sistema multi-repo centralizado
-4. **Templates reutilizáveis** - Workflows padronizados
+3. **Gerenciar issues automaticamente** - Triagem e labeling automático de issues
+4. **Expandir para múltiplos repositórios** - Sistema multi-repo centralizado
+5. **Templates reutilizáveis** - Workflows padronizados
 
 ## 🚀 Features Implementadas
 
@@ -30,7 +31,52 @@ O xCloud Bot foi configurado para:
 - `pull_request: [opened, synchronize, edited]`
 - `workflow_dispatch` (manual)
 
-### 2. Enhanced Gemini CLI
+### 2. Issue Management - Automação de Issues 🆕
+
+**Arquivo**: `.github/workflows/issue-management.yml`
+
+**Funcionalidades**:
+
+- ✅ Análise automática de issues com AI (Gemini)
+- ✅ Aplicação automática de labels relevantes
+- ✅ Comentário de boas-vindas em novas issues
+- ✅ Triagem em lote de issues pendentes
+- ✅ Relatório de estatísticas
+- ✅ Detecção de categoria e prioridade
+- ✅ Fallback quando AI não está disponível
+
+**Triggers**:
+
+- `issues: [opened, edited, reopened, labeled, unlabeled]` - Processamento individual
+- `schedule: cron '0 */6 * * *'` - Triagem em lote a cada 6 horas
+- `workflow_dispatch` - Execução manual com opções
+
+**Como usar**:
+
+```bash
+# Automático: Abre uma nova issue e o workflow processa automaticamente
+
+# Manual para issue específica:
+# No GitHub Actions, execute "Issue Management" workflow
+# Inputs:
+#   - issue_number: número da issue (ex: 42)
+#   - force_reanalysis: true/false para forçar reanálise
+
+# Manual para triagem em lote:
+# Execute sem issue_number para processar todas as issues pendentes
+```
+
+**Recursos**:
+
+- **Análise com AI**: Usa Gemini para análise inteligente (quando GEMINI_API_KEY disponível)
+- **Fallback Robusto**: Análise baseada em palavras-chave se AI falhar
+- **Labels Inteligentes**: Detecta tipo (bug, enhancement, question, etc.)
+- **Priorização**: Atribui prioridade (low, medium, high, critical)
+- **Categorização**: Identifica categoria técnica (ci-cd, bot, workflow, etc.)
+- **Triagem em Lote**: Processa múltiplas issues pendentes
+- **Relatórios**: Estatísticas de issues no log do workflow
+
+### 3. Enhanced Gemini CLI
 
 **Arquivo**: `.github/workflows/enhanced-gemini-cli.yml`
 
