@@ -1,11 +1,15 @@
 /**
  * 🔍 Workflow Analyzer
- * 
+ *
  * Analisa workflows GitHub Actions e sugere melhorias
  */
 
 import { analyzeWithGemini } from '../integrations/gemini-cli.js';
-import { getRepositoryWorkflows, getWorkflowRuns, getXCloudRepositories } from '../integrations/github-api.js';
+import {
+  getRepositoryWorkflows,
+  getWorkflowRuns,
+  getXCloudRepositories,
+} from '../integrations/github-api.js';
 
 /**
  * Analisa performance de workflows de um repositório
@@ -13,117 +17,116 @@ import { getRepositoryWorkflows, getWorkflowRuns, getXCloudRepositories } from '
  * @returns {Promise<object>} Análise de performance
  */
 export async function analyzeWorkflowPerformance(repoName) {
-    console.log(`📊 Analisando performance dos workflows de ${repoName}...`);
+  console.log(`📊 Analisando performance dos workflows de ${repoName}...`);
 
-    try {
-        const workflows = await getRepositoryWorkflows(repoName);
-        const runs = await getWorkflowRuns(repoName, 50);
+  try {
+    const workflows = await getRepositoryWorkflows(repoName);
+    const runs = await getWorkflowRuns(repoName, 50);
 
-        if (workflows.length === 0) {
-            return {
-                repository: repoName,
-                hasWorkflows: false,
-                recommendation: 'Implementar workflows CI/CD básicos'
-            };
-        }
-
-        // Análise por workflow
-        const workflowStats = workflows.map(workflow => {
-            const workflowRuns = runs.filter(run => run.workflow_id === workflow.id);
-
-            if (workflowRuns.length === 0) {
-                return {
-                    name: workflow.name,
-                    state: workflow.state,
-                    runs: 0,
-                    avgDuration: 0,
-                    successRate: 0
-                };
-            }
-
-            const durations = workflowRuns
-                .filter(run => run.created_at && run.updated_at)
-                .map(run => new Date(run.updated_at) - new Date(run.created_at));
-
-            const avgDuration = durations.length > 0
-                ? durations.reduce((a, b) => a + b, 0) / durations.length
-                : 0;
-
-            const successfulRuns = workflowRuns.filter(run => run.conclusion === 'success').length;
-            const successRate = workflowRuns.length > 0 ? successfulRuns / workflowRuns.length : 0;
-
-            return {
-                name: workflow.name,
-                state: workflow.state,
-                runs: workflowRuns.length,
-                avgDuration: Math.round(avgDuration / 1000 / 60), // minutos
-                successRate: Math.round(successRate * 100), // porcentagem
-                recentFailures: workflowRuns.filter(run =>
-                    run.conclusion === 'failure' &&
-                    Date.now() - new Date(run.created_at).getTime() < 7 * 24 * 60 * 60 * 1000 // 7 dias
-                ).length
-            };
-        });
-
-        // Identifica workflows problemáticos
-        const slowWorkflows = workflowStats.filter(w => w.avgDuration > 10); // > 10 min
-        const unreliableWorkflows = workflowStats.filter(w => w.successRate < 80); // < 80%
-        const inactiveWorkflows = workflowStats.filter(w => w.runs === 0);
-
-        const analysis = {
-            repository: repoName,
-            hasWorkflows: true,
-            totalWorkflows: workflows.length,
-            activeWorkflows: workflowStats.filter(w => w.state === 'active').length,
-            workflowStats,
-            issues: {
-                slowWorkflows,
-                unreliableWorkflows,
-                inactiveWorkflows
-            },
-            recommendations: []
-        };
-
-        // Gera recomendações
-        if (slowWorkflows.length > 0) {
-            analysis.recommendations.push({
-                type: 'performance',
-                priority: 'medium',
-                title: 'Otimizar workflows lentos',
-                description: `${slowWorkflows.length} workflow(s) com tempo médio > 10min`,
-                workflows: slowWorkflows.map(w => w.name)
-            });
-        }
-
-        if (unreliableWorkflows.length > 0) {
-            analysis.recommendations.push({
-                type: 'reliability',
-                priority: 'high',
-                title: 'Corrigir workflows instáveis',
-                description: `${unreliableWorkflows.length} workflow(s) com taxa de sucesso < 80%`,
-                workflows: unreliableWorkflows.map(w => w.name)
-            });
-        }
-
-        if (inactiveWorkflows.length > 0) {
-            analysis.recommendations.push({
-                type: 'maintenance',
-                priority: 'low',
-                title: 'Revisar workflows inativos',
-                description: `${inactiveWorkflows.length} workflow(s) sem execuções recentes`,
-                workflows: inactiveWorkflows.map(w => w.name)
-            });
-        }
-
-        return analysis;
-
-    } catch (error) {
-        console.error(`❌ Erro na análise de ${repoName}:`, error);
-        return {
-            repository: repoName,
-            error: error.message
-        };
+    if (workflows.length === 0) {
+      return {
+        repository: repoName,
+        hasWorkflows: false,
+        recommendation: 'Implementar workflows CI/CD básicos',
+      };
     }
+
+    // Análise por workflow
+    const workflowStats = workflows.map(workflow => {
+      const workflowRuns = runs.filter(run => run.workflow_id === workflow.id);
+
+      if (workflowRuns.length === 0) {
+        return {
+          name: workflow.name,
+          state: workflow.state,
+          runs: 0,
+          avgDuration: 0,
+          successRate: 0,
+        };
+      }
+
+      const durations = workflowRuns
+        .filter(run => run.created_at && run.updated_at)
+        .map(run => new Date(run.updated_at) - new Date(run.created_at));
+
+      const avgDuration =
+        durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
+
+      const successfulRuns = workflowRuns.filter(run => run.conclusion === 'success').length;
+      const successRate = workflowRuns.length > 0 ? successfulRuns / workflowRuns.length : 0;
+
+      return {
+        name: workflow.name,
+        state: workflow.state,
+        runs: workflowRuns.length,
+        avgDuration: Math.round(avgDuration / 1000 / 60), // minutos
+        successRate: Math.round(successRate * 100), // porcentagem
+        recentFailures: workflowRuns.filter(
+          run =>
+            run.conclusion === 'failure' &&
+            Date.now() - new Date(run.created_at).getTime() < 7 * 24 * 60 * 60 * 1000 // 7 dias
+        ).length,
+      };
+    });
+
+    // Identifica workflows problemáticos
+    const slowWorkflows = workflowStats.filter(w => w.avgDuration > 10); // > 10 min
+    const unreliableWorkflows = workflowStats.filter(w => w.successRate < 80); // < 80%
+    const inactiveWorkflows = workflowStats.filter(w => w.runs === 0);
+
+    const analysis = {
+      repository: repoName,
+      hasWorkflows: true,
+      totalWorkflows: workflows.length,
+      activeWorkflows: workflowStats.filter(w => w.state === 'active').length,
+      workflowStats,
+      issues: {
+        slowWorkflows,
+        unreliableWorkflows,
+        inactiveWorkflows,
+      },
+      recommendations: [],
+    };
+
+    // Gera recomendações
+    if (slowWorkflows.length > 0) {
+      analysis.recommendations.push({
+        type: 'performance',
+        priority: 'medium',
+        title: 'Otimizar workflows lentos',
+        description: `${slowWorkflows.length} workflow(s) com tempo médio > 10min`,
+        workflows: slowWorkflows.map(w => w.name),
+      });
+    }
+
+    if (unreliableWorkflows.length > 0) {
+      analysis.recommendations.push({
+        type: 'reliability',
+        priority: 'high',
+        title: 'Corrigir workflows instáveis',
+        description: `${unreliableWorkflows.length} workflow(s) com taxa de sucesso < 80%`,
+        workflows: unreliableWorkflows.map(w => w.name),
+      });
+    }
+
+    if (inactiveWorkflows.length > 0) {
+      analysis.recommendations.push({
+        type: 'maintenance',
+        priority: 'low',
+        title: 'Revisar workflows inativos',
+        description: `${inactiveWorkflows.length} workflow(s) sem execuções recentes`,
+        workflows: inactiveWorkflows.map(w => w.name),
+      });
+    }
+
+    return analysis;
+  } catch (error) {
+    console.error(`❌ Erro na análise de ${repoName}:`, error);
+    return {
+      repository: repoName,
+      error: error.message,
+    };
+  }
 }
 
 /**
@@ -133,54 +136,55 @@ export async function analyzeWorkflowPerformance(repoName) {
  * @returns {Promise<object>} Análise completa
  */
 export async function analyzeRepository(repoName, analysisType = 'comprehensive') {
-    console.log(`🔍 Iniciando análise ${analysisType} de ${repoName}...`);
+  console.log(`🔍 Iniciando análise ${analysisType} de ${repoName}...`);
 
-    try {
-        const [workflows, runs, performance] = await Promise.all([
-            getRepositoryWorkflows(repoName),
-            getWorkflowRuns(repoName, 20),
-            analyzeWorkflowPerformance(repoName)
-        ]);
+  try {
+    const [workflows, runs, performance] = await Promise.all([
+      getRepositoryWorkflows(repoName),
+      getWorkflowRuns(repoName, 20),
+      analyzeWorkflowPerformance(repoName),
+    ]);
 
-        // Análise com Gemini baseada nos dados coletados
-        const geminiAnalysis = await analyzeWithGemini(`Analise o repositório ${repoName} com ${workflows.length} workflows e ${runs.length} runs. Forneça sugestões de melhoria.`, {
-            repository: repoName,
-            analysis_type: analysisType
-        });
+    // Análise com Gemini baseada nos dados coletados
+    const geminiAnalysis = await analyzeWithGemini(
+      `Analise o repositório ${repoName} com ${workflows.length} workflows e ${runs.length} runs. Forneça sugestões de melhoria.`,
+      {
+        repository: repoName,
+        analysis_type: analysisType,
+      }
+    );
 
-        const aiInsights = geminiAnalysis.data && typeof geminiAnalysis.data === 'object'
-            ? geminiAnalysis.data
-            : {};
+    const aiInsights =
+      geminiAnalysis.data && typeof geminiAnalysis.data === 'object' ? geminiAnalysis.data : {};
 
-        return {
-            repository: repoName,
-            timestamp: new Date().toISOString(),
-            workflows: {
-                total: workflows.length,
-                active: workflows.filter(w => w.state === 'active').length,
-                list: workflows.map(w => ({ name: w.name, state: w.state }))
-            },
-            recent_activity: {
-                total_runs: runs.length,
-                successful: runs.filter(r => r.conclusion === 'success').length,
-                failed: runs.filter(r => r.conclusion === 'failure').length,
-                in_progress: runs.filter(r => r.status === 'in_progress').length
-            },
-            performance,
-            ai_analysis: {
-                structured: aiInsights,
-                summary: geminiAnalysis.text,
-                raw: geminiAnalysis.raw,
-                provider: geminiAnalysis.provider
-            },
-            overall_score: calculateOverallScore(performance, runs),
-            action_items: generateActionItems(performance, aiInsights)
-        };
-
-    } catch (error) {
-        console.error(`❌ Erro na análise de ${repoName}:`, error);
-        throw error;
-    }
+    return {
+      repository: repoName,
+      timestamp: new Date().toISOString(),
+      workflows: {
+        total: workflows.length,
+        active: workflows.filter(w => w.state === 'active').length,
+        list: workflows.map(w => ({ name: w.name, state: w.state })),
+      },
+      recent_activity: {
+        total_runs: runs.length,
+        successful: runs.filter(r => r.conclusion === 'success').length,
+        failed: runs.filter(r => r.conclusion === 'failure').length,
+        in_progress: runs.filter(r => r.status === 'in_progress').length,
+      },
+      performance,
+      ai_analysis: {
+        structured: aiInsights,
+        summary: geminiAnalysis.text,
+        raw: geminiAnalysis.raw,
+        provider: geminiAnalysis.provider,
+      },
+      overall_score: calculateOverallScore(performance, runs),
+      action_items: generateActionItems(performance, aiInsights),
+    };
+  } catch (error) {
+    console.error(`❌ Erro na análise de ${repoName}:`, error);
+    throw error;
+  }
 }
 
 /**
@@ -190,28 +194,32 @@ export async function analyzeRepository(repoName, analysisType = 'comprehensive'
  * @returns {number} Score de 0-100
  */
 function calculateOverallScore(performance, _runs) {
-    if (!performance.hasWorkflows) return 20; // Repositório sem workflows
+  if (!performance.hasWorkflows) return 20; // Repositório sem workflows
 
-    let score = 50; // Base score
+  let score = 50; // Base score
 
-    // Workflow coverage (+20 points)
-    const _expectedWorkflows = ['CI', 'Build', 'Test']; // Keep for reference
-    const hasCI = performance.workflowStats.some(w => w.name.toLowerCase().includes('ci'));
-    const hasBuild = performance.workflowStats.some(w => w.name.toLowerCase().includes('build'));
-    const hasTest = performance.workflowStats.some(w => w.name.toLowerCase().includes('test'));
+  // Workflow coverage (+20 points)
+  const _expectedWorkflows = ['CI', 'Build', 'Test']; // Keep for reference
+  const hasCI = performance.workflowStats.some(w => w.name.toLowerCase().includes('ci'));
+  const hasBuild = performance.workflowStats.some(w => w.name.toLowerCase().includes('build'));
+  const hasTest = performance.workflowStats.some(w => w.name.toLowerCase().includes('test'));
 
-    score += (hasCI ? 7 : 0) + (hasBuild ? 7 : 0) + (hasTest ? 6 : 0);
+  score += (hasCI ? 7 : 0) + (hasBuild ? 7 : 0) + (hasTest ? 6 : 0);
 
-    // Success rate (+20 points)
-    const avgSuccessRate = performance.workflowStats.reduce((acc, w) => acc + w.successRate, 0) / performance.workflowStats.length;
-    score += (avgSuccessRate / 100) * 20;
+  // Success rate (+20 points)
+  const avgSuccessRate =
+    performance.workflowStats.reduce((acc, w) => acc + w.successRate, 0) /
+    performance.workflowStats.length;
+  score += (avgSuccessRate / 100) * 20;
 
-    // Performance (+10 points)
-    const avgDuration = performance.workflowStats.reduce((acc, w) => acc + w.avgDuration, 0) / performance.workflowStats.length;
-    if (avgDuration < 5) score += 10;
-    else if (avgDuration < 10) score += 5;
+  // Performance (+10 points)
+  const avgDuration =
+    performance.workflowStats.reduce((acc, w) => acc + w.avgDuration, 0) /
+    performance.workflowStats.length;
+  if (avgDuration < 5) score += 10;
+  else if (avgDuration < 10) score += 5;
 
-    return Math.min(100, Math.max(0, Math.round(score)));
+  return Math.min(100, Math.max(0, Math.round(score)));
 }
 
 /**
@@ -221,43 +229,43 @@ function calculateOverallScore(performance, _runs) {
  * @returns {Array} Lista de ações
  */
 function generateActionItems(performance, aiAnalysis = {}) {
-    const actions = [];
+  const actions = [];
 
-    // Baseado na performance
-    if (performance.issues.slowWorkflows.length > 0) {
-        actions.push({
-            type: 'optimization',
-            priority: 'medium',
-            title: 'Otimizar workflows lentos',
-            description: `Workflows com tempo médio alto: ${performance.issues.slowWorkflows.map(w => w.name).join(', ')}`,
-            estimated_effort: 'medium'
-        });
-    }
+  // Baseado na performance
+  if (performance.issues.slowWorkflows.length > 0) {
+    actions.push({
+      type: 'optimization',
+      priority: 'medium',
+      title: 'Otimizar workflows lentos',
+      description: `Workflows com tempo médio alto: ${performance.issues.slowWorkflows.map(w => w.name).join(', ')}`,
+      estimated_effort: 'medium',
+    });
+  }
 
-    if (performance.issues.unreliableWorkflows.length > 0) {
-        actions.push({
-            type: 'reliability',
-            priority: 'high',
-            title: 'Corrigir workflows instáveis',
-            description: `Workflows com baixa taxa de sucesso: ${performance.issues.unreliableWorkflows.map(w => w.name).join(', ')}`,
-            estimated_effort: 'high'
-        });
-    }
+  if (performance.issues.unreliableWorkflows.length > 0) {
+    actions.push({
+      type: 'reliability',
+      priority: 'high',
+      title: 'Corrigir workflows instáveis',
+      description: `Workflows com baixa taxa de sucesso: ${performance.issues.unreliableWorkflows.map(w => w.name).join(', ')}`,
+      estimated_effort: 'high',
+    });
+  }
 
-    // Baseado na análise AI
-    if (aiAnalysis.missing_workflows && Array.isArray(aiAnalysis.missing_workflows)) {
-        aiAnalysis.missing_workflows.forEach(workflow => {
-            actions.push({
-                type: 'implementation',
-                priority: 'high',
-                title: `Implementar workflow ${workflow}`,
-                description: `Workflow essencial não encontrado`,
-                estimated_effort: 'medium'
-            });
-        });
-    }
+  // Baseado na análise AI
+  if (aiAnalysis.missing_workflows && Array.isArray(aiAnalysis.missing_workflows)) {
+    aiAnalysis.missing_workflows.forEach(workflow => {
+      actions.push({
+        type: 'implementation',
+        priority: 'high',
+        title: `Implementar workflow ${workflow}`,
+        description: 'Workflow essencial não encontrado',
+        estimated_effort: 'medium',
+      });
+    });
+  }
 
-    return actions;
+  return actions;
 }
 
 /**
@@ -268,13 +276,13 @@ function generateActionItems(performance, aiAnalysis = {}) {
  * @returns {Promise<object>} Issue criado
  */
 export async function createWorkflowIssue(repoName, workflowType, options = {}) {
-    const { createIssue } = await import('../integrations/github-api.js');
+  const { createIssue } = await import('../integrations/github-api.js');
 
-    const templates = {
-        ci: {
-            title: '🔄 Implementar Workflow CI (Integração Contínua)',
-            labels: ['enhancement', 'ci-cd', 'workflow', 'priority-high'],
-            body: `## 🔄 Implementar Workflow CI
+  const templates = {
+    ci: {
+      title: '🔄 Implementar Workflow CI (Integração Contínua)',
+      labels: ['enhancement', 'ci-cd', 'workflow', 'priority-high'],
+      body: `## 🔄 Implementar Workflow CI
 
 ### 📋 Objetivo
 Implementar workflow de Integração Contínua seguindo o padrão xCloud.
@@ -300,13 +308,13 @@ Implementar workflow de Integração Contínua seguindo o padrão xCloud.
 - [ ] Cobertura reportada
 - [ ] Documentação atualizada
 
-_Issue criada automaticamente pelo xCloud Bot_`
-        },
+_Issue criada automaticamente pelo xCloud Bot_`,
+    },
 
-        build: {
-            title: '🏗️ Implementar Workflow Build Especializado',
-            labels: ['enhancement', 'build', 'workflow'],
-            body: `## 🏗️ Implementar Workflow Build
+    build: {
+      title: '🏗️ Implementar Workflow Build Especializado',
+      labels: ['enhancement', 'build', 'workflow'],
+      body: `## 🏗️ Implementar Workflow Build
 
 ### 📋 Objetivo
 Implementar workflow especializado para builds reutilizáveis.
@@ -325,13 +333,13 @@ Implementar workflow especializado para builds reutilizáveis.
 - [ ] Artefatos bem organizados
 - [ ] Documentação gerada
 
-_Issue criada automaticamente pelo xCloud Bot_`
-        },
+_Issue criada automaticamente pelo xCloud Bot_`,
+    },
 
-        test: {
-            title: '🧪 Implementar Workflow de Testes',
-            labels: ['enhancement', 'testing', 'workflow'],
-            body: `## 🧪 Implementar Workflow de Testes
+    test: {
+      title: '🧪 Implementar Workflow de Testes',
+      labels: ['enhancement', 'testing', 'workflow'],
+      body: `## 🧪 Implementar Workflow de Testes
 
 ### 📋 Objetivo
 Implementar workflow completo de testes (unit, integration, e2e).
@@ -350,22 +358,22 @@ Implementar workflow completo de testes (unit, integration, e2e).
 - [ ] Testes rápidos e confiáveis
 - [ ] Relatórios detalhados
 
-_Issue criada automaticamente pelo xCloud Bot_`
-        }
-    };
+_Issue criada automaticamente pelo xCloud Bot_`,
+    },
+  };
 
-    const template = templates[workflowType];
-    if (!template) {
-        throw new Error(`Template não encontrado para workflow tipo: ${workflowType}`);
-    }
+  const template = templates[workflowType];
+  if (!template) {
+    throw new Error(`Template não encontrado para workflow tipo: ${workflowType}`);
+  }
 
-    const issueData = {
-        title: options.title || template.title,
-        body: options.body || template.body,
-        labels: options.labels || template.labels
-    };
+  const issueData = {
+    title: options.title || template.title,
+    body: options.body || template.body,
+    labels: options.labels || template.labels,
+  };
 
-    return await createIssue(repoName, issueData);
+  return await createIssue(repoName, issueData);
 }
 
 /**
@@ -373,47 +381,51 @@ _Issue criada automaticamente pelo xCloud Bot_`
  * @returns {Promise<object>} Relatório completo
  */
 export async function generateXCloudReport() {
-    console.log('📊 Gerando relatório completo xCloud...');
+  console.log('📊 Gerando relatório completo xCloud...');
 
-    try {
-        const repos = await getXCloudRepositories();
-        const reports = [];
+  try {
+    const repos = await getXCloudRepositories();
+    const reports = [];
 
-        for (const repo of repos) {
-            console.log(`📊 Analisando ${repo.name}...`);
-            const analysis = await analyzeRepository(repo.name, 'summary');
-            reports.push(analysis);
-        }
-
-        const summary = {
-            timestamp: new Date().toISOString(),
-            total_repositories: repos.length,
-            repositories_with_workflows: reports.filter(r => r.workflows.total > 0).length,
-            total_workflows: reports.reduce((acc, r) => acc + r.workflows.total, 0),
-            average_score: Math.round(reports.reduce((acc, r) => acc + r.overall_score, 0) / reports.length),
-            repositories: reports.map(r => ({
-                name: r.repository,
-                score: r.overall_score,
-                workflows: r.workflows.total,
-                recent_runs: r.recent_activity.total_runs,
-                success_rate: r.recent_activity.total_runs > 0
-                    ? Math.round((r.recent_activity.successful / r.recent_activity.total_runs) * 100)
-                    : 0
-            })),
-            recommendations: {
-                high_priority: reports.flatMap(r => r.action_items.filter(a => a.priority === 'high')).length,
-                medium_priority: reports.flatMap(r => r.action_items.filter(a => a.priority === 'medium')).length,
-                low_priority: reports.flatMap(r => r.action_items.filter(a => a.priority === 'low')).length
-            }
-        };
-
-        console.log('✅ Relatório completo gerado');
-        return { summary, detailed_reports: reports };
-
-    } catch (error) {
-        console.error('❌ Erro ao gerar relatório:', error);
-        throw error;
+    for (const repo of repos) {
+      console.log(`📊 Analisando ${repo.name}...`);
+      const analysis = await analyzeRepository(repo.name, 'summary');
+      reports.push(analysis);
     }
+
+    const summary = {
+      timestamp: new Date().toISOString(),
+      total_repositories: repos.length,
+      repositories_with_workflows: reports.filter(r => r.workflows.total > 0).length,
+      total_workflows: reports.reduce((acc, r) => acc + r.workflows.total, 0),
+      average_score: Math.round(
+        reports.reduce((acc, r) => acc + r.overall_score, 0) / reports.length
+      ),
+      repositories: reports.map(r => ({
+        name: r.repository,
+        score: r.overall_score,
+        workflows: r.workflows.total,
+        recent_runs: r.recent_activity.total_runs,
+        success_rate:
+          r.recent_activity.total_runs > 0
+            ? Math.round((r.recent_activity.successful / r.recent_activity.total_runs) * 100)
+            : 0,
+      })),
+      recommendations: {
+        high_priority: reports.flatMap(r => r.action_items.filter(a => a.priority === 'high'))
+          .length,
+        medium_priority: reports.flatMap(r => r.action_items.filter(a => a.priority === 'medium'))
+          .length,
+        low_priority: reports.flatMap(r => r.action_items.filter(a => a.priority === 'low')).length,
+      },
+    };
+
+    console.log('✅ Relatório completo gerado');
+    return { summary, detailed_reports: reports };
+  } catch (error) {
+    console.error('❌ Erro ao gerar relatório:', error);
+    throw error;
+  }
 }
 
 // Re-exporta funções de github-api para conveniência
