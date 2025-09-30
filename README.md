@@ -63,20 +63,37 @@ Bot inteligente para automação e assistência em repositórios GitHub, desenvo
 
 - Node.js 18+
 - Conta GitHub com permissões de administrador
-- GitHub App configurada
-- Chave da API Gemini (Google AI)
+- GitHub App configurada (veja abaixo)
+- Chave da API Gemini (Google AI) - opcional
 
 ### 1. Configuração da GitHub App
 
-A GitHub App já está configurada com ID: `Iv23ligqBuX1sUnHLfGY`
+⚠️ **IMPORTANTE**: Você precisa registrar sua própria GitHub App para usar o bot.
+
+**Método Rápido:**
+```bash
+# Clone o repositório
+git clone https://github.com/PageCloudv1/xcloud-bot.git
+cd xcloud-bot
+
+# Instale as dependências
+npm install
+
+# Execute o assistente de registro
+npm run register:github-app
+```
+
+**Ou siga o guia manual:** [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md)
 
 **Permissões necessárias:**
 
+- Actions: Read & Write
+- Checks: Read & Write
+- Contents: Read & Write
 - Issues: Read & Write
 - Pull requests: Read & Write
-- Contents: Read
 - Metadata: Read
-- Checks: Write
+- Repository projects: Read & Write
 
 ### 2. Instalação Local
 
