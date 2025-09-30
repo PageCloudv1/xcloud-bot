@@ -1,12 +1,20 @@
 # xCloud Bot - GitHub App Setup
 
-## 🤖 Por que o bot não está respondendo?
+## Como Registrar o Bot
 
-Se você está mencionando `@xcloud-bot` mas não recebe respostas, provavelmente a GitHub App **ainda não foi registrada** ou **não foi instalada** no seu repositório. Siga este guia para configurar corretamente.
+1. Acesse: https://github.com/settings/apps/new
+2. Cole o conteudo do arquivo github-app-manifest.json
+3. Configure as permissoes necessarias
+4. Anote as credenciais geradas
+5. Configure os secrets no repositorio
 
-## ✅ Pré-requisitos
+## Permissoes Necessarias
 
-Antes de começar, certifique-se de que:
+- Actions: write
+- Checks: write
+- Contents: write
+- Issues: write
+- Pull Requests: write
 
 - [ ] Você tem permissões de administrador no repositório ou organização
 - [ ] Node.js está instalado (versão 20+)
@@ -234,3 +242,9 @@ Se não vê logs quando menciona o bot, o webhook não está chegando.
 - Abra uma issue: https://github.com/PageCloudv1/xcloud-bot/issues
 - Mencione `@xcloud-bot` em qualquer issue (após configurar!)
 - Consulte a documentação oficial do GitHub Apps: https://docs.github.com/en/developers/apps
+## Proximos Passos
+
+1. Registrar GitHub App
+2. Configurar secrets
+3. Instalar nos repositorios
+4. Testar funcionalidade
