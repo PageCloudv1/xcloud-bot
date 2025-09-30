@@ -71,6 +71,7 @@ Bot inteligente para automação e assistência em repositórios GitHub, desenvo
 ⚠️ **IMPORTANTE**: Você precisa registrar sua própria GitHub App para usar o bot.
 
 **Método Rápido:**
+
 ```bash
 # Clone o repositório
 git clone https://github.com/PageCloudv1/xcloud-bot.git
@@ -320,4 +321,5 @@ MIT License - veja [LICENSE](LICENSE) para detalhes.
 _Bot inteligente que torna o desenvolvimento mais eficiente e organizado!_ 🚀
 
 ## Bot Registration
+
 Consulte GITHUB_APP_SETUP.md para registrar o bot.
