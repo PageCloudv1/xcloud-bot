@@ -79,7 +79,7 @@ describe('XCloud Bot E2E Tests', () => {
       await customBot.initialize();
       const status = customBot.getStatus();
       expect(status.environment).toBe('custom-e2e');
-      
+
       await customBot.stop();
     });
   });

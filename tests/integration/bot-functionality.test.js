@@ -1,33 +1,29 @@
 /**
  * 🤖 xCloud Bot Functionality Integration Tests
- * 
- * Tests all bot functionalities including GitHub App, MCP Server, 
+ *
+ * Tests all bot functionalities including GitHub App, MCP Server,
  * workflows, and integrations as specified in the test issue.
  */
 
-import { 
-  initializeGitHubApp, 
-  processWebhook, 
+import {
+  initializeGitHubApp,
+  processWebhook,
   createWorkflowIssue,
   handleIssueOpened,
-  handleWorkflowCompleted 
+  handleWorkflowCompleted,
 } from '../../src/bot/github-app.js';
-import { 
-  analyzeRepository, 
-  analyzeAllRepositories 
-} from '../../src/workflows/analyzer.js';
-import { 
-  createWorkflow, 
+import { analyzeRepository, analyzeAllRepositories } from '../../src/workflows/analyzer.js';
+import {
+  createWorkflow,
   validateWorkflow,
-  listWorkflowTemplates 
+  listWorkflowTemplates,
 } from '../../src/workflows/creator.js';
 import { analyzeCode, analyzeWorkflow } from '../../src/integrations/gemini-cli.js';
 
 describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
-  
   describe('🤖 GitHub App Functionality', () => {
     let githubApp;
-    
+
     beforeAll(async () => {
       githubApp = await initializeGitHubApp();
     });
@@ -42,11 +38,11 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
         action: 'opened',
         issue: {
           title: '🐛 Bug in workflow automation',
-          body: 'There is a bug in the bot workflow'
+          body: 'There is a bug in the bot workflow',
         },
         repository: {
-          name: 'xcloud-bot'
-        }
+          name: 'xcloud-bot',
+        },
       };
 
       const result = await processWebhook(payload, githubApp);
@@ -58,11 +54,11 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
         action: 'opened',
         pull_request: {
           title: 'Update ci.yml workflow',
-          body: 'Updating GitHub workflow configuration'
+          body: 'Updating GitHub workflow configuration',
         },
         repository: {
-          name: 'xcloud-bot'
-        }
+          name: 'xcloud-bot',
+        },
       };
 
       const result = await processWebhook(payload, githubApp);
@@ -71,7 +67,7 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
 
     it('📝 should create workflow issue automatically', async () => {
       const result = await createWorkflowIssue('xcloud-bot', 'CI/CD Enhancement');
-      
+
       expect(result.created).toBe(true);
       expect(result.title).toContain('CI/CD Enhancement');
       expect(result.labels).toContain('🔧 workflow');
@@ -83,11 +79,11 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
         workflow_run: {
           id: 12345,
           name: 'CI Workflow',
-          conclusion: 'failure'
+          conclusion: 'failure',
         },
         repository: {
-          name: 'xcloud-bot'
-        }
+          name: 'xcloud-bot',
+        },
       };
 
       const result = await processWebhook(payload, githubApp);
@@ -98,22 +94,22 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
       const testCases = [
         {
           title: '🐛 Bug in authentication',
-          expectedLabels: ['🐛 bug', '📋 triage']
+          expectedLabels: ['🐛 bug', '📋 triage'],
         },
         {
           title: '✨ Feature request for new workflow',
-          expectedLabels: ['✨ enhancement', '🔧 workflow', '📋 triage']
+          expectedLabels: ['✨ enhancement', '🔧 workflow', '📋 triage'],
         },
         {
           title: '🧪 Test failure in CI bot',
-          expectedLabels: ['🧪 testing', '🤖 bot-related', '📋 triage']
-        }
+          expectedLabels: ['🧪 testing', '🤖 bot-related', '📋 triage'],
+        },
       ];
 
       for (const testCase of testCases) {
         const payload = {
           issue: { title: testCase.title },
-          repository: { name: 'xcloud-bot' }
+          repository: { name: 'xcloud-bot' },
         };
 
         const result = await handleIssueOpened(payload, githubApp);
@@ -126,7 +122,7 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
   describe('📊 Workflow Analysis', () => {
     it('🔍 should analyze single repository', async () => {
       const analysis = analyzeRepository('xcloud-bot');
-      
+
       expect(analysis).toBeDefined();
       expect(analysis.repository).toBe('xcloud-bot');
       expect(analysis.workflows).toBeDefined();
@@ -137,7 +133,7 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
 
     it('🌍 should analyze all xCloud repositories', async () => {
       const results = analyzeAllRepositories();
-      
+
       expect(results).toBeDefined();
       expect(results.repositories).toBeDefined();
       expect(results.repositories.length).toBeGreaterThan(0);
@@ -147,7 +143,7 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
 
     it('📊 should provide performance metrics', async () => {
       const analysis = analyzeRepository('xcloud-bot');
-      
+
       expect(analysis.metrics).toBeDefined();
       expect(analysis.metrics.total_workflows).toBeGreaterThan(0);
       expect(analysis.metrics.active_workflows).toBeGreaterThan(0);
@@ -156,10 +152,10 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
 
     it('⚡ should identify priority actions', async () => {
       const analysis = analyzeRepository('xcloud-bot');
-      
+
       expect(analysis.next_actions).toBeDefined();
       expect(analysis.next_actions.length).toBeGreaterThan(0);
-      
+
       const highPriorityActions = analysis.next_actions.filter(
         action => action.priority === 'urgent' || action.priority === 'high'
       );
@@ -170,7 +166,7 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
   describe('🏗️ Workflow Creation', () => {
     it('🔧 should create CI workflow', async () => {
       const result = createWorkflow('ci');
-      
+
       expect(result.created).toBe(true);
       expect(result.type).toBe('ci');
       expect(result.name).toBe('Continuous Integration');
@@ -180,7 +176,7 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
 
     it('🏗️ should create build workflow', async () => {
       const result = createWorkflow('build');
-      
+
       expect(result.created).toBe(true);
       expect(result.type).toBe('build');
       expect(result.content).toContain('Build Application');
@@ -188,7 +184,7 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
 
     it('🔒 should create security workflow', async () => {
       const result = createWorkflow('security');
-      
+
       expect(result.created).toBe(true);
       expect(result.type).toBe('security');
       expect(result.content).toContain('Security');
@@ -197,7 +193,7 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
 
     it('📋 should list available workflow templates', async () => {
       const templates = listWorkflowTemplates();
-      
+
       expect(templates).toBeDefined();
       expect(templates.length).toBeGreaterThan(0);
       expect(templates).toContain('ci');
@@ -207,7 +203,7 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
 
     it('🔍 should validate workflow files', async () => {
       const result = validateWorkflow('.github/workflows/ci.yml');
-      
+
       expect(result).toBeDefined();
       expect(result.score).toBeGreaterThan(0);
       expect(result.checks).toBeDefined();
@@ -228,9 +224,9 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
           return data.map(item => item.value);
         }
       `;
-      
+
       const analysis = await analyzeCode(codeSnippet);
-      
+
       expect(analysis).toBeDefined();
       expect(analysis.quality).toBeDefined();
       expect(analysis.suggestions).toBeDefined();
@@ -239,9 +235,9 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
 
     it('⚡ should analyze workflow performance', async () => {
       const workflowFile = '.github/workflows/ci.yml';
-      
+
       const analysis = await analyzeWorkflow(workflowFile);
-      
+
       expect(analysis).toBeDefined();
       expect(analysis.performance).toBeDefined();
       expect(analysis.bottlenecks).toBeDefined();
@@ -252,9 +248,9 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
   describe('📈 Performance Metrics', () => {
     it('⏱️ should complete analysis within acceptable time', async () => {
       const start = Date.now();
-      
+
       analyzeRepository('xcloud-bot');
-      
+
       const duration = Date.now() - start;
       expect(duration).toBeLessThan(5000); // Should complete within 5 seconds
     });
@@ -262,18 +258,22 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
     it('🎯 should provide accurate success rate calculations', async () => {
       const analysis = analyzeRepository('xcloud-bot');
       const successRate = parseInt(analysis.success_rate);
-      
+
       expect(successRate).toBeGreaterThanOrEqual(0);
       expect(successRate).toBeLessThanOrEqual(100);
     });
 
     it('📊 should generate comprehensive metrics', async () => {
       const summary = analyzeAllRepositories();
-      
+
       expect(summary.total_repositories).toBe(5);
       expect(summary.total_workflows).toBeGreaterThan(0);
-      expect(summary.summary.excellent + summary.summary.good + 
-             summary.summary.fair + summary.summary.poor).toBe(5);
+      expect(
+        summary.summary.excellent +
+          summary.summary.good +
+          summary.summary.fair +
+          summary.summary.poor
+      ).toBe(5);
     });
   });
 
@@ -281,13 +281,13 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
     it('🔄 should integrate GitHub App with workflow analyzer', async () => {
       // Simulate workflow failure -> analysis -> issue creation flow
       const analysis = analyzeRepository('xcloud-bot');
-      
+
       if (analysis.overall_health === 'poor' || analysis.overall_health === 'fair') {
         const issue = await createWorkflowIssue('xcloud-bot', 'Performance Investigation', {
           analysis_results: analysis,
-          auto_created: true
+          auto_created: true,
         });
-        
+
         expect(issue.created).toBe(true);
         expect(issue.title).toContain('Investigation');
       }
@@ -300,9 +300,9 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
         workflow_run: {
           id: 123,
           name: 'CI',
-          conclusion: 'failure'
+          conclusion: 'failure',
         },
-        repository: { name: 'xcloud-bot' }
+        repository: { name: 'xcloud-bot' },
       };
 
       const webhookResult = await processWebhook(webhookPayload, await initializeGitHubApp());
@@ -313,15 +313,15 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
   describe('✅ Success Criteria Validation', () => {
     it('🔔 GitHub App should respond to webhooks quickly', async () => {
       const start = Date.now();
-      
+
       const payload = {
         action: 'opened',
         issue: { title: 'Test issue' },
-        repository: { name: 'xcloud-bot' }
+        repository: { name: 'xcloud-bot' },
       };
-      
+
       await processWebhook(payload, await initializeGitHubApp());
-      
+
       const responseTime = Date.now() - start;
       expect(responseTime).toBeLessThan(5000); // Less than 5 seconds
     });
@@ -329,11 +329,11 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
     it('🏷️ Labels should be applied correctly', async () => {
       const payload = {
         issue: { title: '🐛 Critical bug in workflow bot' },
-        repository: { name: 'xcloud-bot' }
+        repository: { name: 'xcloud-bot' },
       };
 
       const result = await handleIssueOpened(payload, await initializeGitHubApp());
-      
+
       expect(result.labels_added).toContain('🐛 bug');
       expect(result.labels_added).toContain('🤖 bot-related');
       expect(result.labels_added).toContain('🔧 workflow');
@@ -341,14 +341,14 @@ describe('🤖 xCloud Bot - Comprehensive Functionality Tests', () => {
 
     it('📊 Analyses should be accurate and useful', async () => {
       const analysis = analyzeRepository('xcloud-bot');
-      
+
       // Should provide actionable insights
       expect(analysis.recommendations.length).toBeGreaterThan(0);
       expect(analysis.next_actions.length).toBeGreaterThan(0);
-      
+
       // Should identify real issues
       expect(analysis.issues.length).toBeGreaterThan(0);
-      
+
       // Should have realistic metrics
       const successRate = parseInt(analysis.success_rate);
       expect(successRate).toBeGreaterThanOrEqual(0);

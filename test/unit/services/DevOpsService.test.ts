@@ -44,9 +44,7 @@ describe('DevOpsService', () => {
 
     it('should fail to start without initialization', async () => {
       const uninitializedService = new DevOpsService();
-      await expect(uninitializedService.start()).rejects.toThrow(
-        'DevOps service not initialized'
-      );
+      await expect(uninitializedService.start()).rejects.toThrow('DevOps service not initialized');
     });
 
     it('should stop successfully', async () => {
@@ -63,7 +61,7 @@ describe('DevOpsService', () => {
 
     it('should return workflow status', async () => {
       const status = await service.getWorkflowStatus('test-workflow-123');
-      
+
       expect(status).toBeDefined();
       expect(status).toHaveProperty('id', 'test-workflow-123');
       expect(status).toHaveProperty('name');
@@ -81,7 +79,7 @@ describe('DevOpsService', () => {
 
     it('should trigger deployment and return deployment info', async () => {
       const deployment = await service.triggerDeployment('feature/test', 'staging');
-      
+
       expect(deployment).toBeDefined();
       expect(deployment).toHaveProperty('environment', 'staging');
       expect(deployment).toHaveProperty('branch', 'feature/test');
@@ -100,7 +98,7 @@ describe('DevOpsService', () => {
 
     it('should return deployment status', async () => {
       const status = await service.getDeploymentStatus('production');
-      
+
       expect(status).toBeDefined();
       expect(status).toHaveProperty('environment', 'production');
       expect(status).toHaveProperty('version');

@@ -28,8 +28,8 @@ export function createServer(_githubApp) {
         database: 'healthy',
         external_apis: 'healthy',
         file_system: 'healthy',
-        network: 'healthy'
-      }
+        network: 'healthy',
+      },
     });
   });
 

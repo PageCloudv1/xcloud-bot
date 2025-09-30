@@ -71,10 +71,10 @@ describe('Logger', () => {
 
     it('should respect log level filtering', () => {
       const warnLogger = new Logger('WarnOnly', LogLevel.WARN);
-      
+
       // Clear previous calls
       jest.clearAllMocks();
-      
+
       warnLogger.debug('Should not appear');
       warnLogger.info('Should not appear');
       warnLogger.warn('Should appear');
@@ -91,7 +91,7 @@ describe('Logger', () => {
     it('should create a child logger with extended context', () => {
       const childLogger = logger.child('SubContext');
       expect(childLogger).toBeInstanceOf(Logger);
-      
+
       childLogger.info('Child message');
       expect(console.info).toHaveBeenCalledWith(
         expect.stringContaining('[TestContext:SubContext] Child message')
