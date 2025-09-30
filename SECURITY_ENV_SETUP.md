@@ -116,4 +116,3 @@ grep "\.env" .gitignore
 **⚡ Lembre-se: A segurança é responsabilidade de todos!**
 
 _Nunca compartilhe tokens, chaves ou senhas reais no código ou repositório._
-
