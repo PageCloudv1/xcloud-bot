@@ -240,7 +240,7 @@ ${suggestions.map(s => `- ${s}`).join('\n')}
 async function createQualityCheck(octokit, repository, pullRequest, analysis) {
   try {
     const conclusion = analysis.risk_level === 'high' ? 'neutral' : 'success';
-    const title = "xcloud-bot Quality Check";
+    const title = 'xcloud-bot Quality Check';
 
     await octokit.rest.checks.create({
       owner: repository.owner.login,
