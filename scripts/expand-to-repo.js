@@ -470,7 +470,7 @@ Variáveis de ambiente necessárias:
 
     try {
       const repositories = JSON.parse(fs.readFileSync(batchFile, 'utf8'));
-      expansion.expandToMultipleRepositories(repositories);
+      expansion.expandToMultipleRepositories(repositories.map(r => r.repository));
     } catch (error) {
       console.error('❌ Erro ao ler arquivo de lote:', error.message);
       process.exit(1);
