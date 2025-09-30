@@ -7,7 +7,9 @@ This directory contains Node.js scripts for automated server setup and deploymen
 ## Scripts
 
 ### 📦 `setup-remote.js`
+
 Complete automated server setup including:
+
 - ✅ System package updates
 - ✅ Node.js 20 installation
 - ✅ PM2 installation and configuration
@@ -20,7 +22,9 @@ Complete automated server setup including:
 - ✅ Log rotation setup
 
 ### 🚀 `deploy-remote.js`
+
 Automated deployment including:
+
 - ✅ Backup creation
 - ✅ Code updates (git pull)
 - ✅ Dependency installation
@@ -30,17 +34,20 @@ Automated deployment including:
 - ✅ Cleanup old backups
 
 ### 🛠️ `cli.js`
+
 Main CLI interface for easy script execution.
 
 ## Quick Start
 
 ### 1. First Time Setup
+
 ```bash
 # Install script dependencies and setup the entire server
 npm run setup:remote
 ```
 
 This will:
+
 - Connect to your Ubuntu server (72.167.222.237)
 - Install all required software (Node.js, PM2, Nginx, Git)
 - Clone your repository
@@ -49,12 +56,14 @@ This will:
 - Set up monitoring and logs
 
 ### 2. Deploy Updates
+
 ```bash
 # Deploy latest changes to the server
 npm run deploy:remote
 ```
 
 This will:
+
 - Create a backup of the current version
 - Pull latest changes from GitHub
 - Rebuild the application
@@ -82,7 +91,9 @@ node deploy-remote.js
 ## Configuration
 
 ### Server Configuration
+
 The scripts are pre-configured for your server:
+
 - **Host**: 72.167.222.237
 - **User**: rootkit
 - **Password**: 103020Aa@@
@@ -90,37 +101,43 @@ The scripts are pre-configured for your server:
 - **App Port**: 3000
 
 ### Dependencies
+
 The scripts automatically install:
+
 ```json
 {
-  "ssh2": "^1.15.0",      // SSH connection
-  "chalk": "^5.3.0",      // Colored output
-  "ora": "^7.0.1",        // Loading spinners
-  "inquirer": "^9.2.12"   // Interactive prompts
+  "ssh2": "^1.15.0", // SSH connection
+  "chalk": "^5.3.0", // Colored output
+  "ora": "^7.0.1", // Loading spinners
+  "inquirer": "^9.2.12" // Interactive prompts
 }
 ```
 
 ## Features
 
 ### 🔒 Security
+
 - Firewall configuration (UFW)
 - SSH key-based authentication support
 - Secure file permissions
 - Log file rotation
 
 ### 📊 Monitoring
+
 - PM2 process monitoring
 - Application health checks
 - Nginx status verification
 - Automated log rotation
 
 ### 💾 Backup & Recovery
+
 - Automatic backups before deployment
 - Rollback capability on deployment failure
 - Retention policy (7 days)
 - Backup compression
 
 ### 🔧 Maintenance
+
 - Automatic cleanup of old deployments
 - Log rotation configuration
 - Performance monitoring setup
@@ -129,6 +146,7 @@ The scripts automatically install:
 ## Troubleshooting
 
 ### Connection Issues
+
 ```bash
 # Test SSH connection manually
 ssh rootkit@72.167.222.237
@@ -138,6 +156,7 @@ ping 72.167.222.237
 ```
 
 ### Application Issues
+
 ```bash
 # Check application status
 npm run server:status
@@ -150,7 +169,9 @@ npm run server:restart
 ```
 
 ### Script Debugging
+
 The scripts provide detailed output with:
+
 - ✅ Success indicators
 - ❌ Error messages with details
 - 🔄 Progress spinners
@@ -159,6 +180,7 @@ The scripts provide detailed output with:
 ### Common Solutions
 
 #### Permission Denied
+
 ```bash
 # Fix file permissions on server
 sudo chown -R rootkit:rootkit /opt/xcloud-bot
@@ -166,6 +188,7 @@ sudo chmod +x /opt/xcloud-bot/repo/scripts/*.sh
 ```
 
 #### Port Already in Use
+
 ```bash
 # Kill process on port 3000
 sudo fuser -k 3000/tcp
@@ -173,6 +196,7 @@ pm2 restart xcloud-bot
 ```
 
 #### Nginx Configuration Error
+
 ```bash
 # Test nginx configuration
 sudo nginx -t
@@ -203,6 +227,7 @@ scripts/
 ## Support
 
 For issues or questions:
+
 1. Check the detailed output from the scripts
 2. Verify server accessibility: `ssh rootkit@72.167.222.237`
 3. Check application status: `npm run server:status`
@@ -211,6 +236,7 @@ For issues or questions:
 ## Next Steps
 
 After successful setup:
+
 1. ✅ Configure GitHub App credentials in `/opt/xcloud-bot/repo/.env`
 2. ✅ Set up GitHub repository secrets for automated deployment
 3. ✅ Test the application: http://72.167.222.237
