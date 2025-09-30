@@ -39,6 +39,33 @@ describe('Workflow Analyzer', () => {
     await expect(analyzeRepository('test-repo')).rejects.toThrow();
   });
 
+  it('should handle analyzeRepository with successful performance but error object', async () => {
+    // Mock successful API calls but performance returns error object
+    getRepositoryWorkflows.mockResolvedValue([{ id: 1, name: 'CI', state: 'active' }]);
+    getWorkflowRuns.mockResolvedValue([
+      {
+        workflow_id: 1,
+        conclusion: 'success',
+        created_at: new Date().toISOString(),
+        updated_at: new Date(Date.now() + 120000).toISOString(),
+      },
+    ]);
+    analyzeWithGemini.mockResolvedValue({
+      data: { missing_workflows: [] },
+      text: 'Good analysis',
+      raw: null,
+      provider: 'gemini',
+    });
+
+    // analyzeWorkflowPerformance should succeed, so analyzeRepository should succeed
+    const result = await analyzeRepository('test-repo');
+    
+    expect(result).toBeDefined();
+    expect(result.repository).toBe('test-repo');
+    expect(result.overall_score).toBeDefined();
+    expect(result.action_items).toBeDefined();
+  });
+
   it('should handle analyzeWorkflowPerformance error response', async () => {
     getRepositoryWorkflows.mockRejectedValue(new Error('GitHub API Error'));
     getWorkflowRuns.mockResolvedValue([]);
