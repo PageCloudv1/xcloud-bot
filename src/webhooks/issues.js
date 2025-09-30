@@ -26,7 +26,7 @@ async function handleIssueOpened({ payload }) {
 ${analysis.response}
 
 ---
-*Este comentário foi gerado automaticamente. Para interagir comigo, mencione @xcloud-bot em seus comentários.*`,
+*Este comentário foi gerado automaticamente. Para interagir comigo, mencione @xcloudapp-bot ou @xcloud-bot em seus comentários.*`,
     });
 
     // Adiciona labels sugeridas
@@ -142,7 +142,7 @@ async function handleIssueComment({ payload }) {
     logger.debug(`Comentário recebido na issue #${issue.number} de ${comment.user.login}`);
 
     // Verifica se o bot foi mencionado
-    const mentionPattern = /@xcloud-bot|xcloud-bot/i;
+    const mentionPattern = /@xcloudapp-bot|@xcloud-bot|xcloudapp-bot|xcloud-bot/i;
     if (!mentionPattern.test(comment.body)) {
       logger.debug(`Comentário não menciona o bot, ignorando.`);
       return;
@@ -173,8 +173,8 @@ async function handleIssueComment({ payload }) {
 Olá! Sou o **xcloud-bot** e estou aqui para ajudar!
 
 **Comandos disponíveis:**
-- \`@xcloud-bot help\` - Mostra esta mensagem de ajuda
-- \`@xcloud-bot analyze\` - Re-analisa a issue atual
+- \`@xcloudapp-bot help\` ou \`@xcloud-bot help\` - Mostra esta mensagem de ajuda
+- \`@xcloudapp-bot analyze\` ou \`@xcloud-bot analyze\` - Re-analisa a issue atual
 
 **Sobre mim:**
 - 🔍 Analiso automaticamente issues quando são criadas
@@ -210,7 +210,7 @@ ${analysis.response}
       responseBody = `@${comment.user.login} ${response}
 
 ---
-*Resposta gerada pelo xcloud-bot. Use \`@xcloud-bot help\` para ver comandos disponíveis!* 🤖`;
+*Resposta gerada pelo xcloud-bot. Use \`@xcloudapp-bot help\` ou \`@xcloud-bot help\` para ver comandos disponíveis!* 🤖`;
     }
 
     // Atualiza o comentário de processamento com a resposta final
