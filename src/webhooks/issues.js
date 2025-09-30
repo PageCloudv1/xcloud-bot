@@ -142,32 +142,86 @@ async function handleIssueComment({ payload }) {
     logger.debug(`Comentário recebido na issue #${issue.number} de ${comment.user.login}`);
 
     // Verifica se o bot foi mencionado
-    if (comment.body.includes('@xcloud-bot') || comment.body.includes('xcloud-bot')) {
-      logger.info(`Bot mencionado na issue #${issue.number} em ${repository.full_name}`);
+    const mentionPattern = /@xcloud-bot|xcloud-bot/i;
+    if (!mentionPattern.test(comment.body)) {
+      logger.debug(`Comentário não menciona o bot, ignorando.`);
+      return;
+    }
 
-      const octokit = await getInstallationOctokit(installation.id);
+    logger.info(`Bot mencionado na issue #${issue.number} em ${repository.full_name}`);
 
-      // Responde à menção
+    const octokit = await getInstallationOctokit(installation.id);
+    const commentLower = comment.body.toLowerCase();
+    
+    // Cria comentário inicial indicando que está processando
+    const processingComment = await octokit.rest.issues.createComment({
+      owner: repository.owner.login,
+      repo: repository.name,
+      issue_number: issue.number,
+      body: `⏳ Processando seu comando, @${comment.user.login}... Por favor, aguarde.`,
+    });
+
+    logger.info(`⏳ Comentário de processamento criado #${processingComment.data.id}`);
+    
+    let responseBody;
+
+    // Detecta comando específico
+    if (commentLower.includes('help') || commentLower.includes('ajuda')) {
+      // Comando de ajuda
+      responseBody = `@${comment.user.login} 👋
+
+Olá! Sou o **xcloud-bot** e estou aqui para ajudar!
+
+**Comandos disponíveis:**
+- \`@xcloud-bot help\` - Mostra esta mensagem de ajuda
+- \`@xcloud-bot analyze\` - Re-analisa a issue atual
+
+**Sobre mim:**
+- 🔍 Analiso automaticamente issues quando são criadas
+- 🏷️ Adiciono labels relevantes baseado no conteúdo
+- 📊 Forneço insights e análises inteligentes
+- 🤝 Respondo a menções e ajudo no desenvolvimento
+
+**Status:** ✅ Funcionando!
+
+---
+*Resposta gerada pelo xcloud-bot* 🤖`;
+    } else if (commentLower.includes('analyze') || commentLower.includes('analisa')) {
+      // Comando de análise
+      logger.info(`Comando 'analyze' detectado para issue #${issue.number}`);
+      const analysis = await aiService.analyzeIssue(issue);
+
+      responseBody = `@${comment.user.login}
+
+🔍 **Re-análise da Issue**
+
+${analysis.response}
+
+---
+*Análise atualizada pelo xcloud-bot* 🤖`;
+    } else {
+      // Menção sem comando específico - usa AI para responder
       const response = await aiService.respondToMention(comment.body, {
         type: 'issue',
         title: issue.title,
         number: issue.number,
       });
 
-      await octokit.rest.issues.createComment({
-        owner: repository.owner.login,
-        repo: repository.name,
-        issue_number: issue.number,
-        body: `@${comment.user.login} ${response}
+      responseBody = `@${comment.user.login} ${response}
 
 ---
-*Resposta gerada pelo xcloud-bot. Mencione-me novamente se precisar de mais ajuda!* 🤖`,
-      });
-
-      logger.info(`✅ Resposta enviada para issue #${issue.number}`);
-    } else {
-      logger.debug(`Comentário não menciona o bot, ignorando.`);
+*Resposta gerada pelo xcloud-bot. Use \`@xcloud-bot help\` para ver comandos disponíveis!* 🤖`;
     }
+
+    // Atualiza o comentário de processamento com a resposta final
+    await octokit.rest.issues.updateComment({
+      owner: repository.owner.login,
+      repo: repository.name,
+      comment_id: processingComment.data.id,
+      body: responseBody,
+    });
+
+    logger.info(`✅ Resposta enviada para issue #${issue.number}`);
   } catch (error) {
     logger.error('Erro ao processar comentário da issue:', error);
   }
