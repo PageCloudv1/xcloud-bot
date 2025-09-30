@@ -175,12 +175,12 @@ const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
   logger.info(`🤖 xcloud-bot iniciado na porta ${PORT}`);
-  logger.info(`📡 Webhooks disponíveis em: /webhooks/github`);
-  logger.info(`🏥 Health check em: /health`);
-  logger.info(`ℹ️  Informações em: /info`);
+  logger.info('📡 Webhooks disponíveis em: /webhooks/github');
+  logger.info('🏥 Health check em: /health');
+  logger.info('ℹ️  Informações em: /info');
 
   if (process.env.NODE_ENV === 'development') {
-    logger.info(`🔧 Modo de desenvolvimento ativo`);
+    logger.info('🔧 Modo de desenvolvimento ativo');
   }
 });
 
