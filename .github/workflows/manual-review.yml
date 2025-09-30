@@ -1,0 +1,141 @@
+name: '👤 Manual Review - rootkit-original'
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue para revisar manualmente'
+        required: true
+        type: string
+      action:
+        description: 'Ação a executar'
+        required: true
+        type: choice
+        options:
+          - 'review'
+          - 'escalate'
+          - 'close'
+          - 'reassign'
+
+jobs:
+  manual-review:
+    name: '🔍 Revisão Manual'
+    runs-on: ubuntu-latest
+    # Só executa se comentário for de rootkit-original ou via workflow_dispatch
+    if: >
+      (github.event_name == 'issue_comment' && github.event.comment.user.login == 'rootkit-original') ||
+      github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+
+      - name: '🔐 Mint GitHub App Token'
+        id: 'mint_token'
+        if: |-
+          ${{ vars.GH_APP_ID }}
+        uses: 'actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b'
+        with:
+          app-id: '${{ vars.GH_APP_ID }}'
+          private-key: '${{ secrets.GH_PRIVATE_KEY }}'
+
+      - name: '🤖 Assistente de Revisão'
+        uses: 'google-github-actions/run-gemini-cli@v0'
+        env:
+          REVIEWER: 'rootkit-original'
+          COMMENT_BODY: '${{ github.event.comment.body }}'
+          ISSUE_NUMBER: '${{ github.event.issue.number || inputs.issue_number }}'
+          ACTION_TYPE: '${{ inputs.action || github.event.comment.body }}'
+          REPOSITORY: '${{ github.repository }}'
+          GITHUB_TOKEN: '${{ steps.mint_token.outputs.token || github.token }}'
+        with:
+          gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
+          gemini_model: 'gemini-1.5-flash'
+          settings: |-
+            {
+              "maxSessionTurns": 10,
+              "mcpServers": {
+                "github": {
+                  "command": "docker",
+                  "args": [
+                    "run",
+                    "-i",
+                    "--rm",
+                    "-e",
+                    "GITHUB_PERSONAL_ACCESS_TOKEN",
+                    "ghcr.io/github/github-mcp-server"
+                  ],
+                  "includeTools": [
+                    "add_issue_comment",
+                    "get_issue",
+                    "update_issue",
+                    "get_issue_comments"
+                  ],
+                  "env": {
+                    "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+                  }
+                }
+              }
+            }
+          prompt: |-
+            # 👤 Assistente de Revisão - rootkit-original
+
+            ## Contexto
+            Você está auxiliando **rootkit-original** na revisão manual da issue #${ISSUE_NUMBER}.
+
+            ## Dados da Revisão
+            - **Revisor**: ${REVIEWER}
+            - **Issue**: #${ISSUE_NUMBER}
+            - **Ação Solicitada**: ${ACTION_TYPE}
+            - **Comentário**: ${COMMENT_BODY}
+
+            ## Instruções por Tipo de Ação
+
+            ### Se ACTION_TYPE = "review"
+            1. Use `mcp__github__get_issue` para obter detalhes completos da issue
+            2. Use `mcp__github__get_issue_comments` para ver histórico
+            3. Analise e forneça um resumo executivo
+            4. Adicione comentário com sua análise usando `mcp__github__add_issue_comment`
+
+            ### Se ACTION_TYPE = "escalate"  
+            1. Adicione label "priority:critical"
+            2. Assigne para "xcloud-team" se não estiver
+            3. Comente mencionando @xcloud-team sobre a escalação
+
+            ### Se ACTION_TYPE = "close"
+            1. Adicione comentário explicativo
+            2. Use `mcp__github__update_issue` para fechar (state: "closed")
+
+            ### Se ACTION_TYPE = "reassign"
+            1. Remova assignments atuais
+            2. Assigne conforme orientação do comentário
+            3. Adicione comentário confirmando a reassignação
+
+            ## Formato do Comentário de Revisão
+            ```markdown
+            ## 👤 Revisão Manual - @rootkit-original
+
+            ### 📊 **Resumo Executivo**
+            [Resumo conciso da issue e status atual]
+
+            ### 🔍 **Análise Técnica**
+            [Sua análise detalhada]
+
+            ### ⚡ **Ação Executada**
+            - [Descreva a ação tomada]
+
+            ### 🎯 **Recomendações**
+            1. [Recomendação específica 1]
+            2. [Recomendação específica 2]
+
+            ---
+            ✅ *Revisão manual concluída por @rootkit-original*
+            ```
+
+            Execute a ação solicitada para a issue #${ISSUE_NUMBER}.

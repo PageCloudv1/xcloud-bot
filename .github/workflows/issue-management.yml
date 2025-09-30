@@ -1,8 +1,8 @@
-name: '🏷️ Issue Management'
+name: '🤖 Smart Issue Management - xCloud Team'
 
 on:
   issues:
-    types: [opened, edited, reopened, labeled, unlabeled]
+    types: [opened, reopened]
   workflow_dispatch:
     inputs:
       issue_number:
@@ -19,10 +19,10 @@ defaults:
     shell: bash
 
 jobs:
-  process-issue:
-    name: 'Processar Issue'
+  smart-triage:
+    name: '🧠 Análise Inteligente de Issue'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: read
       issues: write
@@ -32,21 +32,152 @@ jobs:
       - name: 'Checkout repository'
         uses: actions/checkout@v4
 
-      - name: 'Setup Node.js'
-        uses: actions/setup-node@v4
+      - name: 'Mint GitHub App Token'
+        id: 'mint_token'
+        if: |-
+          ${{ vars.GH_APP_ID }}
+        uses: 'actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b'
         with:
-          node-version: '20'
+          app-id: '${{ vars.GH_APP_ID }}'
+          private-key: '${{ secrets.GH_PRIVATE_KEY }}'
 
-      - name: 'Processar Issue'
+      - name: '🤖 Processar Issue com Gemini + GitHub MCP'
+        uses: 'google-github-actions/run-gemini-cli@v0'
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
-        run: |
-          echo "🏷️ Processando issue #$ISSUE_NUMBER"
-          echo "Issue Title: ${{ github.event.issue.title }}"
-          echo "Issue Author: ${{ github.event.issue.user.login }}"
-          
-          # Aqui você pode adicionar lógica específica de processamento
-          # Por exemplo: análise de conteúdo, aplicação de labels, etc.
-          
-          echo "✅ Issue processada com sucesso"
+          TITLE: '${{ github.event.issue.title }}'
+          DESCRIPTION: '${{ github.event.issue.body }}'
+          ISSUE_NUMBER: '${{ github.event.issue.number || inputs.issue_number }}'
+          ISSUE_AUTHOR: '${{ github.event.issue.user.login }}'
+          REPOSITORY: '${{ github.repository }}'
+          GITHUB_TOKEN: '${{ steps.mint_token.outputs.token || github.token }}'
+        with:
+          gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
+          gemini_model: 'gemini-1.5-flash'
+          gemini_debug: false
+          settings: |-
+            {
+              "maxSessionTurns": 15,
+              "telemetry": {
+                "enabled": false,
+                "target": "none"
+              },
+              "mcpServers": {
+                "github": {
+                  "command": "docker",
+                  "args": [
+                    "run",
+                    "-i",
+                    "--rm",
+                    "-e",
+                    "GITHUB_PERSONAL_ACCESS_TOKEN",
+                    "ghcr.io/github/github-mcp-server"
+                  ],
+                  "includeTools": [
+                    "add_issue_comment",
+                    "get_issue",
+                    "get_issue_comments",
+                    "list_issues",
+                    "search_issues",
+                    "update_issue"
+                  ],
+                  "env": {
+                    "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+                  }
+                }
+              },
+              "coreTools": [
+                "run_shell_command(echo)",
+                "run_shell_command(grep)"
+              ]
+            }
+          prompt: |-
+            # 🤖 xCloud Team - Assistente Inteligente de Issues
+
+            ## Sua Missão
+            Você é o assistente oficial da **xcloud-team** especializado em análise e triagem inteligente de issues do GitHub.
+
+            ## Dados da Issue Atual
+            - **Título**: ${TITLE}
+            - **Descrição**: ${DESCRIPTION}
+            - **Número**: #${ISSUE_NUMBER}
+            - **Autor**: ${ISSUE_AUTHOR}
+            - **Repositório**: ${REPOSITORY}
+
+            ## Processo de Análise (Execute TODOS os passos)
+
+            ### 1. 🔍 **Pesquisa de Duplicatas**
+            Use `mcp__github__search_issues` para procurar issues similares:
+            - Procure por palavras-chave do título
+            - Verifique issues fechadas recentemente
+            - Se encontrar duplicata, comente na issue mencionando a issue original
+
+            ### 2. 🏷️ **Classificação e Labels**
+            Analise o conteúdo e aplique labels apropriados usando `mcp__github__update_issue`:
+
+            **Labels Técnicos:**
+            - `bug` - Relatórios de erro
+            - `feature` - Solicitações de funcionalidade
+            - `enhancement` - Melhorias
+            - `documentation` - Documentação
+            - `question` - Perguntas/dúvidas
+            - `security` - Questões de segurança
+            - `performance` - Problemas de performance
+
+            **Labels de Prioridade:**
+            - `priority:high` - Crítico/urgente
+            - `priority:medium` - Importante
+            - `priority:low` - Baixa prioridade
+
+            **Labels de Categoria:**
+            - `category:api` - Relacionado à API
+            - `category:ui` - Interface de usuário
+            - `category:infrastructure` - Infraestrutura
+            - `category:workflow` - Workflows/CI-CD
+            - `category:bot` - Funcionalidades do bot
+
+            ### 3. 👥 **Assignment Automático**
+            Use `mcp__github__update_issue` para:
+            - Sempre assignar para: `xcloud-team`
+            - Para issues críticas de segurança, também assignar: `rootkit-original`
+
+            ### 4. 💬 **Resposta Inteligente**
+            Use `mcp__github__add_issue_comment` para adicionar um comentário estruturado:
+
+            ```markdown
+            ## 🤖 Análise Automática - xCloud Team
+
+            ### 📋 **Classificação**
+            - **Tipo**: [bug/feature/enhancement/question/etc]
+            - **Prioridade**: [high/medium/low]
+            - **Categoria**: [api/ui/infrastructure/etc]
+
+            ### 🔍 **Status de Duplicatas**
+            - [✅ Não encontradas duplicatas] OU [⚠️ Possível duplicata: #123]
+
+            ### 📝 **Análise Técnica**
+            [Sua análise do conteúdo da issue - seja específico e útil]
+
+            ### 🎯 **Próximos Passos Recomendados**
+            1. [Ação específica 1]
+            2. [Ação específica 2]
+            3. [Se aplicável, menção a recursos ou documentação relevante]
+
+            ### 👥 **Assignments**
+            - **Team**: @xcloud-team
+            - **Reviewer**: @rootkit-original [se crítico]
+
+            ---
+            🤖 *Processado automaticamente pelo xCloud Bot | Dúvidas? Marque @rootkit-original*
+            ```
+
+            ## ⚠️ Regras Importantes
+            1. **SEMPRE** pesquise duplicatas antes de processar
+            2. **SEMPRE** aplique pelo menos 2 labels (tipo + prioridade)
+            3. **SEMPRE** assigne para `xcloud-team`
+            4. **SEMPRE** adicione um comentário explicativo
+            5. Se a issue for de **segurança** ou **crítica**, também assigne para `rootkit-original`
+            6. Seja **específico** e **útil** nos comentários
+            7. Use linguagem **profissional** mas **acessível**
+
+            ## 🚀 Comece Agora
+            Execute o processo completo de análise para a issue #${ISSUE_NUMBER}.
