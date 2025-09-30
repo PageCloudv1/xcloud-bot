@@ -2,6 +2,21 @@
 
 Bot inteligente para automação e assistência em repositórios GitHub, desenvolvido para a organização PageCloudv1.
 
+## 🚀 Começando Rapidamente
+
+**Novo aqui?** Siga estes passos:
+
+1. 📖 Leia o [QUICK_START.md](./QUICK_START.md) para uma configuração rápida
+2. 🔧 Execute `npm run register:github-app` para o assistente de registro
+3. ✅ Use `npm run validate:github-app` para verificar sua configuração
+4. 📋 Siga a [REGISTRATION_CHECKLIST.md](./REGISTRATION_CHECKLIST.md) para acompanhamento completo
+
+**Guias disponíveis:**
+- 🚀 [QUICK_START.md](./QUICK_START.md) - Início rápido
+- 📋 [REGISTRATION_CHECKLIST.md](./REGISTRATION_CHECKLIST.md) - Checklist de registro
+- 📖 [GITHUB_APP_SETUP.md](./GITHUB_APP_SETUP.md) - Guia completo de configuração
+- 🤖 [GITHUB_BOT_SETUP_GUIDE.md](./GITHUB_BOT_SETUP_GUIDE.md) - Guia detalhado do bot
+
 ## ✨ Funcionalidades
 
 ### 🔍 Análise Automática de Issues
