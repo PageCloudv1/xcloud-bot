@@ -77,6 +77,12 @@ class AutonomousAgent {
    * @returns {boolean}
    */
   isXbotAssignment(assignee) {
+    if (!assignee || !assignee.login) {
+      return false;
+    }
+
+    const assigneeLogin = assignee.login.toLowerCase();
+    
     const xbotUsernames = [
       'xcloud-bot',
       'xbot',
@@ -84,7 +90,23 @@ class AutonomousAgent {
       process.env.XBOT_USERNAME,
     ].filter(Boolean);
 
-    return xbotUsernames.includes(assignee.login.toLowerCase());
+    // Verificar correspondências exatas
+    if (xbotUsernames.includes(assigneeLogin)) {
+      return true;
+    }
+
+    // Verificar correspondências com [bot] (GitHub Apps)
+    const botUsernames = xbotUsernames.map(username => `${username}[bot]`);
+    if (botUsernames.includes(assigneeLogin)) {
+      return true;
+    }
+
+    // Verificar se é um GitHub App relacionado ao xcloud-bot
+    if (assigneeLogin.includes('xcloud-bot') || assigneeLogin.includes('xbot')) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
