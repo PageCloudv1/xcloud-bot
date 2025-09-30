@@ -1,5 +1,4 @@
 /**
-<<<<<<< HEAD
  * 🧠 Integração com Gemini API
  * 
  * Interface para integrar com o Gemini AI via API direta
@@ -413,37 +412,3 @@ export async function loadAnalysisHistory(repoName) {
         return [];
     }
 }
-=======
- * 🧠 Gemini CLI Integration
- *
- * Provides AI-powered analysis using Gemini CLI for code and workflow insights.
- */
-
-export async function analyzeCode(_codeSnippet) {
-  console.log('🧠 Analyzing code with Gemini CLI...');
-
-  // Placeholder for Gemini CLI integration
-  const analysis = {
-    quality: 'good',
-    suggestions: ['Add error handling', 'Improve documentation'],
-    complexity: 'medium',
-  };
-
-  console.log('✅ Code analysis complete:', analysis);
-  return analysis;
-}
-
-export async function analyzeWorkflow(_workflowFile) {
-  console.log('🔍 Analyzing workflow with Gemini CLI...');
-
-  // Placeholder for workflow analysis
-  const analysis = {
-    performance: 'needs improvement',
-    bottlenecks: ['Dependency installation', 'Test execution'],
-    recommendations: ['Add caching', 'Parallelize jobs'],
-  };
-
-  console.log('✅ Workflow analysis complete:', analysis);
-  return analysis;
-}
->>>>>>> 8387d10549a8f95f42469803be4ad415ca20a9b4
