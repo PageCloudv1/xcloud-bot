@@ -5,23 +5,29 @@ Para que o xCloud Bot apareça na lista de assignees e reviewers, a GitHub App p
 ## Repository Permissions
 
 ### Issues
+
 - **Read & Write** - Para ler e modificar issues, incluindo assignments
 
-### Pull Requests  
+### Pull Requests
+
 - **Read & Write** - Para ler e modificar PRs, incluindo reviews e assignments
 
 ### Contents
+
 - **Read & Write** - Para acessar e modificar arquivos do repositório
 
 ### Metadata
+
 - **Read** - Para acessar metadados do repositório
 
 ### Actions
+
 - **Read & Write** - Para executar e monitorar GitHub Actions
 
 ## Organization Permissions
 
 ### Members
+
 - **Read** - Para verificar membros da organização (opcional)
 
 ## Events/Webhooks

@@ -15,7 +15,7 @@ async function debugBotAssignment() {
   console.log('1. 📋 Verificando configuração...');
   const requiredEnvVars = ['GITHUB_TOKEN', 'GITHUB_APP_ID', 'GITHUB_PRIVATE_KEY'];
   const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-  
+
   if (missingVars.length > 0) {
     console.log(`❌ Variáveis de ambiente faltando: ${missingVars.join(', ')}`);
     return;
@@ -28,12 +28,12 @@ async function debugBotAssignment() {
     const octokit = new Octokit({
       auth: process.env.GITHUB_TOKEN,
     });
-    
+
     const { data: user } = await octokit.rest.users.getAuthenticated();
     console.log(`✅ Bot Username: ${user.login}`);
     console.log(`✅ Bot Type: ${user.type}`);
     console.log(`✅ Bot ID: ${user.id}`);
-    
+
     // Verificar se o username está na lista de usernames reconhecidos
     const recognizedUsernames = [
       'xcloud-bot',
@@ -42,9 +42,8 @@ async function debugBotAssignment() {
       `${user.login}`,
       `${user.login.toLowerCase()}`,
     ];
-    
+
     console.log(`✅ Usernames reconhecidos: ${recognizedUsernames.join(', ')}`);
-    
   } catch (error) {
     console.log(`❌ Erro ao obter informações do bot: ${error.message}`);
   }
@@ -61,15 +60,14 @@ async function debugBotAssignment() {
     console.log(`✅ App Name: ${appInfo.name}`);
     console.log(`✅ App Slug: ${appInfo.slug}`);
     console.log(`✅ App Owner: ${appInfo.owner.login}`);
-    
+
     // Verificar instalações
     const { data: installations } = await app.octokit.rest.apps.listInstallations();
     console.log(`✅ Instalações: ${installations.length}`);
-    
+
     for (const installation of installations) {
       console.log(`  - ${installation.account.login} (${installation.account.type})`);
     }
-    
   } catch (error) {
     console.log(`❌ Erro ao verificar GitHub App: ${error.message}`);
   }
@@ -83,36 +81,35 @@ async function debugBotAssignment() {
     });
 
     const { data: installations } = await app.octokit.rest.apps.listInstallations();
-    
+
     if (installations.length > 0) {
       const installation = installations[0];
       const installationOctokit = await app.getInstallationOctokit(installation.id);
-      
+
       const { data: installationInfo } = await installationOctokit.rest.apps.getInstallation({
         installation_id: installation.id,
       });
-      
+
       console.log('✅ Permissões da instalação:');
       Object.entries(installationInfo.permissions).forEach(([permission, level]) => {
         console.log(`  - ${permission}: ${level}`);
       });
-      
+
       console.log('✅ Eventos subscritos:');
       installationInfo.events.forEach(event => {
         console.log(`  - ${event}`);
       });
     }
-    
   } catch (error) {
     console.log(`❌ Erro ao verificar permissões: ${error.message}`);
   }
 
   // 5. Testar função de reconhecimento
   console.log('\n5. 🧪 Testando função de reconhecimento...');
-  
+
   const { AutonomousAgent } = require('../src/agents/AutonomousAgent');
   const agent = new AutonomousAgent();
-  
+
   const testAssignees = [
     { login: 'xcloud-bot' },
     { login: 'xcloud-bot[bot]' },
@@ -120,7 +117,7 @@ async function debugBotAssignment() {
     { login: 'xbot[bot]' },
     { login: 'random-user' },
   ];
-  
+
   testAssignees.forEach(assignee => {
     const isRecognized = agent.isXbotAssignment(assignee);
     console.log(`  - ${assignee.login}: ${isRecognized ? '✅' : '❌'}`);

@@ -11,6 +11,7 @@ npm run debug:assignment
 ```
 
 Este script verificará:
+
 - ✅ Configuração das variáveis de ambiente
 - 🤖 Informações do bot (username, tipo)
 - 🏢 Status da GitHub App
@@ -24,6 +25,7 @@ Este script verificará:
 **Problema**: A GitHub App não está instalada no repositório.
 
 **Solução**:
+
 1. Vá para Settings > Developer settings > GitHub Apps
 2. Selecione sua app
 3. Clique em "Install App"
@@ -34,6 +36,7 @@ Este script verificará:
 **Problema**: A GitHub App não tem permissões para issues.
 
 **Solução**:
+
 1. Vá para Settings > Developer settings > GitHub Apps
 2. Selecione sua app
 3. Em "Permissions", configure:
@@ -46,6 +49,7 @@ Este script verificará:
 **Problema**: A GitHub App não está subscrita aos eventos necessários.
 
 **Solução**:
+
 1. Na configuração da GitHub App
 2. Em "Subscribe to events", habilite:
    - ✅ Issues
@@ -57,6 +61,7 @@ Este script verificará:
 **Problema**: O bot está configurado com username incorreto.
 
 **Solução**:
+
 1. Execute `npm run debug:assignment` para ver o username real
 2. Use o username exato mostrado (pode ser `xcloud-bot[bot]`)
 3. Ou configure a variável `XBOT_USERNAME` com o username correto
@@ -70,11 +75,13 @@ Este script verificará:
 ## 🧪 Testando a Configuração
 
 ### Teste 1: Assignment Manual
+
 1. Crie um issue de teste
 2. Tente assignar o bot usando o username mostrado no diagnóstico
 3. Verifique os logs do webhook
 
 ### Teste 2: Simulação via API
+
 ```bash
 curl -X POST http://localhost:3000/api/agent/simulate \
   -H "Content-Type: application/json" \
@@ -86,6 +93,7 @@ curl -X POST http://localhost:3000/api/agent/simulate \
 ```
 
 ### Teste 3: Webhook Manual
+
 ```bash
 npm run webhook:test
 ```
@@ -112,6 +120,7 @@ Se após seguir todos os passos o problema persistir:
 ## 📞 Suporte
 
 Para mais ajuda:
+
 1. Execute `npm run debug:assignment` e compartilhe a saída
 2. Verifique os logs do servidor
 3. Teste com um repositório simples primeiro
