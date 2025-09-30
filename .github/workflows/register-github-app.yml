@@ -1,0 +1,122 @@
+name: '🔧 Register xCloud Bot GitHub App'
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_register:
+        description: 'Force re-register the GitHub App'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  register-github-app:
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 10
+    permissions:
+      contents: 'write'
+      issues: 'write'
+      pull-requests: 'write'
+      actions: 'write'
+    
+    steps:
+      - name: 'Checkout repository'
+        uses: 'actions/checkout@v4'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Create Setup Instructions'
+        run: |
+          cat > GITHUB_APP_SETUP.md << 'EOF'
+          # xCloud Bot - GitHub App Setup
+          
+          ## Registro da GitHub App
+          
+          Para que o xCloud Bot funcione corretamente, você precisa registrar uma GitHub App.
+          
+          ### Método Manual (Recomendado)
+          
+          1. Acesse: https://github.com/settings/apps/new
+          2. Use as configurações do arquivo github-app-manifest.json
+          3. Após criar a app, configure as variáveis de ambiente
+          
+          ## Permissões Necessárias
+          
+          - Actions (write)
+          - Checks (write)
+          - Contents (write)
+          - Issues (write)
+          - Pull Requests (write)
+          - Repository Projects (write)
+          
+          ## Após o Registro
+          
+          1. Instale a app em seus repositórios
+          2. Configure as variáveis de ambiente no GitHub Secrets
+          3. Execute o workflow xCloud Bot Setup nos repositórios alvo
+          EOF
+
+      - name: 'Update README'
+        run: |
+          if [ -f "README.md" ]; then
+            if ! grep -q "Bot Status" README.md; then
+              echo "" >> README.md
+              echo "## Bot Status" >> README.md
+              echo "" >> README.md
+              echo "Para usar o xCloud Bot, registre uma GitHub App." >> README.md
+              echo "Consulte GITHUB_APP_SETUP.md para instruções." >> README.md
+            fi
+          fi
+
+      - name: 'Commit Setup Files'
+        run: |
+          git config --local user.email "xcloud-bot@pagecloud.dev"
+          git config --local user.name "xCloud Bot Setup"
+          
+          git add app.yml github-app-manifest.json GITHUB_APP_SETUP.md README.md
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "Add GitHub App registration files"
+            git push
+          fi
+
+      - name: 'Create Registration Issue'
+        uses: 'actions/github-script@v7'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = `# xCloud Bot Registration Required
+
+Para usar o xCloud Bot, registre uma GitHub App.
+
+## Como Registrar
+
+1. Acesse: https://github.com/settings/apps/new
+2. Cole o conteúdo do arquivo github-app-manifest.json
+3. Configure as permissões necessárias
+
+## Próximos Passos
+
+- Registrar GitHub App
+- Configurar secrets
+- Instalar nos repositórios
+- Testar funcionalidade
+
+Consulte GITHUB_APP_SETUP.md para instruções detalhadas.`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'xCloud Bot - GitHub App Registration Required',
+              body: body,
+              labels: ['xcloud-bot', 'setup', 'github-app']
+            });
+
+      - name: 'Summary'
+        run: |
+          echo "Setup do xCloud Bot preparado!"
+          echo ""
+          echo "Próximos passos:"
+          echo "1. Registrar GitHub App: https://github.com/settings/apps/new"
+          echo "2. Configurar secrets no repositório"
+          echo "3. Instalar a app nos repositórios alvo"
