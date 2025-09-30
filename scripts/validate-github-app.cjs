@@ -89,6 +89,29 @@ async function validateRequiredVariables() {
         } else {
           log(`  ✅ ${varInfo.name} - ${varInfo.description}`, 'green');
         }
+      } else if (varInfo.name === 'GITHUB_APP_ID') {
+        // Validate App ID format - should be numeric, not a Client ID
+        const appIdValue = match[1].trim().replace(/['"]/g, '');
+        if (appIdValue.startsWith('Iv')) {
+          log(
+            `  ❌ ${varInfo.name} - This appears to be a Client ID (starts with 'Iv'), not an App ID`,
+            'red'
+          );
+          log(
+            `     App ID should be a numeric value (e.g., 123456), found in the GitHub App settings page`,
+            'yellow'
+          );
+          log(`     Client ID is different from App ID - please use the App ID instead`, 'yellow');
+          allValid = false;
+        } else if (!/^\d+$/.test(appIdValue)) {
+          log(
+            `  ⚠️  ${varInfo.name} - Should be numeric (e.g., 123456), got: ${appIdValue}`,
+            'yellow'
+          );
+          allValid = false;
+        } else {
+          log(`  ✅ ${varInfo.name} - ${varInfo.description}`, 'green');
+        }
       } else {
         log(`  ✅ ${varInfo.name} - ${varInfo.description}`, 'green');
       }

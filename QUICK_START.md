@@ -53,8 +53,11 @@ Marque estes eventos:
 ### Passo 4: Criar e Salvar Credenciais
 
 1. Clique em **"Create GitHub App"**
-2. Anote o **App ID**
-3. Clique em **"Generate a private key"** e baixe o arquivo `.pem`
+2. **IMPORTANTE**: Na pagina da app, anote o **App ID** (numero)
+   - ⚠️ **App ID** é um numero (ex: `123456`) ✅ **USE ESTE**
+   - ⚠️ **Client ID** comeca com "Iv" (ex: `Iv1.abc123`) ❌ **NÃO USE**
+3. Role ate "Private keys" e clique em **"Generate a private key"**
+4. Baixe o arquivo `.pem` que sera gerado automaticamente
 
 ### Passo 5: Configurar Secrets
 
@@ -132,6 +135,21 @@ npm run deploy:production      # Deploy para produção
 - [DEPLOYMENT.md](./DEPLOYMENT.md) - Guia de deploy
 
 ## ⚠️ Solução de Problemas
+
+### Erro: "Bad credentials"
+
+Este erro geralmente ocorre quando o **App ID** esta incorreto.
+
+**Causa comum**: Usar o **Client ID** (que comeca com "Iv") em vez do **App ID** (numero).
+
+**Solucao**:
+1. Acesse: https://github.com/settings/apps
+2. Clique na sua GitHub App
+3. Na secao "About", encontre:
+   - **App ID**: `123456` ← Use este (numero)
+   - **Client ID**: `Iv1.xxxxx` ← Não use este
+4. Atualize `GITHUB_APP_ID` com o valor correto (somente o numero)
+5. Execute: `npm run validate:github-app` para verificar
 
 ### Bot não responde
 

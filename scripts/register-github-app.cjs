@@ -171,13 +171,20 @@ async function displayInstructions() {
     },
     {
       step: 5,
-      title: 'Create the App',
+      title: 'Create the App and Save Credentials',
       details: [
         'Click "Create GitHub App"',
-        'Save the following information:',
-        '  - App ID',
-        '  - Client ID',
-        '  - Download the Private Key (.pem file)',
+        '⚠️  IMPORTANT: Save the following information:',
+        '  - App ID (numeric value, e.g., 123456) ✅ YOU NEED THIS',
+        '  - Client ID (starts with "Iv") ❌ DO NOT USE THIS FOR GITHUB_APP_ID',
+        '',
+        '  📌 NOTE: App ID and Client ID are DIFFERENT!',
+        '     Use the App ID (numeric) for GITHUB_APP_ID',
+        '',
+        'Generate and download Private Key:',
+        '  - Scroll to "Private keys" section',
+        '  - Click "Generate a private key"',
+        '  - Download the .pem file that is automatically generated',
       ],
     },
     {
@@ -186,9 +193,11 @@ async function displayInstructions() {
       details: [
         'Go to your repository Settings > Secrets and variables > Actions',
         'Add these secrets:',
-        '  - GITHUB_APP_ID: <your-app-id>',
+        '  - GITHUB_APP_ID: <your-numeric-app-id> (e.g., 123456)',
+        '    ⚠️  Use App ID (numeric), NOT Client ID (Iv...)',
         '  - GITHUB_PRIVATE_KEY: <content-of-pem-file>',
         '  - WEBHOOK_SECRET: <your-webhook-secret> (optional)',
+        '  - GITHUB_OWNER: <your-username-or-org>',
       ],
     },
     {
@@ -260,21 +269,43 @@ async function validateSetup() {
       const requiredVars = ['GITHUB_APP_ID', 'GITHUB_PRIVATE_KEY', 'GITHUB_OWNER'];
 
       let missingVars = [];
+      let hasErrors = false;
+
       requiredVars.forEach(varName => {
         if (!envContent.includes(varName) || envContent.includes(`${varName}=`)) {
           const regex = new RegExp(`${varName}=(.+)`);
           const match = envContent.match(regex);
           if (!match || !match[1] || match[1].trim() === '') {
             missingVars.push(varName);
+          } else if (varName === 'GITHUB_APP_ID') {
+            // Validate App ID format
+            const appIdValue = match[1].trim().replace(/['"]/g, '');
+            if (appIdValue.startsWith('Iv')) {
+              log('  ❌ GITHUB_APP_ID appears to be a Client ID, not an App ID!', 'red');
+              log(
+                '     App ID should be numeric (e.g., 123456), not start with "Iv"',
+                'yellow'
+              );
+              log('     Please use the App ID from the GitHub App settings page', 'yellow');
+              hasErrors = true;
+            } else if (!/^\d+$/.test(appIdValue)) {
+              log('  ⚠️  GITHUB_APP_ID should be numeric (e.g., 123456)', 'yellow');
+              hasErrors = true;
+            }
           }
         }
       });
 
-      if (missingVars.length === 0) {
+      if (missingVars.length === 0 && !hasErrors) {
         log('  ✅ All required environment variables are set!', 'green');
       } else {
-        log('  ⚠️  Missing or empty environment variables:', 'yellow');
-        missingVars.forEach(v => log(`     - ${v}`, 'red'));
+        if (missingVars.length > 0) {
+          log('  ⚠️  Missing or empty environment variables:', 'yellow');
+          missingVars.forEach(v => log(`     - ${v}`, 'red'));
+        }
+        if (hasErrors) {
+          log('  💡 Run: npm run validate:github-app for detailed validation', 'blue');
+        }
       }
     }
   }
