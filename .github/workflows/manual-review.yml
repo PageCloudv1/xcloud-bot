@@ -54,7 +54,7 @@ jobs:
           ISSUE_NUMBER: '${{ github.event.issue.number || inputs.issue_number }}'
           ACTION_TYPE: '${{ inputs.action || github.event.comment.body }}'
           REPOSITORY: '${{ github.repository }}'
-          GITHUB_TOKEN: '${{ steps.mint_token.outputs.token || github.token }}'
+          GH_TOKEN: '${{ steps.mint_token.outputs.token || github.token }}'
         with:
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
           gemini_model: 'gemini-2.5-flash'
@@ -79,7 +79,7 @@ jobs:
                     "get_issue_comments"
                   ],
                   "env": {
-                    "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+                    "GITHUB_PERSONAL_ACCESS_TOKEN": "${GH_TOKEN}"
                   }
                 }
               }
