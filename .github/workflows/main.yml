@@ -1,0 +1,18 @@
+name: 🌟 Main Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  release:
+    types: [published]
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  cd:
+    uses: ./.github/workflows/cd.yml
+    needs: ci
+    if: github.event_name == 'release'

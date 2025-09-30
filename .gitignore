@@ -5,6 +5,11 @@ gha-creds-*.json
 
 # Build output
 dist/
+<<<<<<< HEAD
+=======
+build/
+docs/
+>>>>>>> origin/main
 
 # Coverage directory used by tools like istanbul
 coverage/
