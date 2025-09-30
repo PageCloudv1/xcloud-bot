@@ -30,7 +30,18 @@
     "analyze:all": "node src/workflows/analyzer.js --all",
     "create:workflow": "node src/workflows/creator.js",
     "create:issue": "node src/bot/github-app.js --create-issue",
-    "webhook:test": "node tests/webhook-test.js"
+    "webhook:test": "node tests/webhook-test.js",
+    "deploy:production": "gh workflow run cd.yml -f environment=production",
+    "deploy:staging": "gh workflow run cd.yml -f environment=staging",
+    "setup:remote": "cd scripts && npm install && node setup-remote.js",
+    "setup:ssl": "cd scripts && npm install && node setup-ssl.js",
+    "setup:ssl-simple": "cd scripts && npm install && node setup-ssl-simple.js",
+    "deploy:remote": "cd scripts && npm install && node deploy-remote.js",
+    "start:app": "cd scripts && npm install && node start-app.js",
+    "quick:deploy": "cd scripts && npm install && node quick-deploy.js",
+    "server:status": "pm2 status",
+    "server:logs": "pm2 logs xcloud-bot",
+    "server:restart": "pm2 restart xcloud-bot"
   },
   "keywords": [
     "xcloud",
