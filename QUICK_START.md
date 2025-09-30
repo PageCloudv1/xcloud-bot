@@ -133,6 +133,7 @@ npm run deploy:production      # Deploy para produção
 - [GITHUB_BOT_SETUP_GUIDE.md](./GITHUB_BOT_SETUP_GUIDE.md) - Guia detalhado
 - [README.md](./README.md) - Documentação completa
 - [DEPLOYMENT.md](./DEPLOYMENT.md) - Guia de deploy
+- [TROUBLESHOOTING_SETUP.md](./TROUBLESHOOTING_SETUP.md) - Solução de problemas
 
 ## ⚠️ Solução de Problemas
 
