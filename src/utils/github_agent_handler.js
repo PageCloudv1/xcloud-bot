@@ -59,7 +59,7 @@ class GithubAgentHandler {
             number: issue.number,
             title: issue.title,
             body: issue.body,
-            login: this.xbotUsername // Simulate assignment to xbotUsername
+            login: this.xbotUsername, // Simulate assignment to xbotUsername
           },
           assignee: {
             login: 'xcloud-bot', // Simulate assignment to xcloud-bot
