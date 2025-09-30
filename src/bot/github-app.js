@@ -11,7 +11,7 @@ import { App } from '@octokit/app';
 import { createNodeMiddleware } from '@octokit/webhooks';
 import dotenv from 'dotenv';
 import express from 'express';
-import { analyzeWithGemini } from '../integrations/gemini-cli.js';
+import { analyzeIssue } from '../integrations/gemini-cli.js';
 import { analyzeRepository } from '../workflows/analyzer.js';
 
 dotenv.config();
@@ -33,47 +33,81 @@ app.webhooks.on('issues.opened', async ({ octokit, payload }) => {
     console.log(`🔍 Novo issue criado: ${issue.title} em ${repository.full_name}`);
 
     try {
-        // Analisa o issue com Gemini
-        const analysis = await analyzeWithGemini(`
-      Analise este issue do GitHub e sugira labels apropriadas:
-      
-      Título: ${issue.title}
-      Corpo: ${issue.body}
-      
-      Repositório: ${repository.name}
-      
-      Retorne apenas um JSON com:
-      {
-        "labels": ["label1", "label2"],
-        "priority": "high|medium|low",
-        "type": "bug|feature|enhancement|documentation"
-      }
-    `);
+        const analysis = await analyzeIssue(issue);
 
-        if (analysis.labels && analysis.labels.length > 0) {
+        const candidateLabels = Array.isArray(analysis.labels)
+            ? analysis.labels
+            : typeof analysis.labels === 'string'
+                ? analysis.labels.split(/[,;\n]/)
+                    .map(label => label.trim())
+                    .filter(Boolean)
+                : [];
+
+        const normalizedLabels = candidateLabels
+            .map(label => label.replace(/^['"]|['"]$/g, '').trim())
+            .filter(Boolean);
+
+        const labelSet = new Set();
+        const labels = [];
+        for (const label of normalizedLabels) {
+            const key = label.toLowerCase();
+            if (!labelSet.has(key)) {
+                labelSet.add(key);
+                labels.push(label);
+            }
+        }
+
+        if (labels.length > 0) {
             await octokit.rest.issues.addLabels({
                 owner: repository.owner.login,
                 repo: repository.name,
                 issue_number: issue.number,
-                labels: analysis.labels
+                labels
             });
 
-            console.log(`✅ Labels adicionadas: ${analysis.labels.join(', ')}`);
+            console.log(`✅ Labels adicionadas: ${labels.join(', ')}`);
         }
 
-        // Comenta no issue
+        const suggestedAssignees = Array.isArray(analysis.assignee_suggestions)
+            ? analysis.assignee_suggestions
+            : typeof analysis.assignee_suggestions === 'string'
+                ? analysis.assignee_suggestions.split(/[,;\n]/)
+                    .map(name => name.trim())
+                    .filter(Boolean)
+                : [];
+
+        const assigneeSet = new Set();
+        const assignees = [];
+        for (const name of suggestedAssignees) {
+            const key = name.toLowerCase();
+            if (!assigneeSet.has(key)) {
+                assigneeSet.add(key);
+                assignees.push(name);
+            }
+        }
+
+        const commentLines = [
+            '🤖 **xCloud Bot Analysis**',
+            '',
+            '📊 **Análise automática:**',
+            `- **Tipo:** ${analysis.type || '—'}`,
+            `- **Prioridade:** ${analysis.priority || '—'}`,
+            `- **Complexidade:** ${analysis.complexity ?? '—'}`,
+            `- **Labels sugeridas:** ${labels.length > 0 ? labels.join(', ') : 'Nenhuma'}`,
+            `- **Sugestões de responsável:** ${assignees.length > 0 ? assignees.join(', ') : 'N/A'}`
+        ];
+
+        if (analysis.summary) {
+            commentLines.push('', '📝 **Resumo:**', analysis.summary);
+        }
+
+        commentLines.push('', `_Análise gerada automaticamente pelo xCloud Bot (${analysis.provider ?? 'gemini'})_`);
+
         await octokit.rest.issues.createComment({
             owner: repository.owner.login,
             repo: repository.name,
             issue_number: issue.number,
-            body: `🤖 **xCloud Bot Analysis**
-
-📊 **Análise automática:**
-- **Tipo:** ${analysis.type}
-- **Prioridade:** ${analysis.priority}
-- **Labels sugeridas:** ${analysis.labels?.join(', ')}
-
-_Análise gerada automaticamente pelo xCloud Bot_`
+            body: commentLines.join('\n')
         });
 
     } catch (error) {

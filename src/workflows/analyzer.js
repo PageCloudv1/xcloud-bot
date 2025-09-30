@@ -148,6 +148,10 @@ export async function analyzeRepository(repoName, analysisType = 'comprehensive'
             analysis_type: analysisType
         });
 
+        const aiInsights = geminiAnalysis.data && typeof geminiAnalysis.data === 'object'
+            ? geminiAnalysis.data
+            : {};
+
         return {
             repository: repoName,
             timestamp: new Date().toISOString(),
@@ -163,9 +167,14 @@ export async function analyzeRepository(repoName, analysisType = 'comprehensive'
                 in_progress: runs.filter(r => r.status === 'in_progress').length
             },
             performance,
-            ai_analysis: geminiAnalysis,
+            ai_analysis: {
+                structured: aiInsights,
+                summary: geminiAnalysis.text,
+                raw: geminiAnalysis.raw,
+                provider: geminiAnalysis.provider
+            },
             overall_score: calculateOverallScore(performance, runs),
-            action_items: generateActionItems(performance, geminiAnalysis)
+            action_items: generateActionItems(performance, aiInsights)
         };
 
     } catch (error) {
@@ -211,7 +220,7 @@ function calculateOverallScore(performance, runs) {
  * @param {object} aiAnalysis - Análise do AI
  * @returns {Array} Lista de ações
  */
-function generateActionItems(performance, aiAnalysis) {
+function generateActionItems(performance, aiAnalysis = {}) {
     const actions = [];
 
     // Baseado na performance

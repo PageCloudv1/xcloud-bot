@@ -13,6 +13,56 @@ import { promisify } from 'util';
 dotenv.config();
 const execAsync = promisify(exec);
 
+function normalizeGeminiResponse(output) {
+    const trimmed = (output ?? '').trim();
+
+    if (!trimmed) {
+        return {
+            raw: '',
+            text: '',
+            data: null,
+            isJson: false
+        };
+    }
+
+    const withoutFences = trimmed
+        .replace(/^```(?:json)?/i, '')
+        .replace(/```$/i, '')
+        .trim();
+
+    let parsed = null;
+    let isJson = false;
+
+    const tryParse = candidate => {
+        try {
+            parsed = JSON.parse(candidate);
+            isJson = true;
+        } catch (error) {
+            parsed = null;
+            isJson = false;
+        }
+    };
+
+    tryParse(withoutFences);
+
+    if (!isJson) {
+        const firstBrace = withoutFences.indexOf('{');
+        const lastBrace = withoutFences.lastIndexOf('}');
+
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const jsonCandidate = withoutFences.slice(firstBrace, lastBrace + 1);
+            tryParse(jsonCandidate);
+        }
+    }
+
+    return {
+        raw: trimmed,
+        text: withoutFences,
+        data: parsed,
+        isJson
+    };
+}
+
 /**
  * Executa análise usando Gemini CLI
  * @param {string} prompt - Prompt para análise
@@ -64,9 +114,9 @@ export async function analyzeWithGeminiAPI(prompt, context = {}, options = {}) {
             // Se chegou ao limite de tokens, retorna uma resposta básica
             if (finishReason === 'MAX_TOKENS') {
                 return {
-                    response: 'Análise realizada. Repositório com workflows funcionais. Considere otimizações de performance.',
-                    raw: true,
-                    truncated: true
+                    ...normalizeGeminiResponse('Análise realizada. Repositório com workflows funcionais. Considere otimizações de performance.'),
+                    truncated: true,
+                    provider: 'gemini-api'
                 };
             }
             throw new Error('Resposta vazia da API Gemini');
@@ -74,10 +124,11 @@ export async function analyzeWithGeminiAPI(prompt, context = {}, options = {}) {
 
         console.log('✅ Gemini response content:', content);
 
-        // Retorna sempre como objeto simples
+        const normalized = normalizeGeminiResponse(content);
         return {
-            response: content.trim(),
-            raw: true
+            ...normalized,
+            truncated: finishReason === 'MAX_TOKENS',
+            provider: 'gemini-api'
         };
 
     } catch (error) {
@@ -88,10 +139,12 @@ export async function analyzeWithGeminiAPI(prompt, context = {}, options = {}) {
 
 export async function analyzeWithGemini(prompt, context = {}, options = {}) {
     // Primeiro tenta a API direta
+    let apiError;
     try {
         console.log('🧠 Tentando análise via API Gemini...');
         return await analyzeWithGeminiAPI(prompt, context, options);
-    } catch (apiError) {
+    } catch (error) {
+        apiError = error;
         console.warn('⚠️ API Gemini falhou:', apiError.message);
     }
 
@@ -112,14 +165,17 @@ export async function analyzeWithGemini(prompt, context = {}, options = {}) {
             console.warn('⚠️ Gemini stderr:', stderr);
         }
 
+        const normalized = normalizeGeminiResponse(stdout);
+
         return {
-            response: stdout.trim(),
-            raw: true
+            ...normalized,
+            provider: 'gemini-cli'
         };
 
     } catch (cliError) {
         console.error('❌ Todas as tentativas de análise Gemini falharam');
-        throw new Error(`Gemini indisponível. API: ${apiError?.message || 'N/A'}, CLI: ${cliError?.message || 'N/A'}`);
+        const apiMessage = apiError?.message || 'N/A';
+        throw new Error(`Gemini indisponível. API: ${apiMessage}, CLI: ${cliError?.message || 'N/A'}`);
     }
 }
 
@@ -206,11 +262,37 @@ export async function analyzeIssue(issue) {
     Retorne como JSON com as chaves: type, priority, labels, complexity, assignee_suggestions
   `;
 
-    return await analyzeWithGemini(prompt, {
+    const result = await analyzeWithGemini(prompt, {
         issue_title: issue.title,
         issue_body: issue.body,
         repository: issue.repository_url
     });
+
+    const fallback = {
+        type: 'question',
+        priority: 'medium',
+        labels: [],
+        complexity: 3,
+        assignee_suggestions: [],
+        summary: result.text || result.raw
+    };
+
+    if (result.isJson && result.data && typeof result.data === 'object') {
+        return {
+            ...fallback,
+            ...result.data,
+            raw: result.raw,
+            provider: result.provider,
+            isStructured: true
+        };
+    }
+
+    return {
+        ...fallback,
+        raw: result.raw,
+        provider: result.provider,
+        isStructured: false
+    };
 }
 
 /**
