@@ -11,6 +11,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NODE_ENV: production
+      GITHUB_REPOSITORY: ${{ github.repository }}
     
     steps:
       - uses: actions/checkout@v4
@@ -30,21 +31,9 @@ jobs:
           
       - name: 📊 Analyze Repository
         run: npm run analyze:repo -- ${{ github.repository }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        continue-on-error: true
           
       - name: 🔍 Monitor CI Status
         run: npm run scheduler:run
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        continue-on-error: true
           
       - name: 🤖 Create Issues if Needed
         run: npm run create:issue -- ${{ github.repository }} "Automated Analysis Report"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        continue-on-error: true

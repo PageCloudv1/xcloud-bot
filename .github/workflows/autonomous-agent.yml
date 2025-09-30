@@ -24,7 +24,7 @@ on:
 
 concurrency:
   group: '${{ github.workflow }}-${{ github.event.issue.number || inputs.issue_number }}'
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 defaults:
   run:
@@ -39,6 +39,8 @@ jobs:
       issues: 'write'
       pull-requests: 'write'
       actions: 'write'
+    env:
+      XBOT_USERNAME: 'xcloud-bot'
     
     steps:
       - name: 'Checkout repository'
@@ -47,7 +49,7 @@ jobs:
       - name: 'Setup Node.js'
         uses: 'actions/setup-node@v4'
         with:
-          node-version: '18'
+          node-version: '20' # Padronizado para Node.js v20
           cache: 'npm'
 
       - name: 'Install dependencies'
@@ -56,22 +58,27 @@ jobs:
       - name: 'Setup Podman'
         run: |
           echo "🐳 Configurando Podman..."
-          
+
           # Instalar Podman se não estiver disponível
           if ! command -v podman &> /dev/null; then
             sudo apt-get update
             sudo apt-get install -y podman
           fi
-          
+
           # Verificar instalação
           podman --version
-          
-          # Configurar Podman para uso sem root
-          echo "unqualified-search-registries = ['docker.io']" | sudo tee -a /etc/containers/registries.conf
-          
+
+          # Configurar Podman para uso sem root (adicionar apenas se não existir)
+          if ! sudo grep -q "unqualified-search-registries = ['docker.io']" /etc/containers/registries.conf; then
+            echo "unqualified-search-registries = ['docker.io']" | sudo tee -a /etc/containers/registries.conf
+            echo "Adicionada configura\u00e7\u00e3o unqualified-search-registries."
+          else
+            echo "Configura\u00e7\u00e3o unqualified-search-registries j\u00e1 existe."
+          fi
+
           # Testar Podman
           podman info
-          
+
           echo "✅ Podman configurado com sucesso"
 
       - name: 'Process Assignment Event'
@@ -80,156 +87,29 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}'
-          XBOT_USERNAME: 'xcloud-bot'
         run: |
-          echo "🤖 Processando evento de assignment..."
-          
-          # Informações do evento
-          echo "Event: ${{ github.event.action }}"
-          echo "Issue: #${{ github.event.issue.number }}"
-          echo "Assignee: ${{ github.event.assignee.login }}"
-          echo "Repository: ${{ github.repository }}"
-          
-          # Verificar se é assignment do xBot
-          ASSIGNEE="${{ github.event.assignee.login }}"
-          if [[ "$ASSIGNEE" == "xcloud-bot" || "$ASSIGNEE" == "xbot" || "$ASSIGNEE" == "$XBOT_USERNAME" ]]; then
-            echo "✅ xBot foi assignado, iniciando processamento..."
-            
-            # Executar o agente autônomo
-            node -e "
-              const { AutonomousAgent } = require('./src/agents/AutonomousAgent');
-              const agent = new AutonomousAgent();
-              
-              const payload = {
-                action: '${{ github.event.action }}',
-                issue: {
-                  number: ${{ github.event.issue.number }},
-                  title: \`${{ github.event.issue.title }}\`,
-                  body: \`${{ github.event.issue.body }}\`,
-                  html_url: '${{ github.event.issue.html_url }}'
-                },
-                assignee: {
-                  login: '${{ github.event.assignee.login }}'
-                },
-                repository: {
-                  full_name: '${{ github.repository }}'
-                }
-              };
-              
-              agent.handleAssignment(payload)
-                .then(task => {
-                  if (task) {
-                    console.log('✅ Tarefa criada:', task.id);
-                    process.exit(0);
-                  } else {
-                    console.log('ℹ️ Não é assignment para xBot');
-                    process.exit(0);
-                  }
-                })
-                .catch(error => {
-                  console.error('❌ Erro:', error.message);
-                  process.exit(1);
-                });
-            "
-            
-            echo "XBOT_ASSIGNED=true" >> $GITHUB_OUTPUT
-          else
-            echo "ℹ️ Assignment não é para o xBot ($ASSIGNEE)"
-            echo "XBOT_ASSIGNED=false" >> $GITHUB_OUTPUT
-          fi
+          node ./src/utils/github_agent_handler.js \
+            handleAssignmentEvent \
+            "$GITHUB_TOKEN" \
+            "$GEMINI_API_KEY" \
+            "$XBOT_USERNAME" \
+            '${{ toJSON(github.event) }}' \
+            >> "$GITHUB_OUTPUT"
 
       - name: 'Manual Action'
         if: github.event_name == 'workflow_dispatch'
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}'
-          XBOT_USERNAME: 'xcloud-bot'
         run: |
-          echo "🔧 Executando ação manual: ${{ inputs.action }}"
-          
-          case "${{ inputs.action }}" in
-            "simulate_assignment")
-              echo "🎭 Simulando assignment para issue #${{ inputs.issue_number }}"
-              
-              # Simular payload de assignment
-              node -e "
-                const { AutonomousAgent } = require('./src/agents/AutonomousAgent');
-                const agent = new AutonomousAgent();
-                
-                // Buscar informações da issue via API
-                const { Octokit } = require('@octokit/rest');
-                const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-                
-                const [owner, repo] = '${{ inputs.repository || github.repository }}'.split('/');
-                
-                octokit.rest.issues.get({
-                  owner,
-                  repo,
-                  issue_number: ${{ inputs.issue_number }}
-                }).then(({ data: issue }) => {
-                  const payload = {
-                    action: 'assigned',
-                    issue: {
-                      number: issue.number,
-                      title: issue.title,
-                      body: issue.body,
-                      html_url: issue.html_url
-                    },
-                    assignee: {
-                      login: 'xcloud-bot'
-                    },
-                    repository: {
-                      full_name: '${{ inputs.repository || github.repository }}'
-                    }
-                  };
-                  
-                  return agent.handleAssignment(payload);
-                }).then(task => {
-                  if (task) {
-                    console.log('✅ Simulação concluída, tarefa criada:', task.id);
-                  } else {
-                    console.log('ℹ️ Simulação executada');
-                  }
-                }).catch(error => {
-                  console.error('❌ Erro na simulação:', error.message);
-                  process.exit(1);
-                });
-              "
-              ;;
-              
-            "check_status")
-              echo "📊 Verificando status das tarefas ativas..."
-              
-              node -e "
-                const { AutonomousAgent } = require('./src/agents/AutonomousAgent');
-                const agent = new AutonomousAgent();
-                
-                const tasks = agent.getActiveTasks();
-                console.log('Tarefas ativas:', JSON.stringify(tasks, null, 2));
-              "
-              ;;
-              
-            "stop_tasks")
-              echo "🛑 Parando todas as tarefas ativas..."
-              
-              node -e "
-                const { AutonomousAgent } = require('./src/agents/AutonomousAgent');
-                const agent = new AutonomousAgent();
-                
-                agent.stopAllTasks().then(() => {
-                  console.log('✅ Todas as tarefas foram paradas');
-                }).catch(error => {
-                  console.error('❌ Erro ao parar tarefas:', error.message);
-                  process.exit(1);
-                });
-              "
-              ;;
-              
-            *)
-              echo "❌ Ação não reconhecida: ${{ inputs.action }}"
-              exit 1
-              ;;
-          esac
+          node ./src/utils/github_agent_handler.js \
+            handleManualAction \
+            "$GITHUB_TOKEN" \
+            "$GEMINI_API_KEY" \
+            "$XBOT_USERNAME" \
+            '${{ inputs.action }}' \
+            '${{ inputs.issue_number }}' \
+            '${{ inputs.repository || github.repository }}'
 
       - name: 'Cleanup Containers'
         if: always()
