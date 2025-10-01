@@ -1,8 +1,12 @@
-name: '🤖 Smart Issue Management - xCloud Team'
+name: '🤖 Smart Issue Management - xCloud Team [DISABLED]'
+
+# WORKFLOW DESABILITADO TEMPORARIAMENTE
+# Motivo: Conflita com auto-refactor-issues.yml causando spam de mensagens
+# Status: Será reativado após integração completa dos sistemas
 
 on:
-  issues:
-    types: [opened, reopened]
+  # issues:
+  #   types: [opened, reopened]
   workflow_dispatch:
     inputs:
       issue_number:
