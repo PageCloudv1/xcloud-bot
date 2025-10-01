@@ -116,7 +116,13 @@ jobs:
           GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
           ISSUE_NUMBER: '${{ github.event.pull_request.number || github.event.issue.number }}'
           MESSAGE: |-
-            🤖 Hi @${{ github.actor }}, I've received your request, and I'm working on it now! You can track my progress [in the logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
+            🚀 **xCloud-bot** aqui! Olá @${{ github.actor }}, recebi sua solicitação e já estou processando! 
+            
+            🔍 **Analisando:** Código, issues e automações do seu projeto
+            ⚡ **Status:** Trabalhando com IA Gemini para fornecer insights inteligentes
+            📊 **Progresso:** Acompanhe em tempo real [nos logs de execução](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            
+            ✨ *Otimizado com segurança e performance aprimoradas!*
           REPOSITORY: '${{ github.repository }}'
         run: |-
           gh issue comment "${ISSUE_NUMBER}" \
@@ -196,7 +202,19 @@ jobs:
           GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
           ISSUE_NUMBER: '${{ github.event.pull_request.number || github.event.issue.number }}'
           MESSAGE: |-
-            🤖 I'm sorry @${{ github.actor }}, but I was unable to process your request. Please [see the logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
+            ❌ **xCloud-bot** - Ops! Olá @${{ github.actor }}, infelizmente não consegui processar sua solicitação.
+            
+            🔧 **Possíveis causas:**
+            • Comando não reconhecido (use `@xcloud-bot help` para ver comandos)
+            • Erro temporário na IA Gemini
+            • Problemas de configuração
+            
+            📋 **Próximos passos:**
+            • Verifique os [logs detalhados](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            • Tente novamente em alguns minutos
+            • Use `@xcloud-bot analyze` para análise geral
+            
+            💬 *Precisa de ajuda? Mencione-me com `@xcloud-bot help`*
           REPOSITORY: '${{ github.repository }}'
         run: |-
           gh issue comment "${ISSUE_NUMBER}" \
