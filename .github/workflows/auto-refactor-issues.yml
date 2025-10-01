@@ -76,6 +76,14 @@ jobs:
             - O sistema de refatoração inteligente será implementado em breve
             - Por enquanto, a issue está pronta para seu desenvolvimento
 
+            ### 🤝 **Assistência do Copilot**
+            
+            @Copilot está disponível para ajudar com esta issue! Você pode:
+            - Pedir sugestões de implementação
+            - Solicitar análise de código
+            - Obter ajuda com debugging
+            - Discutir a melhor abordagem
+
             ---
             🔄 *Auto-atribuição aplicada | Sistema básico funcionando*`;
 
