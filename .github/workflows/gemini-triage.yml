@@ -101,8 +101,8 @@ jobs:
         id: 'generate_token'
         uses: 'actions/create-github-app-token@v1'
         with:
-          app-id: ${{ secrets.BOT_APP_ID }}
-          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_PRIVATE_KEY }}
 
       - name: 'Apply labels'
         env:
