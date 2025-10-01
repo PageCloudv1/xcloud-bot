@@ -78,72 +78,35 @@ jobs:
           ISSUE_COUNT="$(echo "${ISSUES}" | jq 'length')"
           echo "✅ Found ${ISSUE_COUNT} issue(s) to triage! 🎯"
 
-      - name: 'Run Gemini Issue Analysis'
-        id: 'gemini_issue_analysis'
-        if: |-
-          ${{ steps.find_issues.outputs.issues_to_triage != '[]' }}
-        uses: 'google-github-actions/run-gemini-cli@v0' # ratchet:exclude
-        env:
-          ISSUES_TO_TRIAGE: '${{ steps.find_issues.outputs.issues_to_triage }}'
-          REPOSITORY: '${{ github.repository }}'
-          AVAILABLE_LABELS: '${{ steps.get_labels.outputs.available_labels }}'
-        with:
-          gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
-          gemini_model: 'gemini-2.5-flash'
-          gemini_cli_version: 'latest'
-          gemini_debug: true
-          prompt: |-
-            You are an Issue Triage Engineer. Analyze GitHub issues and assign appropriate labels.
-
-            ## Available Labels
-            ${{ steps.get_labels.outputs.available_labels }}
-
-            ## Issues to Triage
-            ${{ steps.find_issues.outputs.issues_to_triage }}
-
-            ## Task
-            For each issue, analyze the title and body to determine:
-            1. The type of issue (bug, enhancement, documentation, ci-cd, workflow, question)
-            2. The priority level (priority/high, priority/medium, priority/low)
-            3. If it needs triage (needs-triage)
-            4. Any other relevant labels (good first issue, help wanted, etc.)
-
-            ## Output Format
-            Respond ONLY with a valid JSON array. No explanations, no markdown, just the JSON:
-
-            [
-              {
-                "issue_number": 96,
-                "labels_to_set": ["bug", "priority/high"],
-                "explanation": "Bot not responding is a critical bug"
-              }
-            ]
-
-            Analyze the issues now and respond with the JSON array.
-      
-      - name: 'Process Gemini response'
-        id: 'process_response'
-        if: steps.gemini_issue_analysis.conclusion == 'success'
+      - name: 'Triage issues with Gemini'
+        id: 'gemini_triage'
+        if: steps.find_issues.outputs.issues_to_triage != '[]'
         shell: bash
         env:
-          GEMINI_RESPONSE: '${{ steps.gemini_issue_analysis.outputs.response }}'
+          GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}'
+          ISSUES_TO_TRIAGE: '${{ steps.find_issues.outputs.issues_to_triage }}'
+          AVAILABLE_LABELS: '${{ steps.get_labels.outputs.available_labels }}'
         run: |-
-          echo "📥 Raw Gemini response:"
-          echo "${GEMINI_RESPONSE}"
+          echo "🤖 Analyzing issues with Gemini..."
           
-          echo ""
-          echo "🔍 Extracting JSON from response..."
+          # Call Gemini and extract JSON in one go
+          RESPONSE=$(gemini --api-key="${GEMINI_API_KEY}" --model=gemini-2.5-flash --yolo "You are an Issue Triage Engineer. Analyze these GitHub issues and return ONLY a JSON array with classifications.
+
+          Available Labels: ${AVAILABLE_LABELS}
+          Issues to Triage: ${ISSUES_TO_TRIAGE}
+
+          Return JSON like: [{\"issue_number\": 96, \"labels_to_set\": [\"bug\", \"priority/high\"], \"explanation\": \"reason\"}]")
           
-          # Remove markdown code blocks and extract JSON array
-          TRIAGED_JSON=$(echo "${GEMINI_RESPONSE}" | sed 's/```json//g' | sed 's/```//g' | sed -n '/^\[/,/^\]/p' | tr -d '\n')
+          # Extract JSON (remove markdown code blocks if present)
+          TRIAGED_JSON=$(echo "$RESPONSE" | sed 's/```json//g' | sed 's/```//g' | grep -oP '\[.*\]' | jq -c '.')
           
-          if [ -z "${TRIAGED_JSON}" ]; then
-            echo "❌ No valid JSON found in response"
-            echo "TRIAGED_ISSUES=[]" >> "${GITHUB_ENV}"
+          if [ -z "$TRIAGED_JSON" ] || [ "$TRIAGED_JSON" == "null" ]; then
+            echo "❌ No valid JSON found"
+            echo "TRIAGED_ISSUES=[]" >> "$GITHUB_ENV"
           else
-            echo "✅ Extracted JSON:"
-            echo "${TRIAGED_JSON}" | jq '.'
-            echo "TRIAGED_ISSUES=${TRIAGED_JSON}" >> "${GITHUB_ENV}"
+            echo "✅ Triaged issues:"
+            echo "$TRIAGED_JSON" | jq '.'
+            echo "TRIAGED_ISSUES=$TRIAGED_JSON" >> "$GITHUB_ENV"
           fi
 
   label:
