@@ -36,142 +36,11 @@ jobs:
           owner: 'PageCloudv1'
           repositories: 'xcloud-bot'
 
-      - name: '🔍 Analisar Issue com Gemini para Refatoração'
-        id: 'gemini_refactor'
-        uses: 'google-github-actions/run-gemini-cli@v0'
-        with:
-          gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
-          prompt: |-
-            Você é um especialista em refatoração de issues do GitHub. Sua tarefa é analisar a issue criada por rootkit-original e sugerir melhorias para torná-la mais clara, completa e acionável.
-
-            ## Issue Atual
-            **Título**: ${{ github.event.issue.title }}
-            **Descrição**: ${{ github.event.issue.body }}
-            **Número**: #${{ github.event.issue.number }}
-            **Autor**: ${{ github.event.issue.user.login }}
-
-            ## Sua Missão
-            Analise a issue e retorne APENAS um objeto JSON com sugestões de refatoração:
-
-            {
-              "titulo_refatorado": "Novo título mais claro e descritivo",
-              "descricao_refatorada": "Descrição completa e bem estruturada com todos os detalhes necessários",
-              "labels_sugeridas": ["label1", "label2", "label3"],
-              "prioridade_sugerida": "high|medium|low",
-              "categoria_sugerida": "api|ui|infrastructure|workflow|bot|documentation|security|performance",
-              "acao_imediata": "Descrição do que deve ser feito imediatamente"
-            }
-
-            ## Regras de Refatoração
-            1. **Título**: Deve ser claro, específico e começar com verbo de ação quando apropriado
-            2. **Descrição**: Deve incluir contexto, passos para reproduzir (se bug), impacto esperado, e critérios de aceitação
-            3. **Labels**: Use labels existentes apropriadas
-            4. **Prioridade**: Baseie-se no impacto e urgência
-            5. **Categoria**: Classifique corretamente o tipo de trabalho
-
-            Retorne APENAS o JSON, sem markdown ou explicações adicionais.
-
-      - name: '📝 Processar Sugestões de Refatoração'
-        id: 'process_refactor'
-        if: steps.gemini_refactor.conclusion == 'success'
-        shell: 'bash'
-        env:
-          GEMINI_RESPONSE: '${{ steps.gemini_refactor.outputs.summary }}'
-        run: |-
-          echo "📥 Resposta do Gemini:"
-          echo "${GEMINI_RESPONSE}"
-
-          # Extrair JSON da resposta
-          REFACTOR_JSON=$(echo "${GEMINI_RESPONSE}" | sed 's/```json//g' | sed 's/```//g' | jq -r '.' 2>/dev/null)
-
-          if [ -z "$REFACTOR_JSON" ] || [ "$REFACTOR_JSON" == "null" ]; then
-            echo "❌ Não foi possível processar a resposta de refatoração"
-            exit 1
-          fi
-
-          # Extrair valores do JSON
-          TITULO=$(echo "$REFACTOR_JSON" | jq -r '.titulo_refatorado // empty')
-          DESCRICAO=$(echo "$REFACTOR_JSON" | jq -r '.descricao_refatorada // empty')
-          LABELS=$(echo "$REFACTOR_JSON" | jq -r '.labels_sugeridas | join(",") // empty')
-          PRIORIDADE=$(echo "$REFACTOR_JSON" | jq -r '.prioridade_sugerida // "medium"')
-          CATEGORIA=$(echo "$REFACTOR_JSON" | jq -r '.categoria_sugerida // empty')
-          ACAO=$(echo "$REFACTOR_JSON" | jq -r '.acao_imediata // empty')
-
-          # Salvar outputs
-          echo "titulo_refatorado=$TITULO" >> "${GITHUB_OUTPUT}"
-          echo "descricao_refatorada=$DESCRICAO" >> "${GITHUB_OUTPUT}"
-          echo "labels_sugeridas=$LABELS" >> "${GITHUB_OUTPUT}"
-          echo "prioridade_sugerida=$PRIORIDADE" >> "${GITHUB_OUTPUT}"
-          echo "categoria_sugerida=$CATEGORIA" >> "${GITHUB_OUTPUT}"
-          echo "acao_imediata=$ACAO" >> "${GITHUB_OUTPUT}"
-
-          echo "✅ Sugestões de refatoração processadas com sucesso"
-
-      - name: '🔄 Aplicar Refatoração da Issue'
-        if: steps.process_refactor.conclusion == 'success'
+      - name: '� Aplicar Auto-Atribuição Simples'
         uses: 'actions/github-script@v7'
-        env:
-          TITULO: '${{ steps.process_refactor.outputs.titulo_refatorado }}'
-          DESCRICAO: '${{ steps.process_refactor.outputs.descricao_refatorada }}'
-          LABELS: '${{ steps.process_refactor.outputs.labels_sugeridas }}'
-          PRIORIDADE: '${{ steps.process_refactor.outputs.prioridade_sugerida }}'
-          CATEGORIA: '${{ steps.process_refactor.outputs.categoria_sugerida }}'
-          ACAO: '${{ steps.process_refactor.outputs.acao_imediata }}'
         with:
           github-token: '${{ steps.generate_token.outputs.token }}'
           script: |-
-            const titulo = process.env.TITULO;
-            const descricao = process.env.DESCRICAO;
-            const labelsStr = process.env.LABELS;
-            const prioridade = process.env.PRIORIDADE;
-            const categoria = process.env.CATEGORIA;
-            const acao = process.env.ACAO;
-
-            // Preparar labels
-            const labels = [];
-            if (labelsStr) {
-              labels.push(...labelsStr.split(',').map(l => l.trim()).filter(l => l));
-            }
-            if (prioridade) {
-              labels.push(`priority:${prioridade}`);
-            }
-            if (categoria) {
-              labels.push(`category:${categoria}`);
-            }
-
-            // Atualizar título se fornecido
-            if (titulo && titulo !== '${{ github.event.issue.title }}') {
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                title: titulo
-              });
-              core.info(`Título atualizado: ${titulo}`);
-            }
-
-            // Atualizar descrição se fornecida
-            if (descricao && descricao !== '${{ github.event.issue.body }}') {
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: descricao
-              });
-              core.info(`Descrição atualizada`);
-            }
-
-            // Aplicar labels
-            if (labels.length > 0) {
-              await github.rest.issues.setLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                labels: labels
-              });
-              core.info(`Labels aplicadas: ${labels.join(', ')}`);
-            }
-
             // Auto-assinar para rootkit-original
             await github.rest.issues.addAssignees({
               owner: context.repo.owner,
@@ -179,33 +48,36 @@ jobs:
               issue_number: context.issue.number,
               assignees: ['rootkit-original']
             });
+
+            // Adicionar label de auto-refatoração
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['🤖 auto-refactored', '👤 rootkit-original']
+            });
+
             core.info('Issue auto-assinada para rootkit-original');
 
       - name: '💬 Postar Comentário de Confirmação'
-        if: steps.process_refactor.conclusion == 'success'
         uses: 'actions/github-script@v7'
-        env:
-          ACAO: '${{ steps.process_refactor.outputs.acao_imediata }}'
         with:
           github-token: '${{ steps.generate_token.outputs.token }}'
           script: |-
-            const acao = process.env.ACAO;
+            const comentario = `## 🔄 Auto-Atribuição Aplicada
 
-            const comentario = `## 🔄 Issue Refatorada Automaticamente
-
-            🤖 **xCloud Bot** identificou e aplicou melhorias nesta issue criada por @rootkit-original:
+            🤖 **xCloud Bot** identificou que esta issue foi criada por @rootkit-original e aplicou as seguintes ações automaticamente:
 
             ### ✅ **Ações Realizadas**
             - **Auto-assinatura**: Issue atribuída automaticamente para você
-            - **Labels aplicadas**: Baseadas na análise de conteúdo
-            - **Título otimizado**: Para melhor clareza e ação
-            - **Descrição aprimorada**: Com contexto e detalhes necessários
+            - **Labels aplicadas**: \`🤖 auto-refactored\` e \`👤 rootkit-original\`
 
-            ### 🎯 **Próximo Passo Recomendado**
-            ${acao || 'Analise as melhorias aplicadas e proceda com o desenvolvimento'}
+            ### 🔄 **Próximos Passos**
+            - O sistema de refatoração inteligente será implementado em breve
+            - Por enquanto, a issue está pronta para seu desenvolvimento
 
             ---
-            🔄 *Refatoração automática aplicada | Issue pronta para desenvolvimento*`;
+            🔄 *Auto-atribuição aplicada | Sistema básico funcionando*`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -214,7 +86,7 @@ jobs:
               body: comentario
             });
 
-      - name: '❌ Notificar Falha na Refatoração'
+      - name: '❌ Notificar Falha na Auto-Atribuição'
         if: failure()
         uses: 'actions/github-script@v7'
         with:
@@ -225,18 +97,17 @@ jobs:
               repo: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `## ⚠️ Falha na Refatoração Automática
+              body: `## ⚠️ Falha na Auto-Atribuição
 
-              🤖 **xCloud Bot** encontrou um problema ao tentar refatorar esta issue automaticamente.
+              🤖 **xCloud Bot** encontrou um problema ao tentar aplicar a auto-atribuição nesta issue.
 
               ### 🔍 **O que Aconteceu**
-              Ocorreu um erro durante o processo de análise e refatoração da issue.
+              Ocorreu um erro durante o processo de auto-atribuição automática.
 
               ### 📋 **Ações Manuais Necessárias**
-              - Verifique se a issue está bem descrita
-              - Aplique labels apropriadas manualmente
-              - Atribua a issue para si mesmo
+              - Atribua a issue para si mesmo manualmente
+              - Aplique as labels apropriadas
 
               ---
-              ⚠️ *Refatoração falhou | Ação manual necessária*`
+              ⚠️ *Auto-atribuição falhou | Ação manual necessária*`
             });
