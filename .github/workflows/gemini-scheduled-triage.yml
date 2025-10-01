@@ -96,10 +96,10 @@ jobs:
             You are an Issue Triage Engineer. Analyze GitHub issues and assign appropriate labels.
 
             ## Available Labels
-            ${AVAILABLE_LABELS}
+            ${{ steps.get_labels.outputs.available_labels }}
 
             ## Issues to Triage
-            ${ISSUES_TO_TRIAGE}
+            ${{ steps.find_issues.outputs.issues_to_triage }}
 
             ## Task
             For each issue, analyze the title and body to determine:
