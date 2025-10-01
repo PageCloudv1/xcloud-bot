@@ -1,15 +1,11 @@
 name: '🔀 Gemini Triage'
 
 on:
-  workflow_call:
-    inputs:
-      additional_context:
-        type: 'string'
-        description: 'Any additional context from the request'
-        required: false
+  issue_comment:
+    types: [created]
 
 concurrency:
-  group: '${{ github.workflow }}-triage-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.issue.number }}'
+  group: '${{ github.workflow }}-triage-${{ github.event.issue.number }}'
   cancel-in-progress: true
 
 defaults:
@@ -21,103 +17,73 @@ jobs:
     runs-on: 'ubuntu-latest'
     timeout-minutes: 7
     outputs:
-      available_labels: '${{ steps.get_labels.outputs.available_labels }}'
-      selected_labels: '${{ env.SELECTED_LABELS }}'
+      selected_labels: '${{ steps.process_response.outputs.selected_labels }}'
     permissions:
       contents: 'read'
       id-token: 'write'
       issues: 'read'
       pull-requests: 'read'
     steps:
+      - name: 'Check for triage command'
+        if: ${{ !startsWith(github.event.comment.body, '/triage') }}
+        run: |
+          echo "Comment does not start with '/triage'. Skipping triage."
+          exit 0
+
       - name: 'Get repository labels'
         id: 'get_labels'
-        uses: 'actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea' # ratchet:actions/github-script@v7.0.1
+        uses: 'actions/github-script@v7'
         with:
-          # NOTE: we intentionally do not use the given token. The default
-          # GITHUB_TOKEN provided by the action has enough permissions to read
-          # the labels.
           script: |-
             const { data: labels } = await github.rest.issues.listLabelsForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-
             if (!labels || labels.length === 0) {
               core.setFailed('There are no issue labels in this repository.')
             }
-
             const labelNames = labels.map(label => label.name).sort();
             core.setOutput('available_labels', labelNames.join(','));
             core.info(`Found ${labelNames.length} labels: ${labelNames.join(', ')}`);
-            return labelNames;
 
       - name: 'Run Gemini issue analysis'
         id: 'gemini_analysis'
-        if: |-
-          ${{ steps.get_labels.outputs.available_labels != '' }}
-        uses: 'google-github-actions/run-gemini-cli@v0' # ratchet:exclude
-        env:
-          ISSUE_TITLE: '${{ github.event.issue.title }}'
-          ISSUE_BODY: '${{ github.event.issue.body }}'
-          AVAILABLE_LABELS: '${{ steps.get_labels.outputs.available_labels }}'
+        uses: 'google-github-actions/run-gemini-cli@v0'
         with:
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
-          gemini_model: 'gemini-2.5-pro'
-          gemini_cli_version: 'latest'
-          gemini_debug: false
-          settings: |-
-            {
-              "model": {
-                "maxSessionTurns": 25
-              },
-              "tools": {
-                "core": [
-                  "run_shell_command(echo)"
-                ]
-              }
-            }
-          # For reasons beyond my understanding, Gemini CLI cannot set the
-          # GitHub Outputs, but it CAN set the GitHub Env.
           prompt: |-
-            ## Role
+            You are an Issue Triage Engineer. Analyze the GitHub issue and return ONLY a JSON object with the labels to set.
 
-            You are an issue triage assistant. Analyze the current GitHub issue and identify the most appropriate existing labels. Use the available tools to gather information; do not ask for information to be provided.
+            Available Labels: ${{ steps.get_labels.outputs.available_labels }}
+            Issue Title: ${{ github.event.issue.title }}
+            Issue Body: ${{ github.event.issue.body }}
 
-            ## Guidelines
+            Return format: {"labels_to_set": ["label1", "label2"]}
 
-            - Retrieve the value for environment variables using the "echo" shell command.
-            - Environment variables are specified in the format "${VARIABLE}" (with quotes and braces).
-            - Only use labels that are from the list of available labels.
-            - You can choose multiple labels to apply.
-            - When generating shell commands, you **MUST NOT** use command substitution with `$(...)`, `<(...)`, or `>(...)`. This is a security measure to prevent unintended command execution.
+            Respond with the JSON object. No markdown, no explanations.
 
-            ## Steps
-
-            1. Retrieve the available labels from the environment variable: "${AVAILABLE_LABELS}".
-
-            2. Retrieve the issue title from the environment variable: "${ISSUE_TITLE}".
-
-            3. Retrieve the issue body from the environment variable: "${ISSUE_BODY}".
-
-            4. Review the issue title, issue body, and available labels.
-
-            5. Based on the issue title and issue body, classify the issue and choose all appropriate labels from the list of available labels.
-
-            5. Classify the issue by identifying the appropriate labels from the list of available labels.
-
-            6. Convert the list of appropriate labels into a comma-separated list (CSV). If there are no appropriate labels, use the empty string.
-
-            7. Use the "echo" shell command to append the CSV labels into the filepath referenced by the environment variable "${GITHUB_ENV}":
-
-                ```
-                echo "SELECTED_LABELS=[APPROPRIATE_LABELS_AS_CSV]" >> "[filepath_for_env]"
-                ```
-
-                for example:
-
-                ```
-                echo "SELECTED_LABELS=bug,enhancement" >> "/tmp/runner/env"
-                ```
+      - name: 'Process Gemini response'
+        id: 'process_response'
+        if: steps.gemini_analysis.conclusion == 'success'
+        shell: bash
+        env:
+          GEMINI_RESPONSE: '${{ steps.gemini_analysis.outputs.summary }}'
+        run: |-
+          echo "📥 Raw Gemini response:"
+          echo "${GEMINI_RESPONSE}"
+          
+          # Extract JSON and then the array of labels
+          LABELS_JSON=$(echo "${GEMINI_RESPONSE}" | sed 's/```json//g' | sed 's/```//g' | jq -r '.labels_to_set | @csv' 2>/dev/null)
+          
+          if [ -z "$LABELS_JSON" ] || [ "$LABELS_JSON" == "null" ]; then
+            echo "❌ No valid labels found in response."
+            echo "selected_labels=" >> "${GITHUB_OUTPUT}"
+          else
+            # Remove quotes and convert to comma-separated string
+            LABELS_CSV=$(echo "$LABELS_JSON" | sed 's/"//g')
+            echo "✅ Extracted labels: ${LABELS_CSV}"
+            echo "selected_labels=${LABELS_CSV}" >> "${GITHUB_OUTPUT}"
+          fi
 
   label:
     runs-on: 'ubuntu-latest'
