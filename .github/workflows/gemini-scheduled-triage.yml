@@ -126,7 +126,7 @@ jobs:
         if: steps.gemini_issue_analysis.conclusion == 'success'
         shell: bash
         env:
-          GEMINI_RESPONSE: '${{ steps.gemini_issue_analysis.outputs.gemini_response }}'
+          GEMINI_RESPONSE: '${{ steps.gemini_issue_analysis.outputs.response }}'
         run: |-
           echo "📥 Raw Gemini response:"
           echo "${GEMINI_RESPONSE}"
