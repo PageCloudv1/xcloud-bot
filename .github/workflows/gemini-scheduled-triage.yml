@@ -134,8 +134,8 @@ jobs:
           echo ""
           echo "🔍 Extracting JSON from response..."
           
-          # Extract JSON array from response (handles markdown code blocks)
-          TRIAGED_JSON=$(echo "${GEMINI_RESPONSE}" | sed -n '/^\[/,/^\]/p' | tr -d '\n')
+          # Remove markdown code blocks and extract JSON array
+          TRIAGED_JSON=$(echo "${GEMINI_RESPONSE}" | sed 's/```json//g' | sed 's/```//g' | sed -n '/^\[/,/^\]/p' | tr -d '\n')
           
           if [ -z "${TRIAGED_JSON}" ]; then
             echo "❌ No valid JSON found in response"
