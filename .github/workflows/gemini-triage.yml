@@ -17,6 +17,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     timeout-minutes: 7
     outputs:
+      available_labels: '${{ steps.get_labels.outputs.available_labels }}'
       selected_labels: '${{ steps.process_response.outputs.selected_labels }}'
     permissions:
       contents: 'read'
