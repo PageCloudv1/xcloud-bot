@@ -39,7 +39,36 @@ gh workflow run "gemini-scheduled-triage.yml" --repo PageCloudv1/xcloud-bot
 
 ---
 
-## 📚 Documentação
+## � Política de Auto-Refatoração
+
+### Issues Criadas por rootkit-original
+
+Quando **rootkit-original** cria uma issue, o sistema automaticamente:
+
+1. **🔄 Auto-Atribuição**: A issue é automaticamente atribuída para rootkit-original
+2. **🏷️ Labels Automáticas**: Adiciona labels `🤖 auto-refactored` e `👤 rootkit-original`
+3. **💬 Confirmação**: Posta comentário confirmando as ações realizadas
+4. **📋 Pronto para Desenvolvimento**: Issue fica pronta para trabalho imediato
+
+### Como Funciona
+
+- **Trigger**: Issues abertas (`issues: opened`)
+- **Condição**: Apenas issues criadas por `rootkit-original`
+- **Ações**: Auto-atribuição + labels + comentário de confirmação
+- **Workflow**: `.github/workflows/auto-refactor-issues.yml`
+
+### Exemplo de Funcionamento
+
+```markdown
+<!-- Issue criada por rootkit-original -->
+✅ Auto-atribuída para @rootkit-original
+🏷️ Labels: 🤖 auto-refactored, 👤 rootkit-original
+💬 Comentário postado confirmando ações
+```
+
+**→ Próxima Fase**: Sistema de refatoração inteligente com Gemini AI será implementado em breve.
+
+---
 
 Toda a documentação está organizada no diretório [`docs/`](docs/):
 
