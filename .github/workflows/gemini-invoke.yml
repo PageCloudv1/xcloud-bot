@@ -10,7 +10,7 @@ on:
 
 concurrency:
   group: '${{ github.workflow }}-invoke-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.issue.number }}'
-  cancel-in-progress: true # Padronizado para cancelar execuções em progresso
+  cancel-in-progress: false
 
 defaults:
   run:
@@ -28,11 +28,11 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ vars.GH_APP_ID }}
+          ${{ vars.APP_ID }}
         uses: 'actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b' # ratchet:actions/create-github-app-token@v2
         with:
-          app-id: '${{ vars.GH_APP_ID }}'
-          private-key: '${{ secrets.GH_PRIVATE_KEY }}'
+          app-id: '${{ vars.APP_ID }}'
+          private-key: '${{ secrets.APP_PRIVATE_KEY }}'
           permission-contents: 'read'
           permission-issues: 'write'
           permission-pull-requests: 'write'
@@ -44,22 +44,28 @@ jobs:
           TITLE: '${{ github.event.pull_request.title || github.event.issue.title }}'
           DESCRIPTION: '${{ github.event.pull_request.body || github.event.issue.body }}'
           EVENT_NAME: '${{ github.event_name }}'
-          GH_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GH_TOKEN || github.token }}'
+          GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
           IS_PULL_REQUEST: '${{ !!github.event.pull_request }}'
           ISSUE_NUMBER: '${{ github.event.pull_request.number || github.event.issue.number }}'
           REPOSITORY: '${{ github.repository }}'
           ADDITIONAL_CONTEXT: '${{ inputs.additional_context }}'
         with:
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
+          gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
+          gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
+          gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
+          gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+          use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
           google_api_key: '${{ secrets.GOOGLE_API_KEY }}'
-          gemini_debug: true
-          gemini_model: 'gemini-2.5-flash'
+          use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
+          gemini_debug: '${{ fromJSON(vars.DEBUG || vars.ACTIONS_STEP_DEBUG || false) }}'
+          gemini_model: '${{ vars.GEMINI_MODEL }}'
           settings: |-
             {
               "maxSessionTurns": 25,
               "telemetry": {
-                "enabled": false,
-                "target": "none"
+                "enabled": ${{ vars.GOOGLE_CLOUD_PROJECT != '' }},
+                "target": "gcp"
               },
               "mcpServers": {
                 "github": {
@@ -96,7 +102,7 @@ jobs:
                     "search_code"
                   ],
                   "env": {
-                    "GITHUB_PERSONAL_ACCESS_TOKEN": "${GH_TOKEN}"
+                    "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
                   }
                 }
               },

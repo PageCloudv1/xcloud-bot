@@ -1,6 +1,7 @@
 name: '👤 Manual Review'
 
 on:
+  # Only trigger on comments that mention the bot
   issue_comment:
     types: [created]
   workflow_dispatch:
@@ -19,16 +20,42 @@ on:
           - 'close'
           - 'reassign'
 
+concurrency:
+  group: '${{ github.workflow }}-${{ github.event.issue.number || inputs.issue_number }}'
+  cancel-in-progress: true
+
 jobs:
   manual-review:
     name: '🔍 Revisão Manual'
     runs-on: ubuntu-latest
+    timeout-minutes: 2  # Maximum 2 minutes
+    # Strict validation: only run for specific manual review actions
+    if: >
+      github.event_name == 'workflow_dispatch' || 
+      (github.event_name == 'issue_comment' && 
+       contains(github.event.comment.body, '@xcloud-bot') && 
+       (contains(github.event.comment.body, 'manual review') || 
+        contains(github.event.comment.body, 'escalate') ||
+        contains(github.event.comment.body, 'reassign')))  
     permissions:
       contents: read
       issues: write
       pull-requests: write
     
     steps:
+      - name: '🔍 Validar Entrada'
+        id: validate
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          if [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+            echo "Comment: ${{ github.event.comment.body }}"
+            echo "Issue: ${{ github.event.issue.number }}"
+          fi
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "Manual execution for issue: ${{ inputs.issue_number }}"
+          fi
+          echo "✅ Validation passed"
+
       - name: 'Checkout repository'
         uses: actions/checkout@v4
 
@@ -45,9 +72,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: '🤖 Assistente de Revisão'
-        uses: 'google-github-actions/run-gemini-cli@v0'
+        uses: 'google-github-actions/run-gemini-cli@v0.1.12'  # Pinned version for security
         env:
           REVIEWER: '${{ github.actor }}'
           COMMENT_BODY: '${{ github.event.comment.body }}'

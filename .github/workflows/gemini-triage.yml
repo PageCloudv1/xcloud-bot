@@ -31,10 +31,10 @@ jobs:
     steps:
       - name: 'Get repository labels'
         id: 'get_labels'
-        uses: 'actions/github-script@v7' # Padronizado para actions/github-script@v7
+        uses: 'actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea' # ratchet:actions/github-script@v7.0.1
         with:
           # NOTE: we intentionally do not use the given token. The default
-          # GH_TOKEN provided by the action has enough permissions to read
+          # GITHUB_TOKEN provided by the action has enough permissions to read
           # the labels.
           script: |-
             const { data: labels } = await github.rest.issues.listLabelsForRepo({
@@ -57,7 +57,7 @@ jobs:
           ${{ steps.get_labels.outputs.available_labels != '' }}
         uses: 'google-github-actions/run-gemini-cli@v0' # ratchet:exclude
         env:
-          GH_TOKEN: '' # Do NOT pass any auth tokens here since this runs on untrusted inputs
+          GITHUB_TOKEN: '' # Do NOT pass any auth tokens here since this runs on untrusted inputs
           ISSUE_TITLE: '${{ github.event.issue.title }}'
           ISSUE_BODY: '${{ github.event.issue.body }}'
           AVAILABLE_LABELS: '${{ steps.get_labels.outputs.available_labels }}'
@@ -139,11 +139,11 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ vars.GH_APP_ID }}
+          ${{ vars.APP_ID }}
         uses: 'actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b' # ratchet:actions/create-github-app-token@v2
         with:
-          app-id: '${{ vars.GH_APP_ID }}'
-          private-key: '${{ secrets.GH_PRIVATE_KEY }}'
+          app-id: '${{ vars.APP_ID }}'
+          private-key: '${{ secrets.APP_PRIVATE_KEY }}'
           permission-contents: 'read'
           permission-issues: 'write'
           permission-pull-requests: 'write'
@@ -153,11 +153,11 @@ jobs:
           ISSUE_NUMBER: '${{ github.event.issue.number }}'
           AVAILABLE_LABELS: '${{ needs.triage.outputs.available_labels }}'
           SELECTED_LABELS: '${{ needs.triage.outputs.selected_labels }}'
-        uses: 'actions/github-script@v7' # Padronizado para actions/github-script@v7
+        uses: 'actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea' # ratchet:actions/github-script@v7.0.1
         with:
           # Use the provided token so that the "gemini-cli" is the actor in the
           # log for what changed the labels.
-          github-token: '${{ steps.mint_identity_token.outputs.token || secrets.GH_TOKEN || github.token }}'
+          github-token: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
           script: |-
             // Parse the available labels
             const availableLabels = (process.env.AVAILABLE_LABELS || '').split(',')
