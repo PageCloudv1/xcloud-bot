@@ -78,6 +78,15 @@ jobs:
           ISSUE_COUNT="$(echo "${ISSUES}" | jq 'length')"
           echo "✅ Found ${ISSUE_COUNT} issue(s) to triage! 🎯"
 
+                jq -r '.[] | "- [\(.title)](\(.html_url))"'
+
+      - name: 'Install Gemini CLI'
+        shell: bash
+        run: |-
+          echo "📦 Installing Gemini CLI..."
+          npm install -g @google/generative-ai-cli
+          gemini --version
+
       - name: 'Triage issues with Gemini'
         id: 'gemini_triage'
         if: steps.find_issues.outputs.issues_to_triage != '[]'
