@@ -1,0 +1,61 @@
+name: 🔄 Workflow/CI/CD
+description: Melhorias ou problemas em workflows, CI/CD e automações
+title: "[WORKFLOW]: "
+labels: ["workflow", "needs-triage"]
+assignees:
+  - PageCloudv1/xcloud-team
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reporte problemas ou sugira melhorias em workflows e automações.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Tipo de Issue
+      description: É um problema ou uma melhoria?
+      options:
+        - bug
+        - enhancement
+        - ci-cd
+      default: 2
+    validations:
+      required: true
+
+  - type: input
+    id: workflow
+    attributes:
+      label: Workflow Afetado
+      description: Qual workflow está relacionado a esta issue?
+      placeholder: ci.yml, deploy.yml, test.yml
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descrição
+      description: Descreva o problema ou a melhoria proposta
+      placeholder: O workflow de CI está falhando quando...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs/Evidências
+      description: Cole logs, links para execuções falhadas, ou capturas de tela
+      render: shell
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solução Proposta (opcional)
+      description: Se você tem uma ideia de como resolver, descreva aqui
+      placeholder: Poderíamos adicionar um step que...
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto Adicional
+      description: Qualquer informação adicional relevante

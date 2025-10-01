@@ -1,0 +1,87 @@
+name: 🐛 Bug Report
+description: Reportar um bug ou comportamento inesperado
+title: "[BUG]: "
+labels: ["bug", "needs-triage", "priority/medium"]
+assignees:
+  - PageCloudv1/xcloud-team
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar um bug! Preencha os campos abaixo para nos ajudar a entender e resolver o problema.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descrição do Bug
+      description: Descreva claramente o que está acontecendo de errado.
+      placeholder: O bot não está respondendo aos comandos...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para Reproduzir
+      description: Como podemos reproduzir este problema?
+      placeholder: |
+        1. Execute o comando '...'
+        2. Veja o erro em '...'
+        3. O comportamento esperado era '...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamento Esperado
+      description: O que você esperava que acontecesse?
+      placeholder: O bot deveria responder com...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportamento Atual
+      description: O que realmente aconteceu?
+      placeholder: Em vez disso, o bot...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs/Erros
+      description: Cole os logs ou mensagens de erro relevantes.
+      render: shell
+      placeholder: |
+        Error: ...
+        Stack trace: ...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridade
+      description: Quão crítico é este bug?
+      options:
+        - priority/high
+        - priority/medium
+        - priority/low
+      default: 1
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Versão
+      description: Qual versão do xCloud Bot você está usando?
+      placeholder: v1.0.0
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto Adicional
+      description: Qualquer informação adicional que possa ajudar (screenshots, ambiente, etc.)

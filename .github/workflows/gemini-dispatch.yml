@@ -44,22 +44,16 @@ jobs:
 
   dispatch:
     # For PRs: only if not from a fork
-    # For comments: only if user types @xcloud-bot and is OWNER/MEMBER/COLLABORATOR
+    # For comments: only if user types @gemini-cli and is OWNER/MEMBER/COLLABORATOR
     # For issues: only on open/reopen
     if: |-
       (
         github.event_name == 'pull_request' &&
         github.event.pull_request.head.repo.fork == false
       ) || (
-        github.event_name == 'issue_comment' &&
         github.event.sender.type == 'User' &&
-        startsWith(github.event.comment.body, '@xcloud-bot') &&
-        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
-      ) || (
-        github.event_name == 'pull_request_review' &&
-        github.event.sender.type == 'User' &&
-        startsWith(github.event.review.body, '@xcloud-bot') &&
-        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.review.author_association)
+        startsWith(github.event.comment.body || github.event.review.body || github.event.issue.body, '@gemini-cli') &&
+        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association || github.event.review.author_association || github.event.issue.author_association)
       ) || (
         github.event_name == 'issues' &&
         contains(fromJSON('["opened", "reopened"]'), github.event.action)
@@ -78,11 +72,11 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ vars.GH_APP_ID }}
+          ${{ vars.APP_ID }}
         uses: 'actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b' # ratchet:actions/create-github-app-token@v2
         with:
-          app-id: '${{ vars.GH_APP_ID }}'
-          private-key: '${{ secrets.GH_PRIVATE_KEY }}'
+          app-id: '${{ vars.APP_ID }}'
+          private-key: '${{ secrets.APP_PRIVATE_KEY }}'
           permission-contents: 'read'
           permission-issues: 'write'
           permission-pull-requests: 'write'
@@ -99,15 +93,15 @@ jobs:
             const eventType = process.env.EVENT_TYPE
             core.setOutput('request', request);
 
-            if (request.startsWith("@xcloud-bot /review")) {
+            if (request.startsWith("@gemini-cli /review")) {
               core.setOutput('command', 'review');
-              const additionalContext = request.replace(/^@xcloud-bot \/review/, '').trim();
+              const additionalContext = request.replace(/^@gemini-cli \/review/, '').trim();
               core.setOutput('additional_context', additionalContext);
-            } else if (request.startsWith("@xcloud-bot /triage")) {
+            } else if (request.startsWith("@gemini-cli /triage")) {
               core.setOutput('command', 'triage');
-            } else if (request.startsWith("@xcloud-bot")) {
+            } else if (request.startsWith("@gemini-cli")) {
               core.setOutput('command', 'invoke');
-              const additionalContext = request.replace(/^@xcloud-bot/, '').trim();
+              const additionalContext = request.replace(/^@gemini-cli/, '').trim();
               core.setOutput('additional_context', additionalContext);
             } else if (eventType === 'pull_request.opened') {
               core.setOutput('command', 'review');
@@ -122,13 +116,7 @@ jobs:
           GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
           ISSUE_NUMBER: '${{ github.event.pull_request.number || github.event.issue.number }}'
           MESSAGE: |-
-            🚀 **xCloud-bot** aqui! Olá @${{ github.actor }}, recebi sua solicitação e já estou processando! 
-            
-            🔍 **Analisando:** Código, issues e automações do seu projeto
-            ⚡ **Status:** Trabalhando com IA Gemini para fornecer insights inteligentes
-            📊 **Progresso:** Acompanhe em tempo real [nos logs de execução](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            
-            ✨ *Otimizado com segurança e performance aprimoradas!*
+            🤖 Hi @${{ github.actor }}, I've received your request, and I'm working on it now! You can track my progress [in the logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
           REPOSITORY: '${{ github.repository }}'
         run: |-
           gh issue comment "${ISSUE_NUMBER}" \
@@ -194,11 +182,11 @@ jobs:
       - name: 'Mint identity token'
         id: 'mint_identity_token'
         if: |-
-          ${{ vars.GH_APP_ID }}
+          ${{ vars.APP_ID }}
         uses: 'actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b' # ratchet:actions/create-github-app-token@v2
         with:
-          app-id: '${{ vars.GH_APP_ID }}'
-          private-key: '${{ secrets.GH_PRIVATE_KEY }}'
+          app-id: '${{ vars.APP_ID }}'
+          private-key: '${{ secrets.APP_PRIVATE_KEY }}'
           permission-contents: 'read'
           permission-issues: 'write'
           permission-pull-requests: 'write'
@@ -208,19 +196,7 @@ jobs:
           GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
           ISSUE_NUMBER: '${{ github.event.pull_request.number || github.event.issue.number }}'
           MESSAGE: |-
-            ❌ **xCloud-bot** - Ops! Olá @${{ github.actor }}, infelizmente não consegui processar sua solicitação.
-            
-            🔧 **Possíveis causas:**
-            • Comando não reconhecido (use `@xcloud-bot help` para ver comandos)
-            • Erro temporário na IA Gemini
-            • Problemas de configuração
-            
-            📋 **Próximos passos:**
-            • Verifique os [logs detalhados](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            • Tente novamente em alguns minutos
-            • Use `@xcloud-bot analyze` para análise geral
-            
-            💬 *Precisa de ajuda? Mencione-me com `@xcloud-bot help`*
+            🤖 I'm sorry @${{ github.actor }}, but I was unable to process your request. Please [see the logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more details.
           REPOSITORY: '${{ github.repository }}'
         run: |-
           gh issue comment "${ISSUE_NUMBER}" \

@@ -1,0 +1,57 @@
+name: 📚 Documentation
+description: Melhorias ou correções na documentação
+title: "[DOCS]: "
+labels: ["documentation", "needs-triage"]
+assignees:
+  - PageCloudv1/xcloud-team
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ajude-nos a melhorar nossa documentação!
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Tipo de Documentação
+      description: Que tipo de documentação precisa ser atualizada?
+      options:
+        - README
+        - API/Comandos
+        - Guia de Instalação
+        - Guia de Contribuição
+        - Exemplos/Tutoriais
+        - Comentários no Código
+        - Outro
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: Problema na Documentação
+      description: O que está faltando, incorreto ou confuso?
+      placeholder: A documentação sobre X não explica como...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Melhoria Sugerida
+      description: Como a documentação deveria ser melhorada?
+      placeholder: Deveria incluir um exemplo de...
+
+  - type: input
+    id: location
+    attributes:
+      label: Localização
+      description: Onde está esta documentação? (arquivo, seção, linha)
+      placeholder: README.md, seção "Instalação"
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto Adicional
+      description: Qualquer informação adicional que possa ajudar

@@ -1,20 +1,2 @@
 # Global code owners
 * @PageCloudv1/xcloud-team
-
-# Bot assignments - xCloud Bot can be assigned to any file
-* @xcloud-bot[bot]
-* @xcloud-bot
-
-# Specific areas
-/.github/ @PageCloudv1/xcloud-team @xcloud-bot[bot]
-/src/ @PageCloudv1/xcloud-team @xcloud-bot[bot]
-/scripts/ @PageCloudv1/xcloud-team @xcloud-bot[bot]
-
-# Documentation
-*.md @PageCloudv1/xcloud-team @xcloud-bot[bot]
-/docs/ @PageCloudv1/xcloud-team @xcloud-bot[bot]
-
-# Configuration files
-package.json @PageCloudv1/xcloud-team @xcloud-bot[bot]
-*.yml @PageCloudv1/xcloud-team @xcloud-bot[bot]
-*.yaml @PageCloudv1/xcloud-team @xcloud-bot[bot]

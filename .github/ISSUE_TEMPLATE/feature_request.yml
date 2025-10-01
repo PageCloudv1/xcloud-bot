@@ -1,0 +1,65 @@
+name: ✨ Feature Request
+description: Sugerir uma nova funcionalidade ou melhoria
+title: "[FEATURE]: "
+labels: ["enhancement", "needs-triage"]
+assignees:
+  - PageCloudv1/xcloud-team
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por sugerir uma melhoria! Descreva sua ideia abaixo.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema ou Necessidade
+      description: Qual problema esta funcionalidade resolve? Por que ela é necessária?
+      placeholder: Atualmente não é possível...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solução Proposta
+      description: Como você imagina que esta funcionalidade deveria funcionar?
+      placeholder: Seria útil se o bot pudesse...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas Consideradas
+      description: Você considerou outras soluções ou workarounds?
+      placeholder: Pensei em usar... mas...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridade
+      description: Quão importante é esta funcionalidade para você?
+      options:
+        - priority/high
+        - priority/medium
+        - priority/low
+      default: 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Exemplos de Uso
+      description: Como esta funcionalidade seria usada no dia a dia?
+      placeholder: |
+        Cenário 1: Quando um desenvolvedor...
+        Cenário 2: Durante o deploy...
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto Adicional
+      description: Qualquer informação adicional (mockups, links, referências, etc.)
