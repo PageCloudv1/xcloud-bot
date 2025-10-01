@@ -1,0 +1,41 @@
+name: 🔧 Test Token Generation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Generate GitHub App Token'
+        uses: 'actions/create-github-app-token@v1'
+        id: app-token
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_PRIVATE_KEY }}
+          owner: 'PageCloudv1'
+          repositories: 'xcloud-bot'
+
+      - name: 'Test Token - Get Repository Info'
+        run: |
+          echo "Testing token permissions..."
+          curl -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/repos/PageCloudv1/xcloud-bot | jq '.name, .owner.login'
+
+      - name: 'Test Token - List Issues'
+        run: |
+          echo "Testing issue listing permissions..."
+          curl -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               "https://api.github.com/repos/PageCloudv1/xcloud-bot/issues?state=open&per_page=5" | jq '.[].number'
+
+      - name: 'Test Token - Post Comment'
+        run: |
+          echo "Testing comment posting permissions..."
+          curl -X POST \
+               -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               -H "Content-Type: application/json" \
+               -d '{"body":"🤖 Test comment from token validation workflow"}' \
+               https://api.github.com/repos/PageCloudv1/xcloud-bot/issues/97/comments
