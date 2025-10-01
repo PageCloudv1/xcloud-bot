@@ -87,7 +87,6 @@ jobs:
       - name: '🔧 Initialize CodeQL'
         uses: 'github/codeql-action/init@76621b61decf072c1cee8dd1ce2d2a82d33c17ed' # v3.29.5
         with:
-          token: ${{ steps.generate_token.outputs.token }}
           languages: '${{ matrix.language }}'
           # Queries customizadas (opcional)
           # queries: +security-extended,security-and-quality
@@ -103,14 +102,11 @@ jobs:
       # Step 7: Autobuild (para linguagens compiladas)
       - name: '🏗️ Autobuild'
         uses: 'github/codeql-action/autobuild@76621b61decf072c1cee8dd1ce2d2a82d33c17ed' # v3.29.5
-        env:
-          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
       
       # Step 8: Executar análise CodeQL
       - name: '🔍 Perform CodeQL Analysis'
         uses: 'github/codeql-action/analyze@76621b61decf072c1cee8dd1ce2d2a82d33c17ed' # v3.29.5
         with:
-          token: ${{ steps.generate_token.outputs.token }}
           category: '/language:${{ matrix.language }}'
           # Upload results para GitHub Security tab
           upload: 'always'
@@ -118,8 +114,6 @@ jobs:
       # Step 9: Gerar relatório de segurança (opcional)
       - name: '📊 Generate Security Report'
         if: always()
-        env:
-          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
           echo "## 🔒 CodeQL Security Analysis Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
