@@ -175,7 +175,7 @@ app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
 
   try {
     // Verifica se o bot foi mencionado
-    const mentionPattern = /@xcloud-bot|xcloud-bot/i;
+    const mentionPattern = /@xcloudapp-bot|@xcloud-bot|xcloudapp-bot|xcloud-bot/i;
     if (!mentionPattern.test(comment.body)) {
       return;
     }
@@ -204,8 +204,8 @@ app.webhooks.on('issue_comment.created', async ({ octokit, payload }) => {
 Sou o **xCloud Bot** e estou aqui para ajudar!
 
 **Comandos disponíveis:**
-- \`@xcloud-bot help\` - Mostra esta mensagem de ajuda
-- \`@xcloud-bot analyze\` - Re-analisa a issue/PR atual
+- \`@xcloudapp-bot help\` ou \`@xcloud-bot help\` - Mostra esta mensagem de ajuda
+- \`@xcloudapp-bot analyze\` ou \`@xcloud-bot analyze\` - Re-analisa a issue/PR atual
 
 **Sobre mim:**
 - 🔍 Analiso automaticamente issues e PRs quando são criados
@@ -257,8 +257,8 @@ Desculpe, ocorreu um erro ao tentar re-analisar esta issue/PR. Por favor, tente 
 Você me mencionou, mas não reconheci um comando específico.
 
 **Comandos disponíveis:**
-- \`@xcloud-bot help\` - Mostra ajuda completa
-- \`@xcloud-bot analyze\` - Re-analisa a issue/PR atual
+- \`@xcloudapp-bot help\` ou \`@xcloud-bot help\` - Mostra ajuda completa
+- \`@xcloudapp-bot analyze\` ou \`@xcloud-bot analyze\` - Re-analisa a issue/PR atual
 
 Use um destes comandos para interagir comigo! 😊
 

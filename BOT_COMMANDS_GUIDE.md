@@ -2,6 +2,14 @@
 
 Este guia explica como interagir com o xCloud Bot através de comandos em issues e pull requests.
 
+## 🏷️ Nomes do Bot
+
+O bot responde a ambos os seguintes nomes:
+- `@xcloudapp-bot` (nome da GitHub App instalada)
+- `@xcloud-bot` (apelido alternativo)
+
+Você pode usar qualquer um desses nomes em seus comandos!
+
 ## ⚡ Feedback Instantâneo
 
 Quando você envia um comando para o bot, ele **imediatamente** responde com uma mensagem de "processamento" para confirmar que recebeu sua solicitação:
@@ -18,12 +26,13 @@ Mostra a mensagem de ajuda com todos os comandos disponíveis.
 
 **Uso:**
 ```
+@xcloudapp-bot help
 @xcloud-bot help
 @xcloud-bot ajuda
 ```
 
 **Exemplo:**
-> @xcloud-bot help
+> @xcloudapp-bot help
 
 **Resposta:**
 O bot responderá com uma mensagem explicando todos os comandos disponíveis, suas funcionalidades e status.
@@ -36,12 +45,13 @@ Re-analisa a issue ou PR atual e fornece insights atualizados.
 
 **Uso:**
 ```
+@xcloudapp-bot analyze
 @xcloud-bot analyze
 @xcloud-bot analisa
 ```
 
 **Exemplo:**
-> @xcloud-bot analyze
+> @xcloudapp-bot analyze
 
 **Resposta:**
 O bot analisará a issue/PR e fornecerá:
@@ -59,11 +69,12 @@ Mencione o bot sem um comando específico para obter uma resposta contextual int
 
 **Uso:**
 ```
+@xcloudapp-bot [sua pergunta ou comentário]
 @xcloud-bot [sua pergunta ou comentário]
 ```
 
 **Exemplo:**
-> @xcloud-bot o que você acha desta solução?
+> @xcloudapp-bot o que você acha desta solução?
 
 **Resposta:**
 O bot usará IA para fornecer uma resposta contextual baseada na sua pergunta e no contexto da issue/PR.
@@ -83,10 +94,10 @@ O bot suporta comandos em **Português** e **Inglês**:
 
 ### ✅ Boas Práticas
 
-1. **Seja específico**: Use comandos claros como `@xcloud-bot help` ou `@xcloud-bot analyze`
+1. **Seja específico**: Use comandos claros como `@xcloudapp-bot help` ou `@xcloud-bot analyze`
 2. **Contexto importa**: Para perguntas genéricas, forneça contexto suficiente
 3. **Case-insensitive**: Comandos funcionam em maiúsculas ou minúsculas
-4. **Flexível**: Pode incluir o comando em uma frase (ex: "Can you help me @xcloud-bot?")
+4. **Flexível**: Pode incluir o comando em uma frase (ex: "Can you help me @xcloudapp-bot?")
 
 ### ❌ Evite
 
@@ -98,7 +109,7 @@ O bot suporta comandos em **Português** e **Inglês**:
 
 ### Exemplo 1: Solicitando Ajuda
 ```markdown
-@xcloud-bot help
+@xcloudapp-bot help
 
 Gostaria de saber quais comandos estão disponíveis.
 ```
@@ -110,8 +121,8 @@ Olá @usuario! 👋
 Sou o **xCloud Bot** e estou aqui para ajudar!
 
 **Comandos disponíveis:**
-- `@xcloud-bot help` - Mostra esta mensagem de ajuda
-- `@xcloud-bot analyze` - Re-analisa a issue/PR atual
+- `@xcloudapp-bot help` ou `@xcloud-bot help` - Mostra esta mensagem de ajuda
+- `@xcloudapp-bot analyze` ou `@xcloud-bot analyze` - Re-analisa a issue/PR atual
 ...
 ```
 
@@ -119,7 +130,7 @@ Sou o **xCloud Bot** e estou aqui para ajudar!
 ```markdown
 Atualizei a descrição da issue com mais detalhes.
 
-@xcloud-bot analyze
+@xcloudapp-bot analyze
 ```
 
 **Resposta do Bot:**
@@ -136,7 +147,7 @@ Atualizei a descrição da issue com mais detalhes.
 
 ### Exemplo 3: Pergunta Genérica
 ```markdown
-@xcloud-bot qual a melhor abordagem para resolver este problema?
+@xcloudapp-bot qual a melhor abordagem para resolver este problema?
 ```
 
 **Resposta do Bot:**
@@ -175,7 +186,7 @@ Além dos comandos manuais, o bot também:
 
 Encontrou um problema ou tem uma sugestão?
 - Abra uma issue no repositório
-- Mencione `@xcloud-bot` para testar a funcionalidade
+- Mencione `@xcloudapp-bot` ou `@xcloud-bot` para testar a funcionalidade
 - Consulte a documentação de troubleshooting
 
 ---
