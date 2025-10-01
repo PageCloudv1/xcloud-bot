@@ -123,7 +123,7 @@ jobs:
       
       - name: 'Process Gemini response'
         id: 'process_response'
-        if: steps.gemini_issue_analysis.outputs.gemini_response != ''
+        if: steps.gemini_issue_analysis.conclusion == 'success'
         shell: bash
         env:
           GEMINI_RESPONSE: '${{ steps.gemini_issue_analysis.outputs.gemini_response }}'
