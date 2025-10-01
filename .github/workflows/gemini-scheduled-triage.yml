@@ -78,42 +78,43 @@ jobs:
           ISSUE_COUNT="$(echo "${ISSUES}" | jq 'length')"
           echo "✅ Found ${ISSUE_COUNT} issue(s) to triage! 🎯"
 
-                jq -r '.[] | "- [\(.title)](\(.html_url))"'
-
-      - name: 'Install Gemini CLI'
-        shell: bash
-        run: |-
-          echo "📦 Installing Gemini CLI..."
-          npm install -g @google/generative-ai-cli
-          gemini --version
+          jq -r '.[] | "- [\(.title)](\(.html_url))"'
 
       - name: 'Triage issues with Gemini'
         id: 'gemini_triage'
         if: steps.find_issues.outputs.issues_to_triage != '[]'
+        uses: 'google-github-actions/run-gemini-cli@v0'
+        with:
+          gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
+          gemini_model: 'gemini-2.5-flash'
+          gemini_cli_version: 'latest'
+          prompt: |-
+            You are an Issue Triage Engineer. Analyze these GitHub issues and return ONLY a JSON array.
+            
+            Available Labels: ${{ steps.get_labels.outputs.available_labels }}
+            Issues to Triage: ${{ steps.find_issues.outputs.issues_to_triage }}
+            
+            Return format: [{"issue_number": 96, "labels_to_set": ["bug", "priority/high"], "explanation": "reason"}]
+            
+            Respond with the JSON array. No markdown, no explanations.
+
+      - name: 'Process Gemini response'
+        if: steps.gemini_triage.conclusion == 'success'
         shell: bash
         env:
-          GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}'
-          ISSUES_TO_TRIAGE: '${{ steps.find_issues.outputs.issues_to_triage }}'
-          AVAILABLE_LABELS: '${{ steps.get_labels.outputs.available_labels }}'
+          GEMINI_RESPONSE: '${{ steps.gemini_triage.outputs.summary }}'
         run: |-
-          echo "🤖 Analyzing issues with Gemini..."
+          echo "📥 Raw Gemini response:"
+          echo "${GEMINI_RESPONSE}"
           
-          # Call Gemini and extract JSON in one go
-          RESPONSE=$(gemini --api-key="${GEMINI_API_KEY}" --model=gemini-2.5-flash --yolo "You are an Issue Triage Engineer. Analyze these GitHub issues and return ONLY a JSON array with classifications.
-
-          Available Labels: ${AVAILABLE_LABELS}
-          Issues to Triage: ${ISSUES_TO_TRIAGE}
-
-          Return JSON like: [{\"issue_number\": 96, \"labels_to_set\": [\"bug\", \"priority/high\"], \"explanation\": \"reason\"}]")
-          
-          # Extract JSON (remove markdown code blocks if present)
-          TRIAGED_JSON=$(echo "$RESPONSE" | sed 's/```json//g' | sed 's/```//g' | grep -oP '\[.*\]' | jq -c '.')
+          # Extract JSON (remove markdown blocks if present)
+          TRIAGED_JSON=$(echo "${GEMINI_RESPONSE}" | sed 's/```json//g' | sed 's/```//g' | grep -oP '\[.*\]' | jq -c '.')
           
           if [ -z "$TRIAGED_JSON" ] || [ "$TRIAGED_JSON" == "null" ]; then
             echo "❌ No valid JSON found"
             echo "TRIAGED_ISSUES=[]" >> "$GITHUB_ENV"
           else
-            echo "✅ Triaged issues:"
+            echo "✅ Extracted JSON:"
             echo "$TRIAGED_JSON" | jq '.'
             echo "TRIAGED_ISSUES=$TRIAGED_JSON" >> "$GITHUB_ENV"
           fi
